@@ -40,8 +40,10 @@ Documento de especificación y acuerdos técnicos para el flujo de pedidos de **
 ---
 
 ## 5. Fecha Deseada de Entrega
-- **Flexibilidad con aviso**: El selector permite elegir cualquier fecha futura (incluyendo el mismo día o el día siguiente).
-- **Alerta visual (Urgent Warning)**: Si la fecha seleccionada es menor a 48 horas, se muestra una advertencia visual indicando que los pedidos express están sujetos a confirmación y disponibilidad de insumos en el taller.
+- **Tiempo real de taller (3 a 7 días)**: Al ser un taller artesanal y pequeño, la producción toma tiempo y depende del inventario. No se realizan pedidos de un día para otro.
+- **Bloqueo en el calendario**: El selector de fechas bloquea automáticamente cualquier día menor a 3 días a partir de hoy (mínimo de entrega: a partir del 3er día).
+- **Mensaje informativo**: Se indica claramente al cliente:
+  > *"⏳ Nuestro tiempo estimado de elaboración y entrega es de 3 a 7 días hábiles, contados a partir de la confirmación del 30% de abono."*
 
 ---
 
