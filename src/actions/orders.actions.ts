@@ -74,14 +74,15 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
       })
     );
 
-    // 2. Intentar guardar en la tabla de Supabase 'orders'
+    // 2. Guardar en la tabla de Supabase 'orders'
     try {
-      await supabase.from("orders").insert([
+      const { error: dbErr } = await supabase.from("orders").insert([
         {
           order_code: orderCode,
           customer_name: contact.customerName,
           customer_phone: contact.customerPhone,
           delivery_date: contact.deliveryDate,
+          payment_type: contact.orderPricingType,
           order_pricing_type: contact.orderPricingType,
           payment_method: contact.paymentMethod,
           items: processedItems,
@@ -89,8 +90,13 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
           created_at: new Date().toISOString(),
         },
       ]);
+
+      if (dbErr) {
+        console.error("❌ Error al guardar pedido en Supabase:", dbErr.message, dbErr.details || "");
+      } else {
+        console.log("✅ Pedido guardado exitosamente en Supabase con código:", orderCode);
+      }
     } catch (dbErr) {
-      // Fallback silencioso por si la tabla no está creada aún en SQL
       console.warn("Supabase orders table insert fallback:", dbErr);
     }
 
