@@ -53,6 +53,29 @@ export const SHIRT_COLORS = [
   { value: "gris_jaspeado", label: "Gris Jaspeado Claro", hex: "#D6D6D6" },
 ] as const;
 
+export const SHIRT_FABRICS = [
+  {
+    value: "microdurazno",
+    label: "Microdurazno",
+    description: "Tacto extrasuave, elástica y fresca. Máxima viveza en sublimación.",
+  },
+  {
+    value: "jersey_algodon_50",
+    label: "50% Jersey / Algodón",
+    description: "Equilibrio ideal entre frescura, caída y resistencia diaria.",
+  },
+  {
+    value: "algodon_100_peinado",
+    label: "Algodón 100% Peinado",
+    description: "Calidad premium superior, ultra suave y máxima transpirabilidad.",
+  },
+  {
+    value: "oversize",
+    label: "Oversize",
+    description: "Gramaje pesado streetwear con silueta holgada y estructurada.",
+  },
+] as const;
+
 export const MOUSEPAD_SIZES = [
   { value: "estandar", label: "Estándar (22 x 18 cm) — Ideal para trabajo diario" },
   { value: "gamer_xl", label: "Gamer XL (70 x 30 cm) — Abarca teclado y mouse" },

@@ -12,6 +12,7 @@ export const orderItemSchema = z
     shirtSize: z.string().optional(),
     shirtCut: z.string().optional(),
     shirtColor: z.string().optional(),
+    shirtFabric: z.string().optional(),
     mousepadSize: z.string().optional(),
     puzzlePieces: z.string().optional(),
     customProductDetails: z.string().optional(),

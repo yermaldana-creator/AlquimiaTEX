@@ -1,4 +1,4 @@
-import { DEFAULT_WHATSAPP_NUMBER } from "./constants";
+import { DEFAULT_WHATSAPP_NUMBER, SHIRT_FABRICS } from "./constants";
 import type { OrderItem } from "./schemas";
 
 export function cleanPhoneNumber(phone: string): string {
@@ -50,6 +50,11 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
       message += `   • Talla: ${item.shirtSize || "Por definir"}\n`;
       message += `   • Corte: ${item.shirtCut || "Unisex"}\n`;
       message += `   • Color: ${item.shirtColor || "Blanco"}\n`;
+      if (item.shirtFabric) {
+        const fabricObj = SHIRT_FABRICS.find((f) => f.value === item.shirtFabric);
+        const fabricName = fabricObj ? fabricObj.label : item.shirtFabric;
+        message += `   • Tela: ${fabricName}\n`;
+      }
     } else if (item.product === "mousepad") {
       message += `   • Formato: ${item.mousepadSize || "Estándar"}\n`;
     } else if (item.product === "rompecabezas") {

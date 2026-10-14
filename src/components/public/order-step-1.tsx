@@ -24,6 +24,7 @@ import {
   SHIRT_SIZES,
   SHIRT_CUTS,
   SHIRT_COLORS,
+  SHIRT_FABRICS,
   MOUSEPAD_SIZES,
   PUZZLE_FORMATS,
   MAX_ORDER_ITEMS,
@@ -64,6 +65,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtSize: "",
       shirtCut: "unisex",
       shirtColor: "blanco",
+      shirtFabric: "microdurazno",
       mousepadSize: "",
       puzzlePieces: "",
       customProductDetails: "",
@@ -84,6 +86,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
   const selectedShirtSize = watch("shirtSize");
   const selectedShirtCut = watch("shirtCut");
   const selectedShirtColor = watch("shirtColor");
+  const selectedShirtFabric = watch("shirtFabric");
   const selectedMousepadSize = watch("mousepadSize");
   const selectedPuzzlePieces = watch("puzzlePieces");
   const customDetails = watch("customProductDetails");
@@ -115,6 +118,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
     if (prodId === "camisa" && !selectedShirtCut) {
       setValue("shirtCut", "unisex");
       setValue("shirtColor", "blanco");
+      setValue("shirtFabric", "microdurazno");
     }
   };
 
@@ -151,6 +155,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtSize: "",
       shirtCut: "unisex",
       shirtColor: "blanco",
+      shirtFabric: "microdurazno",
       mousepadSize: "",
       puzzlePieces: "",
       customProductDetails: "",
@@ -167,6 +172,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtSize: item.shirtSize || "",
       shirtCut: item.shirtCut || "unisex",
       shirtColor: item.shirtColor || "blanco",
+      shirtFabric: item.shirtFabric || "microdurazno",
       mousepadSize: item.mousepadSize || "",
       puzzlePieces: item.puzzlePieces || "",
       customProductDetails: item.customProductDetails || "",
@@ -191,6 +197,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtSize: "",
       shirtCut: "unisex",
       shirtColor: "blanco",
+      shirtFabric: "microdurazno",
       mousepadSize: "",
       puzzlePieces: "",
       customProductDetails: "",
@@ -373,6 +380,43 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                   ))}
                 </div>
               </div>
+
+              {/* Tipo de Tela */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold text-foreground">
+                    Tipo de Tela
+                  </Label>
+                  <span className="text-[10px] text-muted-foreground font-mono">
+                    (Recomendado: Microdurazno)
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {SHIRT_FABRICS.map((fab) => (
+                    <button
+                      key={fab.value}
+                      type="button"
+                      onClick={() => setValue("shirtFabric", fab.value, { shouldValidate: true })}
+                      className={cn(
+                        "p-2.5 rounded-lg border text-left transition-all",
+                        selectedShirtFabric === fab.value
+                          ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary shadow-sm"
+                          : "border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-bold text-foreground">{fab.label}</p>
+                        {selectedShirtFabric === fab.value && (
+                          <Check className="h-3.5 w-3.5 text-primary" />
+                        )}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                        {fab.description}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -543,7 +587,9 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
 
               let variantSummary = "";
               if (item.product === "camisa") {
-                variantSummary = `Talla ${item.shirtSize || "?"} • ${item.shirtCut || "Unisex"} • ${item.shirtColor || "Blanco"}`;
+                const fabricObj = SHIRT_FABRICS.find((f) => f.value === item.shirtFabric);
+                const fabricText = fabricObj ? ` • Tela ${fabricObj.label}` : item.shirtFabric ? ` • Tela ${item.shirtFabric}` : "";
+                variantSummary = `Talla ${item.shirtSize || "?"} • ${item.shirtCut || "Unisex"} • ${item.shirtColor || "Blanco"}${fabricText}`;
               } else if (item.product === "mousepad") {
                 variantSummary = item.mousepadSize || "Estándar";
               } else if (item.product === "rompecabezas") {
