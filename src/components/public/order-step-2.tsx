@@ -310,16 +310,27 @@ export function OrderStep2({
                 )}
               </div>
 
-              {/* 3. GENERADOR DE IA (ABACUS.AI - FLUX.1) */}
-              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-primary" />
-                    Generar idea visual con IA (Abacus.AI / FLUX.1)
-                  </span>
-                  <span className="text-[11px] text-muted-foreground">
+              {/* 3. GENERADOR DE IA */}
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3.5 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span>¿No tienes una imagen clara?</span>
+                    </p>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      La IA puede crearte una idea visual desde tu descripción de texto. ⚠️ <strong>Nota:</strong> la IA NO usa tu imagen de referencia, genera un concepto nuevo.
+                    </p>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-mono shrink-0 bg-background px-2 py-0.5 rounded border border-border">
                     {attemptsLeft > 0 ? `${attemptsLeft} restantes` : "Agotados"}
                   </span>
+                </div>
+
+                <div className="rounded-md bg-amber-500/10 border border-amber-500/20 p-2.5 text-[11px] text-amber-900 dark:text-amber-200">
+                  <p>
+                    💡 Esta herramienta es para inspirarte. Si ya tienes una imagen de referencia, <strong>NO necesitas usar la IA</strong>. Tu imagen se enviará tal cual al taller.
+                  </p>
                 </div>
 
                 {!item.aiGeneratedImage ? (
