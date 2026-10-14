@@ -17,6 +17,7 @@ import {
   Pencil,
   Trash2,
   ShoppingBag,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -54,8 +55,16 @@ interface OrderStep1Props {
 
 export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
   const [editingItemId, setEditingItemId] = React.useState<string | null>(null);
+  const [addedToast, setAddedToast] = React.useState<boolean>(false);
   const [mounted, setMounted] = React.useState(false);
   const formRef = React.useRef<HTMLDivElement>(null);
+
+  // Auto-ocultar toast después de 8 segundos
+  React.useEffect(() => {
+    if (!addedToast) return;
+    const timer = setTimeout(() => setAddedToast(false), 8000);
+    return () => clearTimeout(timer);
+  }, [addedToast]);
 
   const form = useForm<OrderItem>({
     resolver: zodResolver(orderItemSchema),
@@ -148,6 +157,8 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       onItemsChange([...items, newItem]);
     }
 
+    setAddedToast(true);
+
     // Resetear formulario a valores base
     reset({
       id: "temp",
@@ -161,6 +172,27 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       puzzlePieces: "",
       customProductDetails: "",
     });
+  };
+
+  // Agregar producto actual y limpiar variantes para configurar otra opción
+  const handleAddAnotherVariant = () => {
+    handleSubmit((data) => {
+      onAddOrUpdateProduct(data);
+      // Mantener el mismo tipo de producto pero limpiar variantes para la siguiente pieza
+      setValue("shirtSize", "", { shouldValidate: false });
+      setValue("shirtCut", "unisex", { shouldValidate: false });
+      setValue("shirtColor", "blanco", { shouldValidate: false });
+      setValue("shirtFabric", "microdurazno", { shouldValidate: false });
+      setValue("mousepadSize", "", { shouldValidate: false });
+      setValue("puzzlePieces", "", { shouldValidate: false });
+      setValue("customProductDetails", "", { shouldValidate: false });
+      setValue("quantity", 1, { shouldValidate: false });
+      setAddedToast(true);
+
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    })();
   };
 
   // Iniciar edición de un producto
@@ -538,38 +570,81 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
           </div>
         </div>
 
-        {/* BOTÓN AGREGAR O ACTUALIZAR */}
-        <Button
-          type="submit"
-          variant={editingItemId ? "default" : "outline"}
-          disabled={items.length >= MAX_ORDER_ITEMS && !editingItemId}
-          className="w-full h-11 text-sm font-semibold gap-2 border-primary/50 text-foreground hover:bg-primary/10 shadow-sm"
-        >
-          {editingItemId ? (
-            <>
-              <Check className="h-4 w-4 text-emerald-500" />
-              <span>Guardar cambios en este producto</span>
-            </>
-          ) : (
-            <>
-              <Plus className="h-4 w-4 text-primary" />
-              <span>+ Agregar este producto al pedido</span>
-            </>
+        {/* MENSAJE DE ÉXITO / AYUDA MULTIVARIANTE */}
+        {addedToast && (
+          <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3.5 text-xs text-emerald-900 dark:text-emerald-200 flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-xs">Producto agregado ✓</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  ¿Necesitas otra talla o color? Puedes agregarlo de nuevo con las variantes que quieras.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAddedToast(false)}
+              className="text-muted-foreground hover:text-foreground text-[11px] font-bold px-1"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* BOTONES AGREGAR PRODUCTO O VARIANTE */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <Button
+            type="submit"
+            variant={editingItemId ? "default" : "outline"}
+            disabled={items.length >= MAX_ORDER_ITEMS && !editingItemId}
+            className="flex-1 h-11 text-xs sm:text-sm font-semibold gap-2 border-primary/50 text-foreground hover:bg-primary/10 shadow-sm"
+          >
+            {editingItemId ? (
+              <>
+                <Check className="h-4 w-4 text-emerald-500" />
+                <span>Guardar cambios en este producto</span>
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4 text-primary" />
+                <span>+ Agregar este producto al pedido</span>
+              </>
+            )}
+          </Button>
+
+          {!editingItemId && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleAddAnotherVariant}
+              disabled={items.length >= MAX_ORDER_ITEMS}
+              className="flex-1 sm:flex-none h-11 text-xs sm:text-sm font-semibold gap-2 border border-border bg-secondary/80 hover:bg-secondary text-secondary-foreground shadow-sm"
+              title="Guarda este artículo y prepara el formulario para elegir otra talla o color"
+            >
+              <Plus className="h-3.5 w-3.5 text-primary" />
+              <span>+ Agregar otra variante de este mismo producto</span>
+            </Button>
           )}
-        </Button>
+        </div>
       </form>
 
       {/* 2. LISTA TIPO CARRITO DE PRODUCTOS AGREGADOS */}
       <div className="space-y-4 pt-4 border-t border-border/80">
         <div className="flex items-center justify-between">
-          <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
-            <span>🛒 Productos en tu pedido</span>
-            <Badge variant="secondary" className="text-xs">
-              {items.length} de {MAX_ORDER_ITEMS}
-            </Badge>
-          </h4>
+          <div className="space-y-0.5">
+            <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+              <span>🛒 Productos en tu pedido</span>
+              <Badge variant="secondary" className="text-xs">
+                {items.length} de {MAX_ORDER_ITEMS}
+              </Badge>
+            </h4>
+            <p className="text-[11px] text-muted-foreground">
+              Cada fila es un producto independiente con su propia talla, corte o color.
+            </p>
+          </div>
           {items.length > 0 && (
-            <span className="text-xs text-muted-foreground">{totalQuantity} unidad(es) en total</span>
+            <span className="text-xs text-muted-foreground font-semibold">{totalQuantity} unid. en total</span>
           )}
         </div>
 
@@ -589,16 +664,16 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
               let variantSummary = "";
               if (item.product === "camisa") {
                 const cutText = (item.shirtCut && SHIRT_CUT_LABELS[item.shirtCut]) || item.shirtCut || "Caballero / Unisex";
-                const colorText = item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado" : "Blanco";
+                const colorText = item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado" : "Blanca";
                 const fabricObj = SHIRT_FABRICS.find((f) => f.value === item.shirtFabric);
-                const fabricText = fabricObj ? ` • Tela ${fabricObj.label}` : item.shirtFabric ? ` • Tela ${item.shirtFabric}` : " • Tela Microdurazno";
-                variantSummary = `Talla ${item.shirtSize || "?"} • ${cutText} • ${colorText}${fabricText}`;
+                const fabricText = fabricObj ? fabricObj.label : (item.shirtFabric || "Microdurazno");
+                variantSummary = `Camisa — Talla ${item.shirtSize || "?"} — ${cutText} — ${colorText} — Tela ${fabricText} — x${item.quantity}`;
               } else if (item.product === "mousepad") {
-                variantSummary = item.mousepadSize || "Estándar";
+                variantSummary = `Mousepad — Medida ${item.mousepadSize || "Estándar"} — x${item.quantity}`;
               } else if (item.product === "rompecabezas") {
-                variantSummary = item.puzzlePieces || "A4";
+                variantSummary = `Rompecabezas — Formato ${item.puzzlePieces || "A4"} — x${item.quantity}`;
               } else {
-                variantSummary = item.customProductDetails || "Personalizado";
+                variantSummary = `${item.customProductDetails || "Personalizado"} — x${item.quantity}`;
               }
 
               return (
@@ -606,18 +681,25 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                   key={item.id}
                   className={cn(
                     "p-3.5 flex items-center justify-between gap-3 transition-all",
-                    isBeingEdited ? "border-2 border-primary bg-primary/5" : "border-border bg-card"
+                    isBeingEdited ? "border-2 border-primary bg-primary/5" : "border-border bg-card shadow-sm"
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <Icon className="h-5 w-5" />
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
+                      <Icon className="h-4 w-4" />
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-xs sm:text-sm font-bold text-foreground truncate">
-                        {index + 1}. {item.product.toUpperCase()} (x{item.quantity})
+                    <div className="min-w-0 space-y-0.5">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-xs sm:text-sm font-bold text-foreground">
+                          #{index + 1} • {item.product === "camisa" ? "Camisa" : item.product.toUpperCase()}
+                        </p>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono font-semibold bg-muted/40">
+                          x{item.quantity} {item.quantity === 1 ? "unidad" : "unidades"}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground font-medium truncate sm:whitespace-normal">
+                        • {variantSummary}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">{variantSummary}</p>
                     </div>
                   </div>
 
