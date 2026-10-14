@@ -6,6 +6,29 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [1.0.0] - 2026-10-14
+
+### Fase: Landing Streetwear, Infraestructura de Producción, Beta Feedback y UX Multi-Variante
+
+#### Añadido
+* **Landing Page Oficial ("Taller Experimental"):** Estética completa con papel crema, sombras duras sólidas, sellos de taller, cinta ticker industrial ("MOCKUP DIGITAL GRATIS"), galería por categorías, ofertas por docena y feed de Instagram.
+* **Formulario Beta Privado de Evaluación (`/feedback`):**
+  - Cuestionario confidencial no indexado para evaluadores beta (16 preguntas, 5 bloques temáticos, NPS 1-10).
+  - Persistencia de borrador en `localStorage` (`alquimiatex_feedback_draft`) y barra de progreso dinámica.
+  - Tabla `public.feedback` en Supabase con políticas RLS (inserción pública para testers, lectura reservada para socios).
+  - Pantalla final con botón de copiar enlace al portapapeles y honeypot anti-spam (`website_url`).
+* **Variante "Tipo de Tela" (`shirtFabric`):** Selector táctil con 4 opciones textiles reales: *Microdurazno*, *50% Jersey / Algodón*, *Algodón 100% Peinado* y *Poliéster Deportivo*.
+* **UX Multi-Variante en Paso 1:** Botón secundario *"+ Agregar otra variante de este mismo producto"*, banner informativo de confirmación y desglose numerado nítido en el carrito.
+* **Claridad en Generación con IA:** Título explicativo, aviso destacado de que la IA no transforma la foto de referencia y advertencia condicional si el usuario ya cargó una imagen.
+
+#### Corregido
+* **Límite de tamaño en Server Actions:** Aumento de `bodySizeLimit` a 5 MB en `next.config.mjs` para evitar el error `Body exceeded 1 MB limit` en Vercel.
+* **Tabla `orders` y bucket `order-references` en Supabase:** Creación de esquema SQL completo con políticas RLS y almacenamiento público de fotos adjuntas.
+* **Botones Paso 2 Responsive:** Adaptación de breakpoint a `lg:` (1024px) y etiquetas concisas (`Volver al Paso 1`, `Continuar al Paso 3`) para eliminar el desbordamiento horizontal en pantallas de 320px a 1920px.
+* **Formato de WhatsApp:** Mapeo de corte a `Caballero / Unisex`, `Dama`, `Oversize` e inclusión de la tela en cada artículo del mensaje.
+
+---
+
 ## [0.4.0] - 2026-10-14
 
 ### Fase: Optimización de IA y Estabilización de WhatsApp
