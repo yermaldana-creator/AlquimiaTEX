@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -638,6 +639,29 @@ export function OrderStep3({
             </p>
             <p className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
               🛡️ Garantía oficial: No se realizan cambios por errores en la elección de tallas.
+            </p>
+            <p className="text-[11px] text-muted-foreground pt-0.5">
+              He leído y acepto los{" "}
+              <Link
+                href="/terminos"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="font-bold underline text-foreground hover:text-primary"
+              >
+                Términos y Condiciones
+              </Link>{" "}
+              y la{" "}
+              <Link
+                href="/privacidad"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="font-bold underline text-foreground hover:text-primary"
+              >
+                Política de Privacidad
+              </Link>
+              .
             </p>
           </div>
         </label>

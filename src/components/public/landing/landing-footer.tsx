@@ -71,6 +71,16 @@ export function LandingFooter() {
                   → Cómo Funciona el Proceso
                 </Link>
               </li>
+              <li className="pt-1 border-t border-dashed border-slate-300">
+                <Link href="/terminos" className="text-slate-800 hover:text-black hover:underline transition-colors">
+                  → Términos y Condiciones
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacidad" className="text-slate-800 hover:text-black hover:underline transition-colors">
+                  → Política de Privacidad
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -116,7 +126,18 @@ export function LandingFooter() {
 
         {/* COPYRIGHT & MARCAS DE IMPRENTA */}
         <div className="border-t-2 border-black pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-slate-700">
-          <p>© {new Date().getFullYear()} AlquimiaTex. Taller La Dolorita, Caracas, Venezuela.</p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <p>© {new Date().getFullYear()} AlquimiaTex. Taller La Dolorita, Caracas, Venezuela.</p>
+            <div className="flex items-center gap-3 text-[11px] font-bold">
+              <Link href="/terminos" className="hover:underline hover:text-black text-slate-800">
+                Términos
+              </Link>
+              <span>•</span>
+              <Link href="/privacidad" className="hover:underline hover:text-black text-slate-800">
+                Privacidad
+              </Link>
+            </div>
+          </div>
           <RegistrationMark label="PRINT_SYSTEM_V2" />
         </div>
       </div>
