@@ -17,25 +17,22 @@ flowchart TD
 
 ---
 
-## Fase 2: Landing Page Pública y Catálogo Visual (`/`)
+## Fase 2: Landing Page Pública y Catálogo Visual (`/`) [Completada]
 
+* **Estado:** Completada (Landing estilo Taller Experimental / Collage Streetwear)
 * **Complejidad:** Media
-* **Prioridad:** Alta (Siguiente paso inmediato)
 
-### Objetivo
-Construir una página de inicio moderna, atractiva y orientada a la conversión, que presente la marca AlquimiaTex, exhiba la calidad de los estampados y dirija a los clientes hacia el asistente de pedidos en [`/pedido`](file:///C:/laragon/www/AlquimiaTEX/src/app/pedido/page.tsx).
+### Entregables Completados
+1. **Hero Section:** Tipografía monumental Oswald, eslogan oficial (*"La alquimia perfecta entre calidad textil y estampado digital"*), llamados a la acción duales y badges de taller.
+2. **Catálogo Destacado & Ofertas por Docena:** Las 3 tarifas base oficiales ($5 Microdurazno Blanca, $7 Microdurazno Negra, $10 Jersey/Poliéster) con políticas y garantías.
+3. **Galería Estilo Exposición / Museo:** Muestrario de tazas mágicas termosensibles, mugs cerámicos, franelas, puzzles y mousepads con filtros dinámicos.
+4. **Vitrina Social Instagram:** Feed con publicaciones y enlace oficial a `@alquimia_tex`.
+5. **Sección "Cómo Trabajamos":** Proceso visual en 3 pasos con diseño fanzine.
 
-### Entregables
-1. **Hero Section:** Propuesta de valor clara (*"Sublimación de alta durabilidad en Caracas"*), llamado a la acción principal (**"Personalizar mi Pedido"**) y fotos reales de productos en alta resolución.
-2. **Catálogo Destacado:** Mosaico de productos base (franelas, mousepads, rompecabezas, tazas, gorras) con precios referenciales *"Desde $X"*.
-3. **Sección "Cómo Trabajamos":** Explicación visual en 3 pasos (1. Configura en la web, 2. Genera o sube tu diseño, 3. Confirma tu abono por WhatsApp y recibe en Caracas).
-4. **Prueba Social y Taller:** Galería fotográfica del taller artesanal en La Dolorita, Petare, mostrando las prensas térmicas y acabados reales.
-5. **Preguntas Frecuentes Resumidas:** Tiempos de entrega (3 a 7 días hábiles), métodos de pago y zonas de entrega.
-
-### Criterios de Aceptación
-* Mobile-first y 100% responsivo en smartphones y pantallas de escritorio.
-* Puntuación de rendimiento Lighthouse > 90 (carga rápida de imágenes optimizadas con WebP).
-* Botones de acción vinculados a `/pedido` con parámetros de URL opcionales (ej: `?producto=camisa`).
+### Mejora Planificada para Fase 2 (Post-Panel Admin)
+* **Feature:** Generación de idea visual con IA usando la imagen de referencia como base (*image-to-image* con `flux_kontext`).
+* **Justificación & Trade-off:** Consume más créditos y tarda más, pero es mucho más útil para el cliente porque respeta su diseño real en lugar de generar desde cero a partir de texto.
+* **Orden de Ejecución:** Implementar después de culminar el panel de administración de socios (Fase 4).
 
 ---
 
@@ -48,7 +45,7 @@ Construir una página de inicio moderna, atractiva y orientada a la conversión,
 Aportar seriedad, transparencia y respaldo legal al negocio frente a clientes nuevos y requisitos de posicionamiento SEO.
 
 ### Entregables
-1. **Página de Términos y Condiciones (`/terminos`):** Cláusulas sobre el requisito indispensable del 30% de abono, tiempos de entrega hábiles y cancelaciones.
+1. **Página de Términos y Condiciones (`/terminos`):** Cláusulas sobre condiciones de pago oficiales (100% anticipado por unidad / 50% abono por docena), tiempos de entrega hábiles (4 a 7 días) y cancelaciones.
 2. **Políticas de Garantía y Devolución (`/garantias`):** Política clara sobre productos textiles personalizados (garantía de estampado, reposición por fallas de fábrica y política de no reembolso una vez estampado el artículo).
 3. **Página Sobre Nosotros (`/nosotros`):** Historia de los 3 socios y el compromiso de confección local en La Dolorita.
 
@@ -76,7 +73,7 @@ Brindar a los 3 socios una plataforma privada e intuitiva para gestionar pedidos
 3. **Ficha Detallada del Pedido (`/admin/pedidos/[id]`):**
    * Desglose completo de artículos con sus tallas, cortes y cantidades.
    * Visualizador a pantalla completa de imágenes de referencia y conceptos generados con IA con botón de descarga en alta resolución.
-   * Botón para marcar: **"Confirmar Abono (30%)"** con registro de fecha y socio responsable.
+   * Botón para marcar: **"Confirmar Pago / Abono (100% o 50%)"** con registro de fecha y socio responsable.
    * Enlace directo para abrir el chat de WhatsApp con el cliente con un solo clic.
 4. **Métricas Rápidas:** Contador de unidades pendientes de confección agrupadas por tipo de prenda y color de tela para compras mayoristas de insumos.
 
