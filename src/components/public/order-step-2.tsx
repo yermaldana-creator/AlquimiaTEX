@@ -392,20 +392,25 @@ export function OrderStep2({
         })}
       </div>
 
-      {/* BOTONES DE NAVEGACIÓN */}
-      <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 pt-3 border-t border-border/80">
-        <Button type="button" variant="outline" onClick={onBack} className="w-full sm:w-auto gap-2">
-          <ArrowLeft className="h-4 w-4" />
+      {/* BOTONES DE NAVEGACIÓN RESPONSIVE */}
+      <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center justify-between gap-3 pt-3 border-t border-border/80">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onBack}
+          className="w-full md:w-auto h-auto min-h-11 py-2.5 px-4 gap-2 whitespace-normal text-center"
+        >
+          <ArrowLeft className="h-4 w-4 shrink-0" />
           <span>Volver al Paso 1 (Agregar / Modificar productos)</span>
         </Button>
 
         <Button
           type="button"
           onClick={validateAndProceed}
-          className="w-full sm:w-auto h-11 px-6 text-sm font-semibold gap-2 shadow-md hover:shadow-lg transition-all"
+          className="w-full md:w-auto h-auto min-h-11 py-2.5 px-6 text-sm font-semibold gap-2 shadow-md hover:shadow-lg transition-all whitespace-normal text-center"
         >
           <span>Continuar al Paso 3: Contacto y Pago</span>
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4 shrink-0" />
         </Button>
       </div>
     </div>
