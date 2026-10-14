@@ -65,3 +65,33 @@ Documento de especificación y acuerdos técnicos para el flujo de pedidos de **
 ## 8. Configuración de Destino WhatsApp
 - **Variable de entorno**: Variable `NEXT_PUBLIC_WHATSAPP_NUMBER` configurable en `.env.local`.
 - **Fallback**: Valor por defecto centralizado en `src/lib/constants.ts`.
+
+---
+
+## 9. Especificación Detallada: Paso 1 (Producto y Variantes)
+
+```mermaid
+flowchart TD
+    A["Cliente entra a /pedido"] --> B["Selector Visual de Producto"]
+    B -->|Camisa| C1["Variantes: Talla + Corte + Color"]
+    B -->|Mousepad| C2["Variantes: Tamaño / Formato"]
+    B -->|Rompecabezas| C3["Variantes: Piezas / Formato"]
+    B -->|Otro| C4["Campo de texto libre"]
+    C1 & C2 & C3 & C4 --> D["Selector de Cantidad (+ / -)"]
+    D --> E["Validación Zod en tiempo real"]
+    E --> F["Guardado automático en localStorage"]
+```
+
+### Opciones y Variantes Soportadas:
+1. **Camisas**:
+   - **Tallas**: Adulto (`S`, `M`, `L`, `XL`, `2XL`) y Niños (`4`, `6`, `8`, `10`, `12`, `14`, `16`).
+   - **Cortes**: `Caballero / Unisex`, `Dama (Entallada)`, `Oversize`.
+   - **Colores aptos para sublimar**: `Blanco`, `Gris Jaspeado Claro`.
+2. **Mousepads**:
+   - **Formatos**: `Estándar (22x18 cm)`, `Gamer XL (70x30 cm)`, `Gamer XXL (90x40 cm)`, `Ergonómico con Gel`.
+3. **Rompecabezas**:
+   - **Formatos**: `A5 (80 piezas)`, `A4 (120 piezas)`, `A3 (240 piezas)`, `Forma de Corazón (75 piezas)`.
+4. **Otro**:
+   - Campo abierto de texto para que el cliente especifique el producto requerido.
+5. **Cantidad**:
+   - Control táctil con botones `+` y `-`, con mínimo de 1 unidad.
