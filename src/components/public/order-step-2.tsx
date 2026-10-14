@@ -316,10 +316,10 @@ export function OrderStep2({
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
                       <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
-                      <span>¿No tienes una imagen clara?</span>
+                      <span>¿No tienes clara tu idea? La IA te genera un concepto visual desde tu descripción de texto</span>
                     </p>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      La IA puede crearte una idea visual desde tu descripción de texto. ⚠️ <strong>Nota:</strong> la IA NO usa tu imagen de referencia, genera un concepto nuevo.
+                      ⚠️ <strong>Importante:</strong> la IA NO usa tu imagen de referencia. Genera un concepto nuevo desde la descripción que escribiste. Si ya tienes tu imagen clara, no necesitas usar la IA — tu imagen de referencia se enviará tal cual al taller.
                     </p>
                   </div>
                   <span className="text-[10px] text-muted-foreground font-mono shrink-0 bg-background px-2 py-0.5 rounded border border-border">
@@ -327,11 +327,14 @@ export function OrderStep2({
                   </span>
                 </div>
 
-                <div className="rounded-md bg-amber-500/10 border border-amber-500/20 p-2.5 text-[11px] text-amber-900 dark:text-amber-200">
-                  <p>
-                    💡 Esta herramienta es para inspirarte. Si ya tienes una imagen de referencia, <strong>NO necesitas usar la IA</strong>. Tu imagen se enviará tal cual al taller.
-                  </p>
-                </div>
+                {item.referenceImage && (
+                  <div className="rounded-md bg-amber-500/15 border border-amber-500/30 p-2.5 text-[11px] text-amber-950 dark:text-amber-200 flex items-start gap-2">
+                    <span className="shrink-0 text-sm">📷</span>
+                    <p className="font-medium">
+                      Ya subiste una imagen. ¿De verdad quieres que la IA genere algo diferente? Puedes saltar este paso.
+                    </p>
+                  </div>
+                )}
 
                 {!item.aiGeneratedImage ? (
                   <div className="space-y-1.5">
@@ -351,7 +354,7 @@ export function OrderStep2({
                       ) : (
                         <>
                           <Sparkles className="h-3.5 w-3.5" />
-                          <span>Crear concepto para este producto</span>
+                          <span>Generar idea nueva desde texto (3 intentos)</span>
                         </>
                       )}
                     </Button>
