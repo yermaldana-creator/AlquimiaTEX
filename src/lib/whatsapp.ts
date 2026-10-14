@@ -1,4 +1,4 @@
-import { DEFAULT_WHATSAPP_NUMBER, SHIRT_FABRICS } from "./constants";
+import { DEFAULT_WHATSAPP_NUMBER, SHIRT_FABRICS, SHIRT_CUT_LABELS } from "./constants";
 import type { OrderItem } from "./schemas";
 
 export function cleanPhoneNumber(phone: string): string {
@@ -47,14 +47,15 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
     message += `\n${num}️⃣ *${item.product.toUpperCase()}* (Cantidad: ${item.quantity})\n`;
 
     if (item.product === "camisa") {
+      const cutLabel = (item.shirtCut && SHIRT_CUT_LABELS[item.shirtCut]) || item.shirtCut || "Caballero / Unisex";
+      const colorLabel = item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado Claro" : "Blanco";
+      const fabricObj = SHIRT_FABRICS.find((f) => f.value === item.shirtFabric);
+      const fabricLabel = fabricObj ? fabricObj.label : (item.shirtFabric || "Microdurazno");
+
       message += `   • Talla: ${item.shirtSize || "Por definir"}\n`;
-      message += `   • Corte: ${item.shirtCut || "Unisex"}\n`;
-      message += `   • Color: ${item.shirtColor || "Blanco"}\n`;
-      if (item.shirtFabric) {
-        const fabricObj = SHIRT_FABRICS.find((f) => f.value === item.shirtFabric);
-        const fabricName = fabricObj ? fabricObj.label : item.shirtFabric;
-        message += `   • Tela: ${fabricName}\n`;
-      }
+      message += `   • Corte: ${cutLabel}\n`;
+      message += `   • Color: ${colorLabel}\n`;
+      message += `   • Tela: ${fabricLabel}\n`;
     } else if (item.product === "mousepad") {
       message += `   • Formato: ${item.mousepadSize || "Estándar"}\n`;
     } else if (item.product === "rompecabezas") {

@@ -23,6 +23,7 @@ import {
   PRODUCT_TYPES,
   SHIRT_SIZES,
   SHIRT_CUTS,
+  SHIRT_CUT_LABELS,
   SHIRT_COLORS,
   SHIRT_FABRICS,
   MOUSEPAD_SIZES,
@@ -587,9 +588,11 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
 
               let variantSummary = "";
               if (item.product === "camisa") {
+                const cutText = (item.shirtCut && SHIRT_CUT_LABELS[item.shirtCut]) || item.shirtCut || "Caballero / Unisex";
+                const colorText = item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado" : "Blanco";
                 const fabricObj = SHIRT_FABRICS.find((f) => f.value === item.shirtFabric);
-                const fabricText = fabricObj ? ` • Tela ${fabricObj.label}` : item.shirtFabric ? ` • Tela ${item.shirtFabric}` : "";
-                variantSummary = `Talla ${item.shirtSize || "?"} • ${item.shirtCut || "Unisex"} • ${item.shirtColor || "Blanco"}${fabricText}`;
+                const fabricText = fabricObj ? ` • Tela ${fabricObj.label}` : item.shirtFabric ? ` • Tela ${item.shirtFabric}` : " • Tela Microdurazno";
+                variantSummary = `Talla ${item.shirtSize || "?"} • ${cutText} • ${colorText}${fabricText}`;
               } else if (item.product === "mousepad") {
                 variantSummary = item.mousepadSize || "Estándar";
               } else if (item.product === "rompecabezas") {

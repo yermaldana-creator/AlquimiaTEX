@@ -53,6 +53,12 @@ export const SHIRT_COLORS = [
   { value: "gris_jaspeado", label: "Gris Jaspeado Claro", hex: "#D6D6D6" },
 ] as const;
 
+export const SHIRT_CUT_LABELS: Record<string, string> = {
+  unisex: "Caballero / Unisex",
+  dama: "Dama",
+  oversize: "Oversize",
+};
+
 export const SHIRT_FABRICS = [
   {
     value: "microdurazno",
@@ -70,9 +76,9 @@ export const SHIRT_FABRICS = [
     description: "Calidad premium superior, ultra suave y máxima transpirabilidad.",
   },
   {
-    value: "oversize",
-    label: "Oversize",
-    description: "Gramaje pesado streetwear con silueta holgada y estructurada.",
+    value: "poliester_deportivo",
+    label: "Poliéster Deportivo",
+    description: "Secado rápido, fresca y ligera. Ideal para entrenamiento y uniformes.",
   },
 ] as const;
 

@@ -19,7 +19,7 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PAYMENT_INFO } from "@/lib/constants";
+import { PAYMENT_INFO, SHIRT_CUT_LABELS, SHIRT_FABRICS } from "@/lib/constants";
 import { step3ContactSchema, type Step3ContactFormData, type OrderItem } from "@/lib/schemas";
 import { submitOrderAction, type SubmitOrderResponse } from "@/actions/orders.actions";
 import { Button } from "@/components/ui/button";
@@ -165,9 +165,11 @@ export function OrderStep3({
                       <>
                         <span>Talla: <strong>{item.shirtSize}</strong></span>
                         <span>•</span>
-                        <span>Corte: <strong className="capitalize">{item.shirtCut}</strong></span>
+                        <span>Corte: <strong>{SHIRT_CUT_LABELS[item.shirtCut || "unisex"] || item.shirtCut}</strong></span>
                         <span>•</span>
-                        <span>Color: <strong>{item.shirtColor === "blanco" ? "Blanco" : "Gris Jaspeado"}</strong></span>
+                        <span>Color: <strong>{item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado" : "Blanco"}</strong></span>
+                        <span>•</span>
+                        <span>Tela: <strong>{SHIRT_FABRICS.find(f => f.value === item.shirtFabric)?.label || item.shirtFabric || "Microdurazno"}</strong></span>
                       </>
                     )}
                     {item.product === "mousepad" && (
