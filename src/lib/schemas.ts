@@ -15,7 +15,10 @@ export const orderItemSchema = z
     mousepadSize: z.string().optional(),
     puzzlePieces: z.string().optional(),
     customProductDetails: z.string().optional(),
-    description: z.string().optional(),
+    description: z
+      .string()
+      .max(500, "La descripción no puede superar los 500 caracteres")
+      .optional(),
     referenceImage: z.string().optional(),
     referenceImageName: z.string().optional(),
     aiGeneratedImage: z.string().optional(),

@@ -110,6 +110,14 @@ export function OrderStep2({
       return;
     }
 
+    if (item.description.length > 500) {
+      setAiErrors((prev) => ({
+        ...prev,
+        [item.id]: "La descripción debe tener un máximo de 500 caracteres para el modelo de IA.",
+      }));
+      return;
+    }
+
     setGeneratingItemId(item.id);
     setAiErrors((prev) => {
       const copy = { ...prev };
@@ -153,6 +161,8 @@ export function OrderStep2({
     items.forEach((item, idx) => {
       if (!item.description || item.description.trim().length < 10) {
         errors[item.id] = `Por favor describe la idea de diseño para este producto (${idx + 1})`;
+      } else if (item.description.length > 500) {
+        errors[item.id] = `La descripción no puede superar los 500 caracteres (${item.description.length}/500)`;
       }
     });
 
@@ -221,14 +231,14 @@ export function OrderStep2({
                     Descripción del estampado / idea <span className="text-destructive">*</span>
                   </Label>
                   <span className="text-[11px] text-muted-foreground">
-                    {(item.description || "").length}/1000
+                    {(item.description || "").length}/500
                   </span>
                 </div>
 
                 <Textarea
                   id={`desc-${item.id}`}
                   rows={3}
-                  maxLength={1000}
+                  maxLength={500}
                   placeholder={`Ej: Para esta ${item.product}, quiero un logo en el centro con colores vivos y estilo moderno...`}
                   value={item.description || ""}
                   onChange={(e) => handleDescriptionChange(item.id, e.target.value)}
@@ -325,7 +335,7 @@ export function OrderStep2({
                       {isGeneratingThis ? (
                         <>
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          <span>Generando imagen con FLUX.1...</span>
+                          <span>Creando concepto con IA (toma 15-30 seg)...</span>
                         </>
                       ) : (
                         <>
