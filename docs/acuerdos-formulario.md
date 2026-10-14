@@ -1,6 +1,6 @@
-# Acuerdos de Diseño y Lógica de Negocio: Formulario de Pedidos
+# Acuerdos de Diseño y Lógica de Negocio: Formulario de Pedidos (Actualizado)
 
-Documento de especificación y acuerdos técnicos para el flujo de pedidos de **AlquimiaTex**, definido mediante sesión `/grill-me`.
+Documento de especificación y acuerdos técnicos para el flujo de pedidos de **AlquimiaTex**, actualizado con soporte para **múltiples productos por pedido** y **pagos manuales sin pasarela**.
 
 ---
 
@@ -11,87 +11,65 @@ Documento de especificación y acuerdos técnicos para el flujo de pedidos de **
 
 ---
 
-## 2. Manejo de Imágenes de Referencia
-- **Subida a Storage**: El cliente puede subir de forma opcional una imagen de referencia.
+## 2. Múltiples Productos por Pedido (Carrito Multi-Artículo)
+- El cliente puede encargar **varios productos diferentes en un mismo pedido** (ej: 2 camisas + 1 mousepad + 1 rompecabezas).
+- **Paso 1 (Selección y Carrito)**:
+  - El cliente configura un producto con sus variantes y cantidad.
+  - Botón destacado: **"+ Agregar otro producto al pedido"**.
+  - Lista visual tipo "carrito" que muestra todos los productos agregados hasta el momento con opción de quitar cualquiera.
+  - Contador total de artículos y validación de mínimo 1 producto para avanzar.
+- **Paso 2 (Personalización por Producto)**:
+  - Se genera una tarjeta independiente para **CADA producto agregado**.
+  - Cada artículo tiene su propio campo de descripción y su propio selector de imagen de referencia.
+  - Cada artículo puede usar el generador de ideas con IA (Gemini), respetando un **límite global acumulado de 3 intentos** por pedido.
+- **Paso 3 (Resumen Multi-Ítem y WhatsApp)**:
+  - El resumen final y el mensaje preformateado de WhatsApp desglosan la lista completa de artículos con sus especificaciones.
+
+---
+
+## 3. Manejo de Imágenes de Referencia
+- **Subida a Storage**: Cada artículo puede tener su propia imagen de referencia opcional.
   - Validación estricta: tipos MIME permitidos `image/jpeg`, `image/png`, `image/webp`.
   - Tamaño máximo por archivo: `5 MB`.
-  - Almacenamiento: Bucket de Supabase Storage.
-- **Limitación técnica de WhatsApp**: Los enlaces directos `wa.me` no permiten adjuntar archivos binarios de forma automática.
+  - Almacenamiento: Bucket de Supabase Storage (`order-references`).
 - **Instrucción al cliente**: En el mensaje generado de WhatsApp se incluirá explícitamente:
-  > *"⚠️ Por favor, adjunta tu imagen de referencia en este chat (los enlaces web no pueden adjuntar archivos automáticamente)."*
-- **Disponibilidad para socios**: La imagen queda registrada en Supabase y accesible inmediatamente desde el panel `/admin`.
+  > *"⚠️ Por favor, adjunta tus imágenes de referencia en este chat (los enlaces web no pueden adjuntar archivos automáticamente)."*
+- **Disponibilidad para socios**: Las imágenes quedan registradas en Supabase y accesibles inmediatamente desde el panel `/admin`.
 
 ---
 
-## 3. Generador de Ideas Visuales con IA (Google Gemini)
-- **Carácter opcional**: La generación visual es una ayuda creativa opcional, no un requisito obligatorio para enviar el pedido.
-- **Protección de cuotas (Rate Limiting)**:
-  - Máximo **3 intentos** de generación por usuario / pedido para proteger la cuota de la capa gratuita de Gemini API.
-  - El botón requiere que el cliente haya ingresado al menos una descripción mínima (20 caracteres).
-- **Procesamiento Server-Side**: La llamada a la API de Gemini se ejecuta en una ruta de servidor (`/api/generate-preview`) para nunca exponer la API key en el cliente.
+## 4. Política de Pagos (100% Manual, Sin Pasarelas de Cobro)
+- **Cero pasarelas automáticas**: No hay cobro ni pasarelas automáticas integradas en la web.
+- **Instrucciones claras en el Paso 3**:
+  - **Pago Móvil**: Datos bancarios (Banco, Cédula/RIF, Teléfono).
+  - **Binance Pay / USDT**: Dirección o Pay ID de Binance.
+  - **Efectivo**: Pago directo en el taller (La Dolorita, Caracas).
+- **Requisito del 30% de abono**: Se recuerda de forma destacada que la producción física inicia al confirmar el abono del 30%.
+- **Validación del pago**: El cliente envía la captura del comprobante por el chat de WhatsApp.
+- **Gestión en el panel**: Los socios revisan la captura y marcan manualmente el estado del pedido como `"abono recibido"` o `"pagado"` en el panel `/admin`.
 
 ---
 
-## 4. Política de Precios y Cotizaciones
-- **Precios dinámicos**: El formulario **no calcula montos totales ni automáticos** debido a la variabilidad de costos e inflación en Venezuela.
-- **Etiqueta informativa**: Mostrará claramente la leyenda **"Precio a cotizar"**.
-- **Condición de abono**: Se recuerda explícitamente la política del **30% de abono** requerido para iniciar la producción una vez acordado el presupuesto final por WhatsApp. El socio fija el monto en el panel `/admin`.
+## 5. Generador de Ideas Visuales con IA (Google Gemini + Motor Gráfico)
+- **Carácter opcional**: La generación visual es una ayuda creativa opcional.
+- **Límite global**: Máximo **3 intentos en total por pedido** (distribuibles entre los productos agregados).
+- **Procesamiento Server-Side**: La llamada se ejecuta en `/api/generate-preview` con timeout ampliado a 35s y rate limiting por IP.
 
 ---
 
-## 5. Fecha Deseada de Entrega
-- **Tiempo real de taller (3 a 7 días)**: Al ser un taller artesanal y pequeño, la producción toma tiempo y depende del inventario. No se realizan pedidos de un día para otro.
-- **Bloqueo en el calendario**: El selector de fechas bloquea automáticamente cualquier día menor a 3 días a partir de hoy (mínimo de entrega: a partir del 3er día).
-- **Mensaje informativo**: Se indica claramente al cliente:
+## 6. Fecha Deseada de Entrega
+- **Tiempo real de taller (3 a 7 días)**: Al ser un taller artesanal, no se realizan pedidos express de 24 horas.
+- **Bloqueo en el calendario**: El selector bloquea automáticamente fechas menores a 3 días a partir de hoy (mínimo de entrega: a partir del 3er día).
+- **Mensaje informativo**:
   > *"⏳ Nuestro tiempo estimado de elaboración y entrega es de 3 a 7 días hábiles, contados a partir de la confirmación del 30% de abono."*
 
 ---
 
-## 6. Validación y Sanitización Telefónica
-- **Selector de país**: Código `+58` (Venezuela) por defecto con máscaras para las principales operadoras móviles (`0412`, `0414`, `0424`, `0416`, `0426`), manteniendo compatibilidad con números internacionales.
-- **Sanitización estricta para `wa.me`**: La función generadora del enlace limpiará cualquier caracter no numérico (espacios, guiones, paréntesis y el signo `+`), transformando por ejemplo `+58 412-1234567` en `584121234567`.
+## 7. Validación y Sanitización Telefónica
+- Selector de código `+58` (Venezuela) por defecto con operadoras (`0412`, `0414`, `0424`, `0416`, `0426`) y soporte internacional.
+- Sanitización estricta para `wa.me` eliminando cualquier caracter no numérico (convierte `+58 412-1234567` en `584121234567`).
 
 ---
 
-## 7. Experiencia de Usuario (UX) Móvil
-- **Wizard multi-paso (3 pasos)** con barra de progreso optimizada para navegación en teléfonos móviles:
-  1. **Paso 1 (Producto y Variantes)**: Tipo de producto (camisa, mousepad, rompecabezas, otro), cantidad y variantes (talla, corte, dimensiones).
-  2. **Paso 2 (Personalización y Creatividad)**: Descripción de la idea, subida de imagen de referencia y botón opcional de generación con IA (Gemini).
-  3. **Paso 3 (Datos de Entrega y Contacto)**: Nombre completo, teléfono WhatsApp, fecha deseada de entrega, aceptación de términos y resumen del pedido.
-- **Persistencia local (`localStorage`)**: El estado del formulario se sincroniza en almacenamiento local para evitar la pérdida de datos si el cliente retrocede pasos, refresca la pantalla o pierde conexión momentáneamente.
-
----
-
-## 8. Configuración de Destino WhatsApp
-- **Variable de entorno**: Variable `NEXT_PUBLIC_WHATSAPP_NUMBER` configurable en `.env.local`.
-- **Fallback**: Valor por defecto centralizado en `src/lib/constants.ts`.
-
----
-
-## 9. Especificación Detallada: Paso 1 (Producto y Variantes)
-
-```mermaid
-flowchart TD
-    A["Cliente entra a /pedido"] --> B["Selector Visual de Producto"]
-    B -->|Camisa| C1["Variantes: Talla + Corte + Color"]
-    B -->|Mousepad| C2["Variantes: Tamaño / Formato"]
-    B -->|Rompecabezas| C3["Variantes: Piezas / Formato"]
-    B -->|Otro| C4["Campo de texto libre"]
-    C1 & C2 & C3 & C4 --> D["Selector de Cantidad (+ / -)"]
-    D --> E["Validación Zod en tiempo real"]
-    E --> F["Guardado automático en localStorage"]
-```
-
-### Opciones y Variantes Soportadas:
-1. **Camisas**:
-   - **Tallas**: Adulto (`S`, `M`, `L`, `XL`, `2XL`) y Niños (`4`, `6`, `8`, `10`, `12`, `14`, `16`).
-   - **Cortes**: `Caballero / Unisex`, `Dama (Entallada)`, `Oversize`.
-   - **Colores aptos para sublimar**: `Blanco`, `Gris Jaspeado Claro`.
-2. **Mousepads**:
-   - **Formatos**: `Estándar (22x18 cm)`, `Gamer XL (70x30 cm)`, `Gamer XXL (90x40 cm)`, `Ergonómico con Gel`.
-3. **Rompecabezas**:
-   - **Formatos**: `A5 (80 piezas)`, `A4 (120 piezas)`, `A3 (240 piezas)`, `Forma de Corazón (75 piezas)`.
-4. **Otro**:
-   - Campo abierto de texto para que el cliente especifique el producto requerido.
-5. **Cantidad**:
-   - Control táctil con botones `+` y `-`, con mínimo de 1 unidad.
+## 8. Persistencia Local (`localStorage`)
+- El carrito de productos agregados, sus descripciones y los datos de contacto se sincronizan continuamente en `localStorage` para evitar pérdidas ante recargas o navegación entre pasos.

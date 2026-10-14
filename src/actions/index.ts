@@ -1,2 +1,1 @@
-// Server actions centralizados para AlquimiaTex
-export {};
+export * from "./orders.actions";

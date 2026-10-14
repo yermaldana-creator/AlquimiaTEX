@@ -1,19 +1,24 @@
 import { z } from "zod";
 
-export const step1ProductSchema = z
+export const orderItemSchema = z
   .object({
+    id: z.string(),
     product: z.enum(["camisa", "mousepad", "rompecabezas", "otro"]),
     quantity: z
       .number()
       .int("La cantidad debe ser un número entero")
       .min(1, "La cantidad mínima es 1 unidad")
-      .max(500, "Para pedidos de más de 500 unidades, contáctanos directamente"),
+      .max(500, "Para pedidos mayores a 500 unidades, contáctanos directamente"),
     shirtSize: z.string().optional(),
     shirtCut: z.string().optional(),
     shirtColor: z.string().optional(),
     mousepadSize: z.string().optional(),
     puzzlePieces: z.string().optional(),
     customProductDetails: z.string().optional(),
+    description: z.string().optional(),
+    referenceImage: z.string().optional(),
+    referenceImageName: z.string().optional(),
+    aiGeneratedImage: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.product === "camisa") {
@@ -65,18 +70,21 @@ export const step1ProductSchema = z
     }
   });
 
-export type Step1ProductFormData = z.infer<typeof step1ProductSchema>;
+export type OrderItem = z.infer<typeof orderItemSchema>;
 
-export const step2CustomizationSchema = z.object({
-  description: z
+export const step3ContactSchema = z.object({
+  customerName: z
     .string()
-    .min(10, "Por favor describe tu idea con al menos 10 caracteres para entender el diseño")
-    .max(1000, "La descripción no puede exceder los 1000 caracteres"),
-  referenceImage: z.string().optional(),
-  referenceImageName: z.string().optional(),
-  aiGeneratedImage: z.string().optional(),
-  aiPromptUsed: z.string().optional(),
-  aiAttemptsCount: z.number().optional(),
+    .min(3, "Ingresa tu nombre y apellido (mínimo 3 caracteres)")
+    .max(80, "Nombre demasiado largo"),
+  customerPhone: z
+    .string()
+    .min(10, "Ingresa un número telefónico válido (mínimo 10 dígitos)"),
+  deliveryDate: z.string().min(1, "Selecciona una fecha de entrega"),
+  paymentMethod: z.enum(["pago_movil", "binance", "efectivo", "acordar"]),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: "Debes aceptar los términos y condiciones para continuar",
+  }),
 });
 
-export type Step2CustomizationFormData = z.infer<typeof step2CustomizationSchema>;
+export type Step3ContactFormData = z.infer<typeof step3ContactSchema>;

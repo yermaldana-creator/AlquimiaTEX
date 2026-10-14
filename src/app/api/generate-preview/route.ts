@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
 
 // Rate limiting en memoria por IP (máximo 3 peticiones por IP)
 const ipAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -49,55 +48,61 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    let refinedPrompt = description;
+    const abacusKey = process.env.ABACUS_API_KEY;
 
-    // 1. Usar Gemini 3.8 Flash para optimizar el prompt artístico en inglés
-    if (apiKey) {
+    // 1. Generación con Abacus.AI usando el modelo más económico: FLUX.1 Kontext (pro_rate: 4)
+    if (abacusKey) {
       try {
-        const ai = new GoogleGenAI({ apiKey });
-        const res = await ai.models.generateContent({
-          model: "gemini-3.8-flash",
-          contents: `You are an expert prompt engineer for textile and sublimation printing. Translate and optimize this user description into an artistic, highly detailed English visual prompt (maximum 25 words) for a ${product || "sublimation item"} print: "${description}". Output only the prompt, no explanations or punctuation around it.`,
-        });
+        const abacusUrl =
+          (process.env.ABACUS_BASE_URL || "https://routellm.abacus.ai/v1") + "/chat/completions";
 
-        if (res.text && res.text.trim().length > 5) {
-          refinedPrompt = res.text.trim().replace(/[*"']/g, "");
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 35000); // 35s timeout
+
+        const res = await fetch(abacusUrl, {
+          method: "POST",
+          signal: controller.signal,
+          headers: {
+            Authorization: `Bearer ${abacusKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "flux_kontext",
+            messages: [
+              {
+                role: "user",
+                content: `High-resolution graphic design for a textile sublimation ${product || "item"}: ${description}. High quality, vibrant colors, centered graphic, clean background.`,
+              },
+            ],
+            modalities: ["image"],
+          }),
+        });
+        clearTimeout(timeout);
+
+        if (res.ok) {
+          const data = await res.json();
+          const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+
+          if (imageUrl) {
+            return NextResponse.json({
+              success: true,
+              imageUrl,
+              remainingAttempts: remaining,
+              modelUsed: "flux_kontext",
+              estimatedCredits: 4,
+              provider: "Abacus.AI (FLUX.1 Kontext)",
+            });
+          }
+        } else {
+          const errorText = await res.text();
+          console.warn("Abacus.AI API non-200 response:", res.status, errorText);
         }
       } catch (err: unknown) {
-        console.warn("Gemini prompt enhancement fallback:", err);
+        console.warn("Abacus.AI generation error (activating fallback):", err);
       }
     }
 
-    // 2. Generar la imagen real mediante el motor de IA de alta resolución
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(refinedPrompt)}?width=600&height=600&nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 18000); // 18s timeout
-
-    const imageRes = await fetch(imageUrl, {
-      signal: controller.signal,
-      headers: {
-        "User-Agent": "AlquimiaTex-App/1.0",
-      },
-    });
-    clearTimeout(timeout);
-
-    if (imageRes.ok) {
-      const buffer = await imageRes.arrayBuffer();
-      const base64 = Buffer.from(buffer).toString("base64");
-      const contentType = imageRes.headers.get("content-type") || "image/jpeg";
-
-      return NextResponse.json({
-        success: true,
-        imageUrl: `data:${contentType};base64,${base64}`,
-        remainingAttempts: remaining,
-        isAiReal: true,
-        promptUsed: refinedPrompt,
-      });
-    }
-
-    // 3. Fallback de respaldo por si falla la conexión de red
+    // 2. Fallback de cortesía por si no hay red o se agota la cuota
     const escapedDesc = description.slice(0, 80).replace(/[<>&"]/g, "");
     const svgMockup = `
       <svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">

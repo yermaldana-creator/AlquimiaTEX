@@ -1,12 +1,16 @@
-import type { Step1ProductFormData, Step2CustomizationFormData } from "@/lib/schemas";
+import type { OrderItem, Step3ContactFormData } from "@/lib/schemas";
 import type { PRODUCT_TYPES } from "@/lib/constants";
 
 export type ProductTypeId = (typeof PRODUCT_TYPES)[number]["id"];
 
-export type { Step1ProductFormData, Step2CustomizationFormData };
+export type { OrderItem, Step3ContactFormData };
 
 export interface OrderDraftState {
-  step1?: Step1ProductFormData;
-  step2?: Step2CustomizationFormData;
+  items: OrderItem[];
+  customerName?: string;
+  customerPhone?: string;
+  deliveryDate?: string;
+  paymentMethod?: string;
   currentStep: number;
+  globalAiAttemptsUsed: number;
 }

@@ -66,3 +66,24 @@ export const PUZZLE_FORMATS = [
 ] as const;
 
 export const DEFAULT_WHATSAPP_NUMBER = "584120000000";
+
+export const MAX_ORDER_ITEMS = 10;
+
+// Instrucciones de pago manuales
+export const PAYMENT_INFO = {
+  depositPercentage: 30,
+  pagoMovil: {
+    bank: "Banesco (0134) / Banco de Venezuela (0102)",
+    phone: "0412-0000000",
+    idNumber: "V-00.000.000",
+    beneficiary: "AlquimiaTex",
+  },
+  binance: {
+    payId: "000000000",
+    network: "USDT (Red BEP-20 / TRC-20)",
+  },
+  cash: {
+    location: "Taller AlquimiaTex, La Dolorita, Caracas",
+    currency: "Dólares en efectivo (billetes en buen estado) o Bolívares en efectivo",
+  },
+};
