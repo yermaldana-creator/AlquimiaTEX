@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 
-// Rate limiting simple en memoria por IP (máximo 3 peticiones por IP)
+// Rate limiting en memoria por IP (máximo 3 peticiones por IP)
 const ipAttempts = new Map<string, { count: number; resetAt: number }>();
 const MAX_ATTEMPTS = 3;
 const WINDOW_MS = 60 * 60 * 1000; // 1 hora
@@ -50,42 +50,54 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
+    let refinedPrompt = description;
 
-    // Si hay API KEY configurada, intentamos generar con Gemini
+    // 1. Usar Gemini 3.8 Flash para optimizar el prompt artístico en inglés
     if (apiKey) {
       try {
         const ai = new GoogleGenAI({ apiKey });
-
-        const prompt = `Crea un mockup visual orientativo para un producto de sublimación textil (${product || "producto"}) con el siguiente diseño: ${description}. Estilo limpio, sobre fondo neutro, centrado.`;
-
-        // Intentar generación de imagen con Imagen 3
-        const response = await ai.models.generateImages({
-          model: "imagen-3.0-generate-002",
-          prompt,
-          config: {
-            numberOfImages: 1,
-            aspectRatio: "1:1",
-            outputMimeType: "image/jpeg",
-          },
+        const res = await ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: `You are an expert prompt engineer for textile and sublimation printing. Translate and optimize this user description into an artistic, highly detailed English visual prompt (maximum 25 words) for a ${product || "sublimation item"} print: "${description}". Output only the prompt, no explanations or punctuation around it.`,
         });
 
-        const imageBase64 = response.generatedImages?.[0]?.image?.imageBytes;
-
-        if (imageBase64) {
-          return NextResponse.json({
-            success: true,
-            imageUrl: `data:image/jpeg;base64,${imageBase64}`,
-            remainingAttempts: remaining,
-            isAiReal: true,
-          });
+        if (res.text && res.text.trim().length > 5) {
+          refinedPrompt = res.text.trim().replace(/[*"']/g, "");
         }
       } catch (err: unknown) {
-        console.warn("Gemini API call error (fallback enabled):", err);
+        console.warn("Gemini prompt enhancement fallback:", err);
       }
     }
 
-    // Fallback gracioso y estético si no hay API key o si se supera la cuota
-    // Genera una previsualización estilizada en SVG embebido
+    // 2. Generar la imagen real mediante el motor de IA de alta resolución
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(refinedPrompt)}?width=600&height=600&nologo=true&seed=${Math.floor(Math.random() * 100000)}`;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 18000); // 18s timeout
+
+    const imageRes = await fetch(imageUrl, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "AlquimiaTex-App/1.0",
+      },
+    });
+    clearTimeout(timeout);
+
+    if (imageRes.ok) {
+      const buffer = await imageRes.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString("base64");
+      const contentType = imageRes.headers.get("content-type") || "image/jpeg";
+
+      return NextResponse.json({
+        success: true,
+        imageUrl: `data:${contentType};base64,${base64}`,
+        remainingAttempts: remaining,
+        isAiReal: true,
+        promptUsed: refinedPrompt,
+      });
+    }
+
+    // 3. Fallback de respaldo por si falla la conexión de red
     const escapedDesc = description.slice(0, 80).replace(/[<>&"]/g, "");
     const svgMockup = `
       <svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
@@ -98,9 +110,8 @@ export async function POST(req: NextRequest) {
         <rect width="600" height="600" fill="#f8fafc" rx="24"/>
         <rect x="50" y="50" width="500" height="500" fill="url(#grad)" rx="20" opacity="0.1"/>
         <circle cx="300" cy="240" r="90" fill="#7c3aed" opacity="0.15"/>
-        <path d="M260 250 L340 250 M300 210 L300 290" stroke="#7c3aed" stroke-width="8" stroke-linecap="round"/>
         <text x="300" y="380" font-family="system-ui, sans-serif" font-size="22" font-weight="bold" fill="#1e1b4b" text-anchor="middle">
-          Idea Visual para: ${product?.toUpperCase() || "SUBLIMACIÓN"}
+          Idea para: ${product?.toUpperCase() || "SUBLIMACIÓN"}
         </text>
         <text x="300" y="420" font-family="system-ui, sans-serif" font-size="16" fill="#64748b" text-anchor="middle">
           "${escapedDesc}..."
@@ -110,7 +121,6 @@ export async function POST(req: NextRequest) {
         </text>
       </svg>
     `;
-
     const svgBase64 = `data:image/svg+xml;utf8,${encodeURIComponent(svgMockup)}`;
 
     return NextResponse.json({
@@ -118,9 +128,6 @@ export async function POST(req: NextRequest) {
       imageUrl: svgBase64,
       remainingAttempts: remaining,
       isAiReal: false,
-      notice: apiKey
-        ? "Concepto generado con éxito"
-        : "Demostración de idea visual (configura GEMINI_API_KEY en .env.local para fotos reales con IA)",
     });
   } catch (error: unknown) {
     console.error("Error en endpoint generate-preview:", error);
