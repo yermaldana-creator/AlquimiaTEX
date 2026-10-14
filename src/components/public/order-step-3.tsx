@@ -570,12 +570,12 @@ export function OrderStep3({
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full sm:w-auto min-w-[220px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+          className="w-full sm:w-auto min-w-[240px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
         >
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Guardando Pedido...
+              Guardando y abriendo WhatsApp...
             </>
           ) : (
             <>

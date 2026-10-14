@@ -27,12 +27,12 @@ export function OrderSuccessDialog({
 }: OrderSuccessDialogProps) {
   const [copied, setCopied] = React.useState(false);
 
-  // Intentar abrir WhatsApp al montar el modal
+  // Redirigir a WhatsApp de forma directa (evita que el navegador lo bloquee como pop-up)
   React.useEffect(() => {
     if (whatsappUrl) {
       const timer = setTimeout(() => {
-        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-      }, 800);
+        window.location.href = whatsappUrl;
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [whatsappUrl]);
@@ -47,7 +47,7 @@ export function OrderSuccessDialog({
 
   const handleOpenWhatsApp = () => {
     if (whatsappUrl) {
-      window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      window.location.href = whatsappUrl;
     }
   };
 

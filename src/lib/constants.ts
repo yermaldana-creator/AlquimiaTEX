@@ -65,7 +65,7 @@ export const PUZZLE_FORMATS = [
   { value: "corazon_75", label: "Corazón (Aprox. 75 piezas - Especial parejas / regalos)" },
 ] as const;
 
-export const DEFAULT_WHATSAPP_NUMBER = "584120000000";
+export const DEFAULT_WHATSAPP_NUMBER = "584241589317";
 
 export const MAX_ORDER_ITEMS = 10;
 
@@ -74,7 +74,7 @@ export const PAYMENT_INFO = {
   depositPercentage: 30,
   pagoMovil: {
     bank: "Banesco (0134) / Banco de Venezuela (0102)",
-    phone: "0412-0000000",
+    phone: "0424-1589317",
     idNumber: "V-00.000.000",
     beneficiary: "AlquimiaTex",
   },
