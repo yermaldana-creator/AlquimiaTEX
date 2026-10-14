@@ -73,3 +73,10 @@ Documento de especificación y acuerdos técnicos para el flujo de pedidos de **
 
 ## 8. Persistencia Local (`localStorage`)
 - El carrito de productos agregados, sus descripciones y los datos de contacto se sincronizan continuamente en `localStorage` para evitar pérdidas ante recargas o navegación entre pasos.
+
+---
+
+## 9. Canal Oficial de WhatsApp y Redirección Directa
+- **Número oficial del negocio**: `+58 424 1589317` (`584241589317`). Al ser un canal público de contacto y atención al cliente, su inclusión en el código/configuración de la tienda es segura.
+- **Redirección sin Pop-up Blocker**: Al confirmar el pedido, el navegador redirige mediante `window.location.href = whatsappUrl`, asegurando la apertura inmediata de WhatsApp sin que Chrome, Safari o navegadores móviles lo bloqueen como ventana emergente.
+
