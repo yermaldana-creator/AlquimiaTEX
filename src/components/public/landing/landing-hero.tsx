@@ -1,17 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import {
-  Scissors,
-  Clock,
-  Palette,
-  Layers,
-  ArrowRight,
-  ShieldCheck,
-  MessageCircle,
-} from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+  StampSeal,
+  AlchemistFlask,
+  RegistrationMark,
+} from "./alchemy-graphics";
 import { LANDING_HERO, SOCIAL_INFO } from "@/lib/landing-content";
 
 export function LandingHero() {
@@ -19,63 +13,84 @@ export function LandingHero() {
     "¡Hola AlquimiaTex! Vengo desde su página web y me gustaría cotizar un pedido para mi marca o evento."
   )}`;
 
+  const { photos } = LANDING_HERO;
+
   return (
-    <section className="relative overflow-hidden border-b border-border/40 py-12 md:py-20 lg:py-24 bg-gradient-to-b from-muted/30 via-background to-background">
-      <div className="container mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-          <div className="space-y-6 text-center lg:text-left lg:col-span-7">
-            {/* BADGE TALLER ARTESANAL */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
-              <Scissors className="h-3.5 w-3.5 text-amber-500" />
-              <span>{LANDING_HERO.badge}</span>
+    <section className="relative overflow-hidden bg-[#F3EFE6] px-4 sm:px-6 md:px-10 py-10 sm:py-16 md:py-20 border-b-2 border-black">
+      {/* 1. MATRAZ ALQUÍMICO COMO MARCA DE AGUA */}
+      <AlchemistFlask className="absolute right-[-20px] bottom-[-30px] md:right-4 md:bottom-[-20px] w-72 h-72 md:w-96 md:h-96 text-black/[0.04]" />
+
+      {/* 2. SELLO DE CAUCHO ROTADO */}
+      <div className="absolute top-4 right-4 sm:top-8 sm:right-10 z-20 pointer-events-none hidden sm:block">
+        <StampSeal
+          text="100% INDELEBLE"
+          subtext="PRENSA 180°C"
+          city="★ CARACAS ★"
+        />
+      </div>
+
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          {/* COLUMNA IZQUIERDA: TIPOGRAFÍA DE GRAN IMPACTO */}
+          <div className="lg:col-span-7 space-y-6 text-left">
+            {/* STICKER INFORMATIVO */}
+            <div className="inline-flex items-center gap-2 bg-black text-white px-3.5 py-1 font-mono text-xs font-bold border border-black shadow-[3px_3px_0px_#FACC15]">
+              <span className="text-[#F43F5E]">✦</span>
+              <span>CATÁLOGO OFICIAL • LA DOLORITA, PETARE</span>
             </div>
 
-            {/* ESLOGAN OFICIAL */}
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground leading-[1.15]">
-              {LANDING_HERO.slogan.split("estampado digital")[0]}
-              <span className="bg-gradient-to-r from-primary via-purple-600 to-amber-500 bg-clip-text text-transparent">
-                estampado digital
-              </span>
-            </h1>
+            {/* TITULAR ASIMÉTRICO */}
+            <div className="space-y-1">
+              <h1 className="text-5xl sm:text-7xl md:text-8xl font-oswald font-black uppercase tracking-tight leading-[0.9] text-black">
+                ESTAMPADO <br />
+                <span className="inline-block bg-[#F43F5E] text-white px-3 py-1 transform -rotate-1 shadow-[4px_4px_0px_#0A0A0A]">
+                  QUE HACE
+                </span>{" "}
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-900 via-black to-[#06B6D4]">
+                  MAGIA.
+                </span>
+              </h1>
+            </div>
 
-            {/* TAGLINE */}
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              {LANDING_HERO.tagline}
-            </p>
+            {/* ESLOGAN Y DESCRIPCIÓN */}
+            <div className="border-l-4 border-black pl-4 py-1 space-y-2">
+              <p className="font-mono text-xs sm:text-sm font-bold text-black uppercase tracking-wide">
+                &ldquo;{LANDING_HERO.slogan}&rdquo;
+              </p>
+              <p className="font-sans text-xs sm:text-sm text-slate-700 leading-relaxed max-w-xl">
+                {LANDING_HERO.tagline}
+              </p>
+            </div>
 
-            {/* BADGES DE CONFIANZA */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2 text-xs">
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-2.5 py-1 font-medium text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
-                <Clock className="h-3.5 w-3.5" /> 4 a 7 días hábiles
+            {/* BADGES TÉCNICOS EN FORMATO TICKET */}
+            <div className="flex flex-wrap gap-2 text-xs font-mono font-bold pt-1">
+              <span className="bg-white border-2 border-black px-3 py-1 shadow-[2px_2px_0px_#0A0A0A]">
+                ⏳ 4 A 7 DÍAS HÁBILES
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/10 px-2.5 py-1 font-medium text-amber-700 dark:text-amber-300 border border-amber-500/20">
-                <Palette className="h-3.5 w-3.5 text-amber-600" /> Mockup digital gratis
+              <span className="bg-[#06B6D4] text-black border-2 border-black px-3 py-1 shadow-[2px_2px_0px_#0A0A0A]">
+                🎨 MOCKUP DIGITAL GRATIS
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-purple-500/10 px-2.5 py-1 font-medium text-purple-700 dark:text-purple-300 border border-purple-500/20">
-                <Layers className="h-3.5 w-3.5" /> Hasta 2 estampados por pieza
+              <span className="bg-[#FACC15] text-black border-2 border-black px-3 py-1 shadow-[2px_2px_0px_#0A0A0A]">
+                ⚡ HASTA 2 ESTAMPADOS
               </span>
             </div>
 
-            {/* BOTONES DE ACCIÓN PRINCIPALES */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-4">
+            {/* BOTONES DE LLAMADO A LA ACCIÓN */}
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link
                 href="/pedido"
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "w-full sm:w-auto text-base font-semibold gap-2 shadow-md hover:shadow-lg transition-all"
-                )}
+                className="bg-black hover:bg-[#581C87] text-[#FACC15] hover:text-white font-oswald text-base md:text-lg font-black uppercase px-7 py-3.5 border-2 border-black shadow-[5px_5px_0px_#F43F5E] text-center transition-all hover:translate-x-0.5 hover:translate-y-0.5 inline-flex items-center justify-center gap-2"
               >
-                <span>Configurar mi Pedido</span>
+                <span>Configurar Mi Pedido</span>
                 <ArrowRight className="h-5 w-5" />
               </Link>
+
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "lg" }),
-                  "w-full sm:w-auto text-base font-semibold border-border hover:bg-muted gap-2"
-                )}
+                className="bg-white hover:bg-slate-100 text-black font-oswald text-base md:text-lg font-black uppercase px-6 py-3.5 border-2 border-black shadow-[5px_5px_0px_#0A0A0A] text-center transition-all hover:translate-x-0.5 hover:translate-y-0.5 inline-flex items-center justify-center gap-2"
               >
                 <MessageCircle className="h-5 w-5 text-emerald-600" />
                 <span>Hablar con el Taller</span>
@@ -83,57 +98,69 @@ export function LandingHero() {
             </div>
 
             {/* NOTA DE CONFIANZA */}
-            <p className="text-xs text-muted-foreground flex items-center justify-center lg:justify-start gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-              <span>Sin pasarelas ni comisiones • Cotización y trato directo por WhatsApp</span>
-            </p>
+            <div className="text-[11px] font-mono text-slate-600 flex items-center gap-2 pt-1">
+              <span className="inline-block w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              <span>
+                Precios al detal (100% anticipado) y docena ($60, $84, $120 con 50% abono).
+              </span>
+            </div>
           </div>
 
-          {/* SHOWCASE VISUAL DEL TALLER */}
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-sm sm:max-w-md rounded-2xl border border-border/60 bg-card p-6 shadow-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-border/50 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-semibold text-foreground">Taller Activo</span>
-                </div>
-                <span className="text-xs text-muted-foreground">La Dolorita, Petare</span>
+          {/* COLUMNA DERECHA: COLLAGE DE PIEZAS DE TALLER */}
+          <div className="lg:col-span-5 relative mt-6 lg:mt-0">
+            {/* MARCA DE CORTE SUPERIOR */}
+            <RegistrationMark label="REG_CARACAS_01" className="absolute -top-6 -left-2" />
+
+            {/* TARJETA PRINCIPAL EN ÁNGULO (MICRODURAZNO) */}
+            <div className="relative bg-white border-3 border-black p-4 shadow-[8px_8px_0px_#0A0A0A] -rotate-1 transition-transform hover:rotate-0 duration-300">
+              {/* STICKER DE PRECIO AMARILLO */}
+              <div className="absolute -top-3.5 -right-3.5 bg-[#FACC15] text-black font-oswald font-black text-sm px-3.5 py-1 border-2 border-black shadow-[2px_2px_0px_#0A0A0A] uppercase rotate-2 z-10">
+                {photos.mainProductPrice}
               </div>
 
-              <div className="overflow-hidden rounded-xl bg-muted/40 p-5 border border-border/40 text-center space-y-3">
-                <div className="relative mx-auto h-44 w-full max-w-[220px] flex items-center justify-center">
-                  <Image
-                    src="/logo.png"
-                    alt="AlquimiaTex Logomark"
-                    width={220}
-                    height={160}
-                    className="object-contain drop-shadow-lg"
-                  />
-                </div>
-                <div className="text-left space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-foreground">Franela & Mugs Sublimados</span>
-                    <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-500/30">
-                      Catálogo Oficial
-                    </Badge>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Sublimación indeleble de alta densidad que no se cuartea, no destiñe y resiste lavados continuos.
-                  </p>
+              {/* FOTOGRAFÍA PRINCIPAL */}
+              <div className="aspect-[4/3] bg-slate-900 border-2 border-black overflow-hidden relative group">
+                <Image
+                  src={photos.mainProduct}
+                  alt="Franela Microdurazno AlquimiaTex"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 40vw"
+                  priority
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-purple-950/20 mix-blend-multiply pointer-events-none" />
+
+                {/* OVERLAY TÉCNICO INFERIOR */}
+                <div className="absolute bottom-2 left-2 right-2 bg-black/85 text-white p-2 text-[10px] font-mono border border-white/20 flex justify-between items-center">
+                  <span>{photos.mainProductTitle}</span>
+                  <span className="text-[#06B6D4] font-bold">{photos.mainProductBadge}</span>
                 </div>
               </div>
 
-              {/* MODALIDADES CLAVE */}
-              <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                <div className="rounded-lg bg-muted/30 p-2.5 border border-border/30">
-                  <p className="text-muted-foreground text-[10px]">Unidad (Al detal)</p>
-                  <p className="font-bold text-foreground">100% Anticipado</p>
-                </div>
-                <div className="rounded-lg bg-primary/10 p-2.5 border border-primary/20">
-                  <p className="text-primary text-[10px] font-semibold">Docena (Al mayor)</p>
-                  <p className="font-bold text-primary">50% Abono inicial</p>
-                </div>
+              <div className="mt-3 flex items-center justify-between text-xs font-mono font-bold">
+                <span>TELAS: 180G POLIÉSTER</span>
+                <span className="text-[#F43F5E]">2 ESTAMPADOS INC.</span>
               </div>
+            </div>
+
+            {/* TARJETA SECUNDARIA SUPERPUESTA (TAZA MÁGICA) */}
+            <div className="absolute -bottom-8 -left-4 sm:-left-8 w-48 sm:w-56 bg-[#F8F5EE] border-2 border-black p-3 shadow-[6px_6px_0px_#06B6D4] rotate-2 transition-transform hover:rotate-0 duration-300 z-10">
+              <div className="flex items-center justify-between text-[9px] font-mono font-black mb-1.5">
+                <span className="bg-black text-[#FACC15] px-1.5 py-0.5">EFECTO CALOR</span>
+                <span className="text-slate-600">{photos.secondaryProductTag}</span>
+              </div>
+              <div className="aspect-square bg-slate-800 border border-black overflow-hidden relative">
+                <Image
+                  src={photos.secondaryProduct}
+                  alt={photos.secondaryProductTitle}
+                  fill
+                  sizes="200px"
+                  className="object-cover"
+                />
+              </div>
+              <p className="mt-1.5 text-xs font-oswald uppercase font-black text-black truncate">
+                {photos.secondaryProductTitle}
+              </p>
             </div>
           </div>
         </div>

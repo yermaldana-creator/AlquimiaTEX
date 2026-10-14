@@ -52,6 +52,27 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        paper: {
+          DEFAULT: "#F3EFE6",
+          light: "#F8F5EE",
+          dark: "#E8E2D5",
+        },
+        ink: {
+          DEFAULT: "#0A0A0A",
+          muted: "#262626",
+        },
+        cmyk: {
+          yellow: "#FACC15",
+          magenta: "#F43F5E",
+          cyan: "#06B6D4",
+          purple: "#581C87",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)", "sans-serif"],
+        oswald: ["var(--font-oswald)", "sans-serif"],
+        mono: ["var(--font-space-mono)", "var(--font-mono)", "monospace"],
+        syne: ["var(--font-syne)", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

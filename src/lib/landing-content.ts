@@ -22,6 +22,20 @@ export const LANDING_HERO = {
   slogan: "La alquimia perfecta entre calidad textil y estampado digital",
   tagline:
     "En AlquimiaTex fusionamos confección de alto nivel, tecnología de sublimación indeleble de máxima viveza y asistencia de diseño con IA. Creamos franelas, tazas mágicas, puzzles y accesorios únicos para marcas, empresas y personas.",
+  // FOTOS DEL HERO: Reemplaza estas URLs con las fotos reales de tus productos cuando las tengas
+  photos: {
+    // Foto principal: Franela o prenda con estampado de alta densidad
+    mainProduct:
+      "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
+    mainProductTitle: "ART_01: MICRODURAZNO BLANCA",
+    mainProductBadge: "HASTA XL",
+    mainProductPrice: "$5 c/u x Docena",
+    // Foto secundaria superpuesta: Taza mágica revelándose con calor
+    secondaryProduct:
+      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80",
+    secondaryProductTitle: "Taza Mágica Termosensible",
+    secondaryProductTag: "EFECTO CALOR 11OZ",
+  },
   badges: [
     { label: "4 a 7 días hábiles", icon: "clock" },
     { label: "Mockup digital gratis", icon: "palette" },

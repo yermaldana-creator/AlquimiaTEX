@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Oswald, Space_Mono, Syne } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,24 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-mono",
   weight: "100 900",
+});
+
+const oswald = Oswald({
+  subsets: ["latin"],
+  variable: "--font-oswald",
+  weight: ["500", "700"],
+});
+
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  variable: "--font-space-mono",
+  weight: ["400", "700"],
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--font-syne",
+  weight: ["700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -31,8 +50,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={cn("font-sans", geistSans.variable, geistMono.variable)}>
-      <body className="antialiased">{children}</body>
+    <html
+      lang="es"
+      className={cn(
+        "font-sans",
+        geistSans.variable,
+        geistMono.variable,
+        oswald.variable,
+        spaceMono.variable,
+        syne.variable
+      )}
+    >
+      <body className="antialiased bg-[#F3EFE6] text-[#0A0A0A]">{children}</body>
     </html>
   );
 }

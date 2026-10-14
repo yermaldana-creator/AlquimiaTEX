@@ -1,33 +1,31 @@
 import Image from "next/image";
 import { Heart, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/instagram-icon";
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { RegistrationMark } from "./alchemy-graphics";
 import { SOCIAL_INFO, INSTAGRAM_POSTS } from "@/lib/landing-content";
 
 export function LandingInstagramSection() {
   return (
-    <section id="instagram" className="py-16 md:py-24 bg-background border-t border-border/40">
-      <div className="container mx-auto max-w-6xl px-4 sm:px-6 space-y-10">
-        {/* PERFIL / ENCABEZADO DE INSTAGRAM */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-border/50 pb-8 text-center sm:text-left">
+    <section id="instagram" className="py-16 md:py-24 bg-[#ECE7DC] border-b-2 border-black px-4 sm:px-6 md:px-10">
+      <div className="container mx-auto max-w-6xl space-y-10">
+        {/* ENCABEZADO DE FEED SOCIAL */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b-2 border-black pb-8 text-center sm:text-left bg-white p-6 border-2 border-black shadow-[6px_6px_0px_#0A0A0A]">
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-0.5 shadow-md">
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-card">
-                <InstagramIcon className="h-8 w-8 text-rose-500" />
-              </div>
+            {/* AVATAR ESTILO FANZINE */}
+            <div className="relative flex h-16 w-16 items-center justify-center bg-black text-white p-1 border-2 border-black shadow-[3px_3px_0px_#F43F5E] -rotate-3">
+              <InstagramIcon className="h-8 w-8 text-[#FACC15]" />
             </div>
-            <div>
+
+            <div className="space-y-1">
               <div className="flex items-center justify-center sm:justify-start gap-2">
-                <h3 className="text-xl font-extrabold text-foreground tracking-tight">
+                <h3 className="text-2xl font-oswald font-black uppercase text-black tracking-tight">
                   {SOCIAL_INFO.instagramHandle}
                 </h3>
-                <Badge variant="secondary" className="text-[10px] font-semibold text-primary">
-                  Oficial
-                </Badge>
+                <span className="bg-[#06B6D4] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 border border-black uppercase">
+                  OFICIAL
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="font-mono text-xs text-slate-600">
                 Detrás de cámara, nuevas producciones de franelas y tazas mágicas en Caracas.
               </p>
             </div>
@@ -37,26 +35,23 @@ export function LandingInstagramSection() {
             href={SOCIAL_INFO.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={cn(
-              buttonVariants({ size: "sm" }),
-              "bg-gradient-to-r from-purple-600 via-rose-600 to-amber-500 text-white font-semibold shadow-sm hover:opacity-90 gap-1.5"
-            )}
+            className="inline-flex items-center gap-2 bg-[#F43F5E] hover:bg-[#E11D48] text-white font-oswald text-sm font-black uppercase px-5 py-3 border-2 border-black shadow-[3px_3px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_#0A0A0A]"
           >
             <InstagramIcon className="h-4 w-4" />
             <span>Seguir en Instagram</span>
-            <ExternalLink className="h-3.5 w-3.5 opacity-80" />
+            <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>
 
-        {/* GRILLA TIPO MOSAICO DE POSTS (6 FOTOS) */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 sm:gap-4">
-          {INSTAGRAM_POSTS.map((post) => (
+        {/* GRILLA DE 6 PUBLICACIONES */}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {INSTAGRAM_POSTS.map((post, idx) => (
             <a
               key={post.id}
               href={post.postUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative aspect-square overflow-hidden rounded-xl bg-muted border border-border/40 transition-all hover:border-primary/60 hover:shadow-md"
+              className="group relative aspect-square overflow-hidden bg-black border-2 border-black shadow-[4px_4px_0px_#0A0A0A] hover:shadow-[6px_6px_0px_#FACC15] transition-all duration-300 hover:-translate-y-1 block"
             >
               <Image
                 src={post.imageUrl}
@@ -66,16 +61,16 @@ export function LandingInstagramSection() {
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
 
-              {/* OVERLAY EN HOVER CON LIKES Y CAPTION */}
-              <div className="absolute inset-0 flex flex-col justify-between bg-black/60 p-3 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
-                <div className="flex items-center justify-between text-white text-[11px] font-semibold">
-                  <span className="flex items-center gap-1">
-                    <Heart className="h-3 w-3 fill-rose-500 text-rose-500" />
+              {/* OVERLAY DE INTERACCIÓN */}
+              <div className="absolute inset-0 flex flex-col justify-between bg-black/85 p-3 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100 text-white">
+                <div className="flex items-center justify-between text-[11px] font-mono font-bold">
+                  <span className="flex items-center gap-1 text-[#F43F5E]">
+                    <Heart className="h-3 w-3 fill-[#F43F5E]" />
                     {post.likes}
                   </span>
-                  <InstagramIcon className="h-3 w-3 text-white/80" />
+                  <span className="text-[#06B6D4]">#{idx + 1}</span>
                 </div>
-                <p className="text-[10px] text-white/90 line-clamp-3 leading-snug">
+                <p className="text-[10px] font-sans text-white/95 line-clamp-3 leading-snug">
                   {post.caption}
                 </p>
               </div>
@@ -83,10 +78,12 @@ export function LandingInstagramSection() {
           ))}
         </div>
 
-        <div className="text-center text-xs text-muted-foreground">
-          <span>Etiquétanos en tus fotos con </span>
-          <span className="font-bold text-foreground">#AlquimiaTex</span>
-          <span> para aparecer en nuestra comunidad de sublimación textil.</span>
+        {/* FOOTNOTE DE HASHTAG */}
+        <div className="flex items-center justify-between border-t border-black/20 pt-4 text-xs font-mono text-slate-700">
+          <RegistrationMark label="INSTA_FEED_01" />
+          <span>
+            Etiquétanos con <strong className="text-black">#AlquimiaTex</strong> para aparecer en nuestra vitrina.
+          </span>
         </div>
       </div>
     </section>
