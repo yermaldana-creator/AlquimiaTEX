@@ -1,3 +1,5 @@
+export const APP_VERSION = "v1.0";
+
 export const PRODUCT_TYPES = [
   {
     id: "camisa",
