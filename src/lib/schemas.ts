@@ -66,3 +66,17 @@ export const step1ProductSchema = z
   });
 
 export type Step1ProductFormData = z.infer<typeof step1ProductSchema>;
+
+export const step2CustomizationSchema = z.object({
+  description: z
+    .string()
+    .min(10, "Por favor describe tu idea con al menos 10 caracteres para entender el diseño")
+    .max(1000, "La descripción no puede exceder los 1000 caracteres"),
+  referenceImage: z.string().optional(),
+  referenceImageName: z.string().optional(),
+  aiGeneratedImage: z.string().optional(),
+  aiPromptUsed: z.string().optional(),
+  aiAttemptsCount: z.number().optional(),
+});
+
+export type Step2CustomizationFormData = z.infer<typeof step2CustomizationSchema>;

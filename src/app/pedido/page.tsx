@@ -4,9 +4,47 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { OrderStep1 } from "@/components/public/order-step-1";
+import { OrderStep2 } from "@/components/public/order-step-2";
 import { Badge } from "@/components/ui/badge";
+import type { Step1ProductFormData } from "@/types";
+
+const STEP_STORAGE_KEY = "alquimiatex_current_step";
 
 export default function PedidoPage() {
+  const [currentStep, setCurrentStep] = React.useState<number>(1);
+  const [step1Data, setStep1Data] = React.useState<Step1ProductFormData | null>(null);
+
+  React.useEffect(() => {
+    try {
+      const savedStep = localStorage.getItem(STEP_STORAGE_KEY);
+      if (savedStep) {
+        const stepNum = parseInt(savedStep, 10);
+        if (stepNum === 1 || stepNum === 2) setCurrentStep(stepNum);
+      }
+      const savedStep1 = localStorage.getItem("alquimiatex_order_step1");
+      if (savedStep1) {
+        setStep1Data(JSON.parse(savedStep1));
+      }
+    } catch {}
+  }, []);
+
+  const changeStep = (step: number) => {
+    setCurrentStep(step);
+    try {
+      localStorage.setItem(STEP_STORAGE_KEY, step.toString());
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {}
+  };
+
+  const handleStep1Complete = (data: Step1ProductFormData) => {
+    setStep1Data(data);
+    changeStep(2);
+  };
+
+  const handleStep2Complete = () => {
+    alert("¡Paso 2 completado con éxito! Tu diseño e imagen han sido validados.");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-muted/20 to-background px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
@@ -44,33 +82,61 @@ export default function PedidoPage() {
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center gap-1.5 font-bold text-primary">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-black text-primary-foreground">
-                  1
+                  {currentStep}
                 </span>
-                Paso 1: Producto y Variantes
+                {currentStep === 1
+                  ? "Paso 1: Producto y Variantes"
+                  : currentStep === 2
+                    ? "Paso 2: Tu Diseño e Idea"
+                    : "Paso 3: Contacto y Entrega"}
               </span>
-              <span className="text-muted-foreground">Paso 1 de 3</span>
+              <span className="text-muted-foreground">Paso {currentStep} de 3</span>
             </div>
 
             {/* Barra de progreso */}
             <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-primary transition-all duration-500"
-                style={{ width: "33.33%" }}
+                style={{
+                  width: currentStep === 1 ? "33.33%" : currentStep === 2 ? "66.66%" : "100%",
+                }}
               />
             </div>
           </div>
         </header>
 
-        {/* CONTENEDOR DEL FORMULARIO PASO 1 */}
+        {/* CONTENEDOR PRINCIPAL */}
         <main className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm sm:p-7">
-          <div className="mb-6 border-b border-border/60 pb-4">
-            <h2 className="text-lg font-bold text-foreground sm:text-xl">Personaliza tu pedido</h2>
-            <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-              Selecciona el artículo que deseas, sus características y la cantidad.
-            </p>
-          </div>
+          {currentStep === 1 && (
+            <>
+              <div className="mb-6 border-b border-border/60 pb-4">
+                <h2 className="text-lg font-bold text-foreground sm:text-xl">
+                  Personaliza tu pedido
+                </h2>
+                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+                  Selecciona el artículo que deseas, sus características y la cantidad.
+                </p>
+              </div>
+              <OrderStep1 onNext={handleStep1Complete} />
+            </>
+          )}
 
-          <OrderStep1 />
+          {currentStep === 2 && (
+            <>
+              <div className="mb-6 border-b border-border/60 pb-4">
+                <h2 className="text-lg font-bold text-foreground sm:text-xl">Tu Diseño e Idea</h2>
+                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+                  Explica qué deseas estampar, sube una imagen de referencia o genera una idea con
+                  IA.
+                </p>
+              </div>
+              <OrderStep2
+                productType={step1Data?.product || "camisa"}
+                onBack={() => changeStep(1)}
+                onNext={handleStep2Complete}
+              />
+            </>
+          )}
         </main>
 
         {/* FOOTER INFORMATIVO */}
