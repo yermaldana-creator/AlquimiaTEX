@@ -61,8 +61,10 @@ export function OrderStep3({
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
 
-  // Fechas hábiles mínimas y máximas (3 a 7 días hábiles)
-  const minDeliveryDate = React.useMemo(() => getBusinessDate(3), []);
+  const totalUnits = React.useMemo(() => items.reduce((sum, it) => sum + (it.quantity || 0), 0), [items]);
+
+  // Fechas hábiles mínimas y máximas (4 a 7 días hábiles desde la confirmación del abono)
+  const minDeliveryDate = React.useMemo(() => getBusinessDate(4), []);
   const maxDeliveryDate = React.useMemo(() => getBusinessDate(7), []);
 
   const form = useForm<Step3ContactFormData>({
@@ -71,12 +73,14 @@ export function OrderStep3({
       customerName: "",
       customerPhone: "",
       deliveryDate: minDeliveryDate,
+      orderPricingType: totalUnits >= 12 ? "docena" : "unidad",
       paymentMethod: "pago_movil",
       acceptTerms: false,
     },
   });
 
   const selectedPaymentMethod = form.watch("paymentMethod");
+  const selectedPricingType = form.watch("orderPricingType");
 
   const copyToClipboard = async (text: string, fieldId: string) => {
     try {
@@ -110,8 +114,6 @@ export function OrderStep3({
       setIsSubmitting(false);
     }
   };
-
-  const totalUnits = items.reduce((sum, it) => sum + it.quantity, 0);
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -292,7 +294,7 @@ export function OrderStep3({
                 Fecha estimada de entrega <span className="text-destructive">*</span>
               </Label>
               <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">
-                ⏳ Tiempo estimado: 3 a 7 días hábiles desde la confirmación del 30% de abono
+                ⏳ Tiempo estimado: 4 a 7 días hábiles desde la confirmación del abono
               </p>
             </div>
 
@@ -318,15 +320,106 @@ export function OrderStep3({
         </div>
       </div>
 
-      {/* 3. INSTRUCCIONES DE PAGO MANUALES */}
+      {/* 3. MODALIDAD DE PEDIDO (UNIDAD O DOCENA) */}
+      <div className="space-y-4">
+        <div className="border-b border-border/60 pb-2">
+          <h3 className="font-bold text-foreground text-sm sm:text-base flex items-center gap-2">
+            <ShoppingBag className="h-4 w-4 text-primary" />
+            ¿Tu pedido es por unidad o por docena?
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Selecciona la modalidad para aplicar las condiciones de pago oficiales de AlquimiaTex.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          {/* Opción Unidad */}
+          <label
+            className={cn(
+              "flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3.5 transition-all bg-card",
+              selectedPricingType === "unidad"
+                ? "border-primary bg-primary/10 shadow-xs"
+                : "border-border/70 hover:border-primary/40"
+            )}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-xs text-foreground">Por Unidad (Al detal)</span>
+                <Badge variant="outline" className="text-[10px]">1 a 11 unidades</Badge>
+              </div>
+              <input
+                type="radio"
+                value="unidad"
+                className="sr-only"
+                {...form.register("orderPricingType")}
+              />
+              <span className={cn(
+                "h-4 w-4 rounded-full border flex items-center justify-center",
+                selectedPricingType === "unidad" ? "border-primary bg-primary" : "border-muted-foreground"
+              )}>
+                {selectedPricingType === "unidad" && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+              </span>
+            </div>
+            <div className="mt-2.5 rounded-md bg-background/80 p-2.5 border border-border/60">
+              <p className="text-xs font-bold text-primary">
+                Pago del 100% por anticipado de forma obligatoria
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Al ser confección personalizada al detal, la producción inicia tras confirmar el pago total.
+              </p>
+            </div>
+          </label>
+
+          {/* Opción Docena */}
+          <label
+            className={cn(
+              "flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3.5 transition-all bg-card",
+              selectedPricingType === "docena"
+                ? "border-primary bg-primary/10 shadow-xs"
+                : "border-border/70 hover:border-primary/40"
+            )}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-xs text-foreground">Por Docena (Al mayor)</span>
+                <Badge variant="accent" className="text-[10px]">12+ unidades</Badge>
+              </div>
+              <input
+                type="radio"
+                value="docena"
+                className="sr-only"
+                {...form.register("orderPricingType")}
+              />
+              <span className={cn(
+                "h-4 w-4 rounded-full border flex items-center justify-center",
+                selectedPricingType === "docena" ? "border-primary bg-primary" : "border-muted-foreground"
+              )}>
+                {selectedPricingType === "docena" && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+              </span>
+            </div>
+            <div className="mt-2.5 rounded-md bg-background/80 p-2.5 border border-border/60">
+              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                Abono del 50% por anticipado, 50% contra entrega
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                50% para compra de telas e insumos, y el 50% restante al retirar en taller o entrega.
+              </p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      {/* 4. INSTRUCCIONES DE PAGO MANUALES */}
       <div className="space-y-4">
         <div className="border-b border-border/60 pb-2">
           <h3 className="font-bold text-foreground text-sm sm:text-base flex items-center gap-2">
             <Wallet className="h-4 w-4 text-primary" />
-            Método de pago preferido (30% de abono)
+            Método de pago preferido
           </h3>
           <p className="text-xs text-muted-foreground">
-            No cobramos de forma automática. Te dejamos los datos para que realices el abono del 30% y nos envíes la captura por WhatsApp.
+            {selectedPricingType === "docena"
+              ? "Abono del 50% por anticipado, 50% contra entrega. Envíanos tu captura por WhatsApp."
+              : "Pago del 100% por anticipado de forma obligatoria. Envíanos tu captura por WhatsApp."}
           </p>
         </div>
 
@@ -422,7 +515,9 @@ export function OrderStep3({
           <div className="flex items-center justify-between border-b border-primary/10 pb-2">
             <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
               <CreditCard className="h-4 w-4 text-primary" />
-              Datos para realizar tu abono del 30%:
+              {selectedPricingType === "docena"
+                ? "Datos para realizar tu abono del 50% (50% contra entrega):"
+                : "Datos para realizar tu pago del 100% por anticipado:"}
             </span>
             <Badge variant="accent" className="text-[10px]">
               Taller La Dolorita
@@ -508,7 +603,7 @@ export function OrderStep3({
                 📍 {PAYMENT_INFO.cash.location}
               </p>
               <p className="text-muted-foreground text-[11px]">
-                {PAYMENT_INFO.cash.currency}. Se entrega recibo físico en mano al dejar el 30% del abono.
+                {PAYMENT_INFO.cash.currency}. {selectedPricingType === "docena" ? "Se entrega recibo físico en mano al dejar el 50% de abono inicial." : "Se entrega recibo físico en mano al realizar el pago del 100%."}
               </p>
             </div>
           )}
@@ -516,13 +611,13 @@ export function OrderStep3({
           <div className="flex items-start gap-2 pt-1 text-[11px] text-muted-foreground">
             <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
             <span>
-              <strong>Paso final:</strong> Al pulsar el botón de abajo, tu pedido quedará guardado con su código único y serás redirigido a WhatsApp para enviar el comprobante de pago a los socios del taller.
+              <strong>Paso final:</strong> Al pulsar el botón de abajo, tu pedido quedará registrado con su código único y serás redirigido a WhatsApp para enviar el comprobante de pago a los socios del taller.
             </span>
           </div>
         </Card>
       </div>
 
-      {/* 4. ACEPTACIÓN DE TÉRMINOS */}
+      {/* 5. ACEPTACIÓN DE TÉRMINOS Y GARANTÍA */}
       <div className="space-y-3">
         <label className="flex items-start gap-3 cursor-pointer rounded-xl border border-border/80 bg-card p-3.5 hover:bg-muted/30 transition-colors">
           <input
@@ -530,12 +625,17 @@ export function OrderStep3({
             className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
             {...form.register("acceptTerms")}
           />
-          <div className="text-xs text-foreground/90 space-y-0.5">
+          <div className="text-xs text-foreground/90 space-y-1">
             <span className="font-semibold block">
               Acepto las condiciones de confección y pago de AlquimiaTex <span className="text-destructive">*</span>
             </span>
             <p className="text-muted-foreground text-[11px]">
-              Entiendo que el estampado y producción inician una vez recibido y confirmado el 30% de abono, en un plazo de 3 a 7 días hábiles.
+              {selectedPricingType === "docena"
+                ? "Entiendo que el estampado y confección inician tras confirmar el 50% de abono inicial, liquidando el 50% restante contra entrega en un plazo estimado de 4 a 7 días hábiles."
+                : "Entiendo que el estampado y confección inician tras confirmar el pago del 100% por anticipado, en un plazo estimado de 4 a 7 días hábiles."}
+            </p>
+            <p className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+              🛡️ Garantía oficial: No se realizan cambios por errores en la elección de tallas.
             </p>
           </div>
         </label>

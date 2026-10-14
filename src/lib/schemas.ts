@@ -84,6 +84,7 @@ export const step3ContactSchema = z.object({
     .string()
     .min(10, "Ingresa un número telefónico válido (mínimo 10 dígitos)"),
   deliveryDate: z.string().min(1, "Selecciona una fecha de entrega"),
+  orderPricingType: z.enum(["unidad", "docena"]),
   paymentMethod: z.enum(["pago_movil", "binance", "efectivo", "acordar"]),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "Debes aceptar los términos y condiciones para continuar",

@@ -69,9 +69,78 @@ export const DEFAULT_WHATSAPP_NUMBER = "584241589317";
 
 export const MAX_ORDER_ITEMS = 10;
 
+// Condiciones de pago oficiales
+export const ORDER_PRICING_CONDITIONS = {
+  unidad: {
+    id: "unidad",
+    title: "Pedido por Unidad (Al detal)",
+    condition: "Pago del 100% por anticipado de forma obligatoria",
+    badge: "1 a 11 unidades",
+    description: "Para pedidos al detal, se cancela la totalidad del importe antes de iniciar corte y estampado.",
+  },
+  docena: {
+    id: "docena",
+    title: "Pedido por Docena (Al mayor)",
+    condition: "Abono del 50% por anticipado, 50% contra entrega",
+    badge: "12+ unidades",
+    description: "Para pedidos por docena, abonas el 50% para inicio de confección y el 50% restante contra entrega en taller o despacho.",
+  },
+} as const;
+
+// Ofertas por Docena del Catálogo Oficial
+export const WHOLESALE_CATALOG_OFFERS = [
+  {
+    id: "microdurazno_blanca",
+    name: "Microdurazno Blanca",
+    unitPrice: 5,
+    dozenPrice: 60,
+    tag: "Hasta talla XL",
+    description: "Tela suave al tacto con excelente absorción de tinta y máxima fidelidad de color.",
+    features: [
+      "Hasta 2 estampados por pieza (delante y detrás)",
+      "Tallas disponibles hasta XL",
+      "Tela blanca con máxima viveza de color",
+    ],
+  },
+  {
+    id: "microdurazno_negra",
+    name: "Microdurazno Negra",
+    unitPrice: 7,
+    dozenPrice: 84,
+    tag: "Hasta talla XL",
+    description: "Microdurazno negra con estampado textil de alta resistencia al lavado.",
+    features: [
+      "Hasta 2 estampados por pieza (delante y detrás)",
+      "Tallas disponibles hasta XL",
+      "Color negro profundo y elegante",
+    ],
+  },
+  {
+    id: "jersey_poliester",
+    name: "50% Jersey / 50% Poliéster",
+    unitPrice: 10,
+    dozenPrice: 120,
+    tag: "Cualquier color",
+    description: "Mezcla resistente y fresca, ideal para uniformes de empresas, eventos y dotaciones.",
+    features: [
+      "Hasta 2 estampados por pieza (delante y detrás)",
+      "Disponible en cualquier color",
+      "Alta durabilidad y confort térmico",
+    ],
+  },
+] as const;
+
+// Políticas Oficiales del Taller
+export const CATALOG_POLICIES = {
+  deliveryTime: "⏳ Tiempo estimado: 4 a 7 días hábiles desde la confirmación del abono.",
+  printsIncluded: "Incluye hasta 2 estampados por pieza (delante y detrás).",
+  volumeExclusions: "Oversize y 100% Algodón Peinado no aplican para descuentos por volumen.",
+  digitalMockup: "El diseño digital (mockup) es gratuito y se presenta antes de estampar.",
+  sizeGuarantee: "No se realizan cambios por errores en la elección de tallas.",
+};
+
 // Instrucciones de pago manuales
 export const PAYMENT_INFO = {
-  depositPercentage: 30,
   pagoMovil: {
     bank: "Banesco (0134) / Banco de Venezuela (0102)",
     phone: "0424-1589317",

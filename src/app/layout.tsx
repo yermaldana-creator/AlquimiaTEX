@@ -16,8 +16,13 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AlquimiaTex — Plataforma Web",
-  description: "Sublimación y personalización textil en La Dolorita, Caracas, Venezuela",
+  title: "AlquimiaTex | Sublimación y Confección Textil Oficial",
+  description: "Taller artesanal de sublimación y confección en La Dolorita, Petare, Caracas. Ofertas por docena, franelas microdurazno y personalización con IA.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

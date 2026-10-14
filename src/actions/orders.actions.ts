@@ -82,6 +82,7 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
           customer_name: contact.customerName,
           customer_phone: contact.customerPhone,
           delivery_date: contact.deliveryDate,
+          order_pricing_type: contact.orderPricingType,
           payment_method: contact.paymentMethod,
           items: processedItems,
           status: "pendiente_contacto",
@@ -99,6 +100,7 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
       customerName: contact.customerName,
       customerPhone: contact.customerPhone,
       deliveryDate: contact.deliveryDate,
+      orderPricingType: contact.orderPricingType,
       paymentMethod: contact.paymentMethod,
       items: processedItems,
     });

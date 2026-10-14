@@ -118,10 +118,10 @@ export function OrderSuccessDialog({
               En el chat de WhatsApp verás el <strong>resumen completo</strong> de tus artículos.
             </li>
             <li>
-              Envía la <strong>captura de tu pago del 30%</strong> (Pago Móvil, Binance o acuerdo en efectivo).
+              Envía la <strong>captura de tu pago o abono</strong> (Pago Móvil, Binance o acuerdo en efectivo).
             </li>
             <li>
-              Los socios de AlquimiaTex verificarán el abono y pasarán tus piezas al taller de estampado.
+              Los socios de AlquimiaTex verificarán tu pago y pasarán tus piezas al taller de confección y estampado.
             </li>
           </ol>
         </div>

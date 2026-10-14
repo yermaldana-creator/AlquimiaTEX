@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { OrderStep1 } from "@/components/public/order-step-1";
 import { OrderStep2 } from "@/components/public/order-step-2";
@@ -110,19 +111,21 @@ export default function PedidoPage() {
         <header className="mb-8 space-y-4 text-center sm:text-left">
           <div className="flex flex-col gap-3 border-b border-border/60 pb-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="flex items-center justify-center gap-2 sm:justify-start">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-black text-primary-foreground">
-                  AT
-                </span>
-                <h1 className="text-2xl font-black tracking-tight text-foreground">
-                  Alquimia<span className="text-primary">Tex</span>
-                </h1>
+              <Link href="/" className="inline-flex items-center justify-center gap-3 sm:justify-start">
+                <Image
+                  src="/logo.png"
+                  alt="AlquimiaTex"
+                  width={150}
+                  height={40}
+                  priority
+                  className="h-10 w-auto object-contain"
+                />
                 <Badge variant="accent" className="text-[10px] font-semibold">
                   Taller La Dolorita
                 </Badge>
-              </div>
+              </Link>
               <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-                Sublimación y personalización textil en Caracas, Venezuela
+                Sublimación y confección textil artesanal en Caracas, Venezuela
               </p>
             </div>
 
@@ -144,7 +147,7 @@ export default function PedidoPage() {
                 </span>
                 {currentStep === 1 && "Paso 1: Selección y Carrito de Artículos"}
                 {currentStep === 2 && "Paso 2: Personalización y Diseño"}
-                {currentStep === 3 && "Paso 3: Contacto, Fecha y Abono (30%)"}
+                {currentStep === 3 && "Paso 3: Contacto, Fecha y Confirmación"}
               </span>
 
               <div className="flex items-center gap-2 text-muted-foreground text-xs">
@@ -225,7 +228,7 @@ export default function PedidoPage() {
                   Datos de entrega y confirmación
                 </h2>
                 <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-                  Revisa tu pedido completo, selecciona tu fecha estimada y revisa los datos para abonar el 30%.
+                  Revisa tu pedido completo, selecciona tu fecha estimada y las condiciones de pago oficiales.
                 </p>
               </div>
               <OrderStep3
@@ -240,12 +243,21 @@ export default function PedidoPage() {
         </main>
 
         {/* FOOTER INFORMATIVO */}
-        <footer className="mt-8 space-y-2 text-center text-xs text-muted-foreground">
+        <footer className="mt-10 border-t border-border/40 pt-6 text-center text-xs text-muted-foreground space-y-3">
+          <div className="flex items-center justify-center gap-2">
+            <Image
+              src="/logo.png"
+              alt="AlquimiaTex"
+              width={90}
+              height={24}
+              className="h-6 w-auto object-contain opacity-80"
+            />
+          </div>
           <div className="flex items-center justify-center gap-2 font-medium text-emerald-600 dark:text-emerald-400">
             <ShieldCheck className="h-4 w-4" />
             <span>Sin pasarelas automáticas • Cotización directa y verificación manual por WhatsApp</span>
           </div>
-          <p>© {new Date().getFullYear()} AlquimiaTex. Taller La Dolorita, Caracas, Venezuela.</p>
+          <p>© {new Date().getFullYear()} AlquimiaTex. Taller La Dolorita, Petare, Caracas, Venezuela.</p>
         </footer>
       </div>
 
