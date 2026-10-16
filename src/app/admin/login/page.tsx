@@ -13,18 +13,18 @@ export const metadata: Metadata = {
 
 export default function AdminLoginPage() {
   return (
-    <div className="min-h-screen bg-[#F3EFE6] text-black flex flex-col justify-between p-4 sm:p-6 md:p-8 selection:bg-[#FACC15] selection:text-black">
+    <div className="min-h-screen bg-[#F3EFE6] dark:bg-[#0F0F0F] text-black dark:text-zinc-100 flex flex-col justify-between p-4 sm:p-6 md:p-8 selection:bg-[#FACC15] selection:text-black">
       {/* BARRA SUPERIOR DE RETORNO */}
       <div className="container mx-auto max-w-md flex items-center justify-between">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-black hover:text-[#F43F5E] px-3 py-1.5 border-2 border-black bg-white shadow-[2px_2px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+          className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-black dark:text-zinc-100 hover:text-[#F43F5E] px-3 py-1.5 border-2 border-black dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Volver a la Tienda</span>
         </Link>
 
-        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-slate-700 bg-white px-2 py-1 border border-black">
+        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-slate-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 px-2 py-1 border border-black dark:border-zinc-700">
           <Shield className="h-3 w-3 text-[#06B6D4]" />
           <span>V1.0 AUTH</span>
         </span>
@@ -32,10 +32,10 @@ export default function AdminLoginPage() {
 
       {/* TARJETA PRINCIPAL DE LOGIN */}
       <div className="container mx-auto max-w-md my-auto py-8">
-        <div className="bg-white border-2 border-black p-6 sm:p-8 shadow-[6px_6px_0px_#0A0A0A] space-y-6">
+        <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-6 sm:p-8 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] space-y-6">
           {/* ENCABEZADO CON LOGO */}
           <div className="text-center space-y-3">
-            <div className="inline-block p-1.5 bg-[#F8F5EE] border-2 border-black shadow-[3px_3px_0px_#0A0A0A] -rotate-1">
+            <div className="inline-block p-1.5 bg-[#F8F5EE] dark:bg-zinc-800 border-2 border-black dark:border-zinc-700 shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000] -rotate-1">
               <Image
                 src="/logo.png"
                 alt="AlquimiaTex"
@@ -51,10 +51,10 @@ export default function AdminLoginPage() {
                 <Lock className="h-3 w-3" />
                 <span>ACCESO RESTRINGIDO A 3 SOCIOS</span>
               </div>
-              <h1 className="font-oswald text-2xl sm:text-3xl font-black uppercase tracking-tight text-black">
+              <h1 className="font-oswald text-2xl sm:text-3xl font-black uppercase tracking-tight text-black dark:text-white">
                 CONTROL DE TALLER
               </h1>
-              <p className="font-mono text-xs text-slate-600">
+              <p className="font-mono text-xs text-slate-600 dark:text-zinc-400">
                 La Dolorita • Petare • Caracas
               </p>
             </div>
@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
       </div>
 
       {/* PIE DE PÁGINA */}
-      <div className="container mx-auto max-w-md pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-[11px] text-slate-600">
+      <div className="container mx-auto max-w-md pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-[11px] text-slate-600 dark:text-zinc-400">
         <span>AlquimiaTex © {new Date().getFullYear()}</span>
         <RegistrationMark label="SECURITY_GATEWAY_V1" />
       </div>

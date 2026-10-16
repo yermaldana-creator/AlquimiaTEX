@@ -158,23 +158,23 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
   return (
     <div className="space-y-4">
       {/* BARRA SUPERIOR DE BÚSQUEDA Y FILTROS */}
-      <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_#0A0A0A] space-y-4">
+      <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-4 shadow-[4px_4px_0px_#0A0A0A] dark:shadow-[4px_4px_0px_#000000] space-y-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           {/* BUSCADOR CON DEBOUNCE (300ms) */}
           <div className="relative flex-1 max-w-lg">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 dark:text-zinc-400 pointer-events-none" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Buscar por #ALQ, cliente o teléfono (300ms live)..."
-              className="w-full pl-9 pr-8 py-2 bg-[#F8F5EE] border-2 border-black font-mono text-xs text-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A]"
+              className="w-full pl-9 pr-8 py-2 bg-[#F8F5EE] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
             />
             {searchInput && (
               <button
                 type="button"
                 onClick={() => setSearchInput("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-black"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-black dark:text-zinc-400 dark:hover:text-white"
                 title="Limpiar búsqueda"
               >
                 <X className="h-3.5 w-3.5" />
@@ -186,7 +186,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
             <button
               onClick={handleRefresh}
               disabled={isPending}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-white text-black border-2 border-black font-mono text-xs font-bold uppercase shadow-[2px_2px_0px_#0A0A0A] hover:bg-slate-100 transition-all hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 font-mono text-xs font-bold uppercase shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-50"
               title="Refrescar lista de pedidos"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isPending ? "animate-spin" : ""}`} />
@@ -202,10 +202,10 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
               setSelectedStatus("todos");
               setPage(1);
             }}
-            className={`px-3 py-1.5 border-2 border-black font-bold uppercase transition-all shrink-0 ${
+            className={`px-3 py-1.5 border-2 border-black dark:border-zinc-700 font-bold uppercase transition-all shrink-0 ${
               selectedStatus === "todos"
-                ? "bg-black text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] -translate-y-0.5"
-                : "bg-[#F8F5EE] text-slate-800 hover:bg-white shadow-[1px_1px_0px_#0A0A0A]"
+                ? "bg-black dark:bg-zinc-800 text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] -translate-y-0.5"
+                : "bg-[#F8F5EE] dark:bg-zinc-900 text-slate-800 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000]"
             }`}
           >
             Todos ({totalCount})
@@ -223,15 +223,15 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                   setSelectedStatus(statusKey);
                   setPage(1);
                 }}
-                className={`px-3 py-1.5 border-2 border-black font-bold uppercase transition-all shrink-0 ${
+                className={`px-3 py-1.5 border-2 border-black dark:border-zinc-700 font-bold uppercase transition-all shrink-0 ${
                   isSelected
-                    ? "bg-[#581C87] text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] -translate-y-0.5"
-                    : `${config.bg} ${config.text} hover:opacity-90 shadow-[1px_1px_0px_#0A0A0A]`
+                    ? "bg-[#581C87] text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] -translate-y-0.5"
+                    : `${config.bg} ${config.text} hover:opacity-90 shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000]`
                 }`}
               >
                 <span>{config.shortLabel}</span>
                 {count > 0 && (
-                  <span className="ml-1.5 px-1 bg-white text-black text-[10px] border border-black font-mono">
+                  <span className="ml-1.5 px-1 bg-white dark:bg-zinc-800 text-black dark:text-zinc-100 text-[10px] border border-black dark:border-zinc-600 font-mono">
                     {count}
                   </span>
                 )}
@@ -250,14 +250,14 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
       )}
 
       {/* CONTENEDOR DE RESULTADOS: TABLA EN DESKTOP / TARJETAS EN MOBILE */}
-      <div className="bg-white border-2 border-black shadow-[6px_6px_0px_#0A0A0A] overflow-hidden">
+      <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] overflow-hidden">
         {orders.length === 0 ? (
           <div className="p-12 text-center space-y-3">
-            <ShoppingBag className="h-10 w-10 text-slate-400 mx-auto" />
-            <h3 className="font-oswald text-lg font-black uppercase text-black">
+            <ShoppingBag className="h-10 w-10 text-slate-400 dark:text-zinc-600 mx-auto" />
+            <h3 className="font-oswald text-lg font-black uppercase text-black dark:text-white">
               No se encontraron pedidos
             </h3>
-            <p className="font-mono text-xs text-slate-600 max-w-md mx-auto">
+            <p className="font-mono text-xs text-slate-600 dark:text-zinc-400 max-w-md mx-auto">
               {searchInput || selectedStatus !== "todos"
                 ? "Ningún pedido coincide con la búsqueda o el filtro actual."
                 : "No hay pedidos en la base de datos de Supabase."}
@@ -281,17 +281,17 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse font-sans">
                 <thead>
-                  <tr className="bg-[#F8F5EE] border-b-2 border-black font-oswald text-xs uppercase tracking-wider text-black">
-                    <th className="p-3 border-r border-black">Código</th>
-                    <th className="p-3 border-r border-black">Cliente / Contacto</th>
-                    <th className="p-3 border-r border-black">Prendas / Resumen</th>
-                    <th className="p-3 border-r border-black">Entrega Deseada</th>
-                    <th className="p-3 border-r border-black">Modalidad / Pago</th>
-                    <th className="p-3 border-r border-black">Estado</th>
+                  <tr className="bg-[#F8F5EE] dark:bg-zinc-900 border-b-2 border-black dark:border-zinc-700 font-oswald text-xs uppercase tracking-wider text-black dark:text-zinc-200">
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Código</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Cliente / Contacto</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Prendas / Resumen</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Entrega Deseada</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Modalidad / Pago</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Estado</th>
                     <th className="p-3 text-center">Acción</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y-2 divide-black text-xs">
+                <tbody className="divide-y-2 divide-black dark:divide-zinc-700 text-xs">
                   {orders.map((order) => {
                     const deliveryBadge = getDeliveryBadge(order.delivery_date);
                     const waNumber = cleanPhoneForWhatsApp(order.customer_phone);
@@ -305,14 +305,14 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                       <tr
                         key={order.id}
                         onClick={() => router.push(`/admin/pedidos/${order.id}`)}
-                        className="hover:bg-[#FFFDF7] cursor-pointer transition-colors group"
+                        className="hover:bg-[#FFFDF7] dark:hover:bg-zinc-800/50 cursor-pointer transition-colors group"
                       >
                         {/* CÓDIGO */}
-                        <td className="p-3 border-r border-black align-top">
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-top">
                           <span className="font-mono text-xs font-black bg-[#FACC15] text-black px-1.5 py-0.5 border border-black shadow-[1.5px_1.5px_0px_#0A0A0A] inline-block group-hover:scale-105 transition-transform">
                             {order.order_code}
                           </span>
-                          <span className="font-mono text-[10px] text-slate-500 block pt-1">
+                          <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400 block pt-1">
                             {order.created_at
                               ? new Date(order.created_at).toLocaleDateString("es-VE", {
                                   day: "2-digit",
@@ -325,38 +325,38 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
 
                         {/* CLIENTE & WHATSAPP */}
                         <td
-                          className="p-3 border-r border-black align-top space-y-1"
+                          className="p-3 border-r border-black dark:border-zinc-700 align-top space-y-1"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <div className="font-bold text-black text-sm">
+                          <div className="font-bold text-black dark:text-white text-sm">
                             {order.customer_name}
                           </div>
-                          <div className="font-mono text-[11px] text-slate-700">
+                          <div className="font-mono text-[11px] text-slate-700 dark:text-zinc-300">
                             {order.customer_phone}
                           </div>
                           <a
                             href={waUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 border border-emerald-600 transition-colors"
+                            className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 px-2 py-0.5 border border-emerald-600 dark:border-emerald-700 transition-colors"
                             title="Escribir al WhatsApp del cliente"
                           >
-                            <MessageCircle className="h-3 w-3 text-emerald-600" />
+                            <MessageCircle className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
                             <span>WhatsApp</span>
-                            <ExternalLink className="h-2.5 w-2.5 text-emerald-700" />
+                            <ExternalLink className="h-2.5 w-2.5 text-emerald-700 dark:text-emerald-400" />
                           </a>
                         </td>
 
                         {/* PRODUCTOS / DESGLOSE */}
-                        <td className="p-3 border-r border-black align-top space-y-1 max-w-xs">
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-top space-y-1 max-w-xs">
                           {order.items && order.items.length > 0 ? (
                             <div className="space-y-1">
                               {order.items.map((item, idx) => (
                                 <div
                                   key={item.id || idx}
-                                  className="font-mono text-[11px] leading-tight text-slate-800 bg-[#F8F5EE] p-1.5 border border-slate-300"
+                                  className="font-mono text-[11px] leading-tight text-slate-800 dark:text-zinc-200 bg-[#F8F5EE] dark:bg-zinc-900 p-1.5 border border-slate-300 dark:border-zinc-700"
                                 >
-                                  <div className="font-bold text-black flex items-center justify-between">
+                                  <div className="font-bold text-black dark:text-white flex items-center justify-between">
                                     <span>
                                       {item.quantity}x{" "}
                                       {item.product === "camisa" ? "Camisa" : item.product}
@@ -367,7 +367,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                                       </span>
                                     )}
                                   </div>
-                                  <div className="text-[10px] text-slate-600">
+                                  <div className="text-[10px] text-slate-600 dark:text-zinc-400">
                                     {item.shirtSize && `Talla ${item.shirtSize}`}
                                     {item.shirtCut && ` • ${item.shirtCut}`}
                                     {item.shirtFabric && ` • ${item.shirtFabric}`}
@@ -378,16 +378,16 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                               ))}
                             </div>
                           ) : (
-                            <span className="font-mono text-slate-400 text-[11px]">
+                            <span className="font-mono text-slate-400 dark:text-zinc-500 text-[11px]">
                               Sin items registrados
                             </span>
                           )}
                         </td>
 
                         {/* ENTREGA */}
-                        <td className="p-3 border-r border-black align-top space-y-1">
-                          <div className="font-mono text-xs font-bold text-black flex items-center gap-1">
-                            <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-top space-y-1">
+                          <div className="font-mono text-xs font-bold text-black dark:text-zinc-100 flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5 text-slate-500 dark:text-zinc-400" />
                             <span>{order.delivery_date || "Por definir"}</span>
                           </div>
                           {deliveryBadge && (
@@ -400,24 +400,24 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                         </td>
 
                         {/* PAGO / MODALIDAD */}
-                        <td className="p-3 border-r border-black align-top space-y-1">
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-top space-y-1">
                           <span
-                            className={`inline-block font-mono text-[10px] font-black uppercase px-2 py-0.5 border border-black ${
+                            className={`inline-block font-mono text-[10px] font-black uppercase px-2 py-0.5 border border-black dark:border-zinc-700 ${
                               isDocena
                                 ? "bg-[#581C87] text-[#FACC15]"
-                                : "bg-white text-black"
+                                : "bg-white dark:bg-zinc-800 text-black dark:text-zinc-200"
                             }`}
                           >
                             {isDocena ? "Docena (50% Abono)" : "Al Detal (100%)"}
                           </span>
-                          <div className="font-mono text-[11px] text-slate-600 uppercase">
+                          <div className="font-mono text-[11px] text-slate-600 dark:text-zinc-400 uppercase">
                             {order.payment_method || "No especificado"}
                           </div>
                         </td>
 
                         {/* ESTADO CON SELECTOR EN LÍNEA */}
                         <td
-                          className="p-3 border-r border-black align-top space-y-1"
+                          className="p-3 border-r border-black dark:border-zinc-700 align-top space-y-1"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <OrderStatusSelect
@@ -437,7 +437,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                         >
                           <Link
                             href={`/admin/pedidos/${order.id}`}
-                            className="inline-flex items-center gap-1 font-mono text-xs font-bold uppercase bg-white text-black border-2 border-black px-2.5 py-1 shadow-[2px_2px_0px_#0A0A0A] hover:bg-[#FACC15] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+                            className="inline-flex items-center gap-1 font-mono text-xs font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 px-2.5 py-1 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] hover:bg-[#FACC15] dark:hover:bg-[#FACC15] dark:hover:text-black transition-all hover:translate-x-0.5 hover:translate-y-0.5"
                             title="Ver ficha técnica detallada"
                           >
                             <Eye className="h-3.5 w-3.5" />
@@ -452,7 +452,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
             </div>
 
             {/* VISTA MÓVIL (TARJETAS APILADAS) */}
-            <div className="block md:hidden divide-y-2 divide-black">
+            <div className="block md:hidden divide-y-2 divide-black dark:divide-zinc-700">
               {orders.map((order) => {
                 const deliveryBadge = getDeliveryBadge(order.delivery_date);
                 const waNumber = cleanPhoneForWhatsApp(order.customer_phone);
@@ -465,9 +465,9 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                 return (
                   <div
                     key={order.id}
-                    className="p-4 space-y-3 bg-white hover:bg-[#FFFDF7] transition-colors"
+                    className="p-4 space-y-3 bg-white dark:bg-[#1E1E1E] hover:bg-[#FFFDF7] dark:hover:bg-zinc-800/50 transition-colors"
                   >
-                    <div className="flex items-center justify-between gap-2 border-b border-black pb-2">
+                    <div className="flex items-center justify-between gap-2 border-b border-black dark:border-zinc-700 pb-2">
                       <Link
                         href={`/admin/pedidos/${order.id}`}
                         className="font-mono text-xs font-black bg-[#FACC15] text-black px-2 py-0.5 border border-black shadow-[1.5px_1.5px_0px_#0A0A0A] inline-flex items-center gap-1"
@@ -476,7 +476,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                         <ExternalLink className="h-3 w-3" />
                       </Link>
 
-                      <span className="font-mono text-[10px] text-slate-500">
+                      <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400">
                         {order.created_at
                           ? new Date(order.created_at).toLocaleDateString("es-VE", {
                               day: "2-digit",
@@ -488,10 +488,10 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
 
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="font-bold text-sm text-black">
+                        <div className="font-bold text-sm text-black dark:text-white">
                           {order.customer_name}
                         </div>
-                        <div className="font-mono text-xs text-slate-600">
+                        <div className="font-mono text-xs text-slate-600 dark:text-zinc-400">
                           {order.customer_phone}
                         </div>
                       </div>
@@ -500,22 +500,22 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                         href={waUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 border border-emerald-600"
+                        className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 px-2 py-1 border border-emerald-600 dark:border-emerald-700"
                       >
-                        <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
+                        <MessageCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>WhatsApp</span>
                       </a>
                     </div>
 
                     {/* PRENDAS RESUMEN */}
-                    <div className="bg-[#F8F5EE] p-2 border border-slate-300 font-mono text-xs space-y-1">
-                      <div className="font-bold text-slate-700 flex items-center justify-between">
+                    <div className="bg-[#F8F5EE] dark:bg-zinc-900 p-2 border border-slate-300 dark:border-zinc-700 font-mono text-xs space-y-1">
+                      <div className="font-bold text-slate-700 dark:text-zinc-300 flex items-center justify-between">
                         <span>Items ({order.items?.length || 0})</span>
                         <span className="text-[10px] uppercase">
                           {isDocena ? "Al Mayor" : "Al Detal"}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-600">
+                      <div className="text-[11px] text-slate-600 dark:text-zinc-400">
                         {order.items?.map((item) => `${item.quantity}x ${item.product}`).join(", ")}
                       </div>
                     </div>
@@ -523,8 +523,8 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                     {/* ENTREGA Y ESTADO */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs text-slate-700 flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-slate-500" />
+                        <span className="font-mono text-xs text-slate-700 dark:text-zinc-300 flex items-center gap-1">
+                          <Calendar className="h-3 w-3 text-slate-500 dark:text-zinc-400" />
                           {order.delivery_date || "Sin fecha"}
                         </span>
                         {deliveryBadge && (
@@ -553,7 +553,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
         )}
 
         {/* PIE DE TABLA CON PAGINADOR (20 POR PÁGINA) */}
-        <div className="bg-[#F8F5EE] border-t-2 border-black p-3 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs text-slate-700">
+        <div className="bg-[#F8F5EE] dark:bg-zinc-900 border-t-2 border-black dark:border-zinc-700 p-3 flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs text-slate-700 dark:text-zinc-300">
           <div>
             Mostrando página <strong>{page}</strong> de <strong>{totalPages}</strong> (
             <strong>{totalCount}</strong> pedidos en total)
@@ -563,7 +563,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1 || isPending}
-              className="inline-flex items-center gap-1 px-3 py-1 bg-white text-black border-2 border-black font-bold uppercase shadow-[1.5px_1.5px_0px_#0A0A0A] hover:bg-slate-100 disabled:opacity-40 transition-all"
+              className="inline-flex items-center gap-1 px-3 py-1 bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 font-bold uppercase shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 disabled:opacity-40 transition-all"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
               <span>Anterior</span>
@@ -576,7 +576,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages || isPending}
-              className="inline-flex items-center gap-1 px-3 py-1 bg-white text-black border-2 border-black font-bold uppercase shadow-[1.5px_1.5px_0px_#0A0A0A] hover:bg-slate-100 disabled:opacity-40 transition-all"
+              className="inline-flex items-center gap-1 px-3 py-1 bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 font-bold uppercase shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 disabled:opacity-40 transition-all"
             >
               <span>Siguiente</span>
               <ChevronRight className="h-3.5 w-3.5" />

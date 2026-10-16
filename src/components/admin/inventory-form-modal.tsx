@@ -135,14 +135,14 @@ export function InventoryFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in overflow-y-auto">
-      <div className="bg-[#F8F5EE] border-2 border-black max-w-lg w-full shadow-[6px_6px_0px_#0A0A0A] p-5 sm:p-6 space-y-4 my-8">
+      <div className="bg-[#F8F5EE] dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 max-w-lg w-full shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] p-5 sm:p-6 space-y-4 my-8">
         {/* ENCABEZADO */}
-        <div className="flex items-center justify-between border-b-2 border-black pb-3">
+        <div className="flex items-center justify-between border-b-2 border-black dark:border-zinc-700 pb-3">
           <div>
             <span className="font-mono text-[10px] font-bold uppercase bg-[#FACC15] text-black px-2 py-0.5 border border-black shadow-[1px_1px_0px_#0A0A0A]">
               {isEditing ? "EDITAR REGISTRO" : "NUEVO INGRESO AL TALLER"}
             </span>
-            <h3 className="font-oswald text-xl sm:text-2xl font-black uppercase text-black pt-1">
+            <h3 className="font-oswald text-xl sm:text-2xl font-black uppercase text-black dark:text-white pt-1">
               {isEditing ? "Modificar Ítem de Inventario" : "Agregar Ítem al Inventario"}
             </h3>
           </div>
@@ -151,7 +151,7 @@ export function InventoryFormModal({
             type="button"
             onClick={onClose}
             disabled={isPending}
-            className="p-1.5 bg-white text-black border-2 border-black hover:bg-slate-100 shadow-[1.5px_1.5px_0px_#0A0A0A] transition-transform hover:scale-105"
+            className="p-1.5 bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-700 shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] transition-transform hover:scale-105"
             title="Cerrar ventana"
           >
             <X className="h-4 w-4" />
@@ -160,7 +160,7 @@ export function InventoryFormModal({
 
         {/* ERROR MESSAGE */}
         {errorMsg && (
-          <div className="bg-[#FFE4E6] border-2 border-[#E11D48] p-3 font-mono text-xs text-[#9F1239] font-bold">
+          <div className="bg-[#FFE4E6] dark:bg-rose-950/40 border-2 border-[#E11D48] p-3 font-mono text-xs text-[#9F1239] dark:text-rose-300 font-bold">
             ⚠️ {errorMsg}
           </div>
         )}
@@ -168,9 +168,9 @@ export function InventoryFormModal({
         <form onSubmit={handleSubmit} className="space-y-4 font-mono text-xs">
           {/* CATEGORÍA */}
           <div className="space-y-1">
-            <label className="font-bold text-black uppercase flex items-center justify-between">
+            <label className="font-bold text-black dark:text-zinc-200 uppercase flex items-center justify-between">
               <span>Categoría del Taller:</span>
-              <span className="text-slate-500 text-[10px] lowercase font-normal">
+              <span className="text-slate-500 dark:text-zinc-400 text-[10px] lowercase font-normal">
                 (clasificación en almacén)
               </span>
             </label>
@@ -184,10 +184,10 @@ export function InventoryFormModal({
                     key={catKey}
                     type="button"
                     onClick={() => handleCategoryChange(catKey)}
-                    className={`py-2 px-2 border-2 border-black font-bold uppercase text-center transition-all ${
+                    className={`py-2 px-2 border-2 border-black dark:border-zinc-700 font-bold uppercase text-center transition-all ${
                       isSelected
-                        ? `${config.badgeBg} ${config.badgeText} shadow-[2px_2px_0px_#0A0A0A] -translate-y-0.5`
-                        : "bg-white text-slate-800 hover:bg-slate-100"
+                        ? `${config.badgeBg} ${config.badgeText} shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] -translate-y-0.5`
+                        : "bg-white dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-700"
                     }`}
                   >
                     {config.shortLabel}
@@ -199,7 +199,7 @@ export function InventoryFormModal({
 
           {/* NOMBRE DEL ÍTEM */}
           <div className="space-y-1">
-            <label className="font-bold text-black uppercase block">
+            <label className="font-bold text-black dark:text-zinc-200 uppercase block">
               Nombre del Ítem / Producto: *
             </label>
             <input
@@ -216,15 +216,15 @@ export function InventoryFormModal({
                   : "Ej: Taza 11oz, Mousepad Gamer, Rompecabezas..."
               }
               required
-              className="w-full p-2 bg-white border-2 border-black font-mono text-xs text-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A]"
+              className="w-full p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
             />
           </div>
 
           {/* VARIANTE / ESPECIFICACIÓN */}
           <div className="space-y-1">
-            <label className="font-bold text-black uppercase flex items-center justify-between">
+            <label className="font-bold text-black dark:text-zinc-200 uppercase flex items-center justify-between">
               <span>Variante / Talla / Color:</span>
-              <span className="text-slate-500 text-[10px] font-normal">
+              <span className="text-slate-500 dark:text-zinc-400 text-[10px] font-normal">
                 (opcional para agrupar)
               </span>
             </label>
@@ -241,19 +241,19 @@ export function InventoryFormModal({
                   ? "Ej: Color Cian, 100ml, 50 metros..."
                   : "Ej: Mágica Negra, 70x30 cm, 120 piezas..."
               }
-              className="w-full p-2 bg-white border-2 border-black font-mono text-xs text-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A]"
+              className="w-full p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
             />
 
             {/* SUGERENCIAS RÁPIDAS PARA PRENDAS */}
             {category === "prenda" && (
               <div className="flex flex-wrap gap-1 pt-1 text-[10px]">
-                <span className="text-slate-500 py-0.5">Sugerir:</span>
+                <span className="text-slate-500 dark:text-zinc-400 py-0.5">Sugerir:</span>
                 {SHIRT_CUTS.map((cut) => (
                   <button
                     key={cut.value}
                     type="button"
                     onClick={() => setVariant((prev) => `${prev} ${cut.label.split(" ")[0]}`.trim())}
-                    className="px-1.5 py-0.5 bg-white border border-black hover:bg-[#FACC15]"
+                    className="px-1.5 py-0.5 bg-white dark:bg-zinc-800 text-black dark:text-zinc-200 border border-black dark:border-zinc-700 hover:bg-[#FACC15] dark:hover:bg-[#FACC15] dark:hover:text-black"
                   >
                     +{cut.label.split(" ")[0]}
                   </button>
@@ -263,7 +263,7 @@ export function InventoryFormModal({
                     key={size.value}
                     type="button"
                     onClick={() => setVariant((prev) => `${prev} ${size.value}`.trim())}
-                    className="px-1.5 py-0.5 bg-white border border-black hover:bg-[#FACC15]"
+                    className="px-1.5 py-0.5 bg-white dark:bg-zinc-800 text-black dark:text-zinc-200 border border-black dark:border-zinc-700 hover:bg-[#FACC15] dark:hover:bg-[#FACC15] dark:hover:text-black"
                   >
                     +{size.value}
                   </button>
@@ -273,7 +273,7 @@ export function InventoryFormModal({
                     key={col.value}
                     type="button"
                     onClick={() => setVariant((prev) => `${prev} ${col.label.split(" ")[0]}`.trim())}
-                    className="px-1.5 py-0.5 bg-white border border-black hover:bg-[#FACC15]"
+                    className="px-1.5 py-0.5 bg-white dark:bg-zinc-800 text-black dark:text-zinc-200 border border-black dark:border-zinc-700 hover:bg-[#FACC15] dark:hover:bg-[#FACC15] dark:hover:text-black"
                   >
                     +{col.label.split(" ")[0]}
                   </button>
@@ -285,7 +285,7 @@ export function InventoryFormModal({
           {/* CANTIDAD Y UNIDAD */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="font-bold text-black uppercase block">
+              <label className="font-bold text-black dark:text-zinc-200 uppercase block">
                 Cantidad a Ingresar: *
               </label>
               <input
@@ -295,21 +295,21 @@ export function InventoryFormModal({
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 required
-                className="w-full p-2 bg-white border-2 border-black font-mono text-xs text-black focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A]"
+                className="w-full p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-black uppercase block">
+              <label className="font-bold text-black dark:text-zinc-200 uppercase block">
                 Unidad de Medida:
               </label>
               <select
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                className="w-full p-2 bg-white border-2 border-black font-mono text-xs text-black focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] cursor-pointer"
+                className="w-full p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] cursor-pointer"
               >
                 {INVENTORY_COMMON_UNITS.map((u) => (
-                  <option key={u.value} value={u.value}>
+                  <option key={u.value} value={u.value} className="bg-white dark:bg-zinc-800 text-black dark:text-zinc-100">
                     {u.label}
                   </option>
                 ))}
@@ -320,10 +320,10 @@ export function InventoryFormModal({
           {/* STOCK MÍNIMO Y COSTO UNITARIO */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="font-bold text-black uppercase flex items-center justify-between">
+              <label className="font-bold text-black dark:text-zinc-200 uppercase flex items-center justify-between">
                 <span>Alerta Mínima:</span>
                 <span
-                  className="text-slate-500 cursor-help"
+                  className="text-slate-500 dark:text-zinc-400 cursor-help"
                   title="El taller te avisa en rojo cuando te quede menos de esto"
                 >
                   <Info className="h-3.5 w-3.5" />
@@ -335,15 +335,15 @@ export function InventoryFormModal({
                 min="0"
                 value={minStockAlert}
                 onChange={(e) => setMinStockAlert(e.target.value)}
-                className="w-full p-2 bg-white border-2 border-black font-mono text-xs text-black focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A]"
+                className="w-full p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-black uppercase flex items-center justify-between">
+              <label className="font-bold text-black dark:text-zinc-200 uppercase flex items-center justify-between">
                 <span>Costo Unitario ($ USD):</span>
                 <span
-                  className="text-slate-500 cursor-help"
+                  className="text-slate-500 dark:text-zinc-400 cursor-help"
                   title="Lo que nos costó comprar o traer cada unidad o metro en dólares"
                 >
                   <Info className="h-3.5 w-3.5" />
@@ -355,14 +355,14 @@ export function InventoryFormModal({
                 min="0"
                 value={costPerUnit}
                 onChange={(e) => setCostPerUnit(e.target.value)}
-                className="w-full p-2 bg-white border-2 border-black font-mono text-xs text-black focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A]"
+                className="w-full p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
               />
             </div>
           </div>
 
           {/* NOTAS ADICIONALES */}
           <div className="space-y-1">
-            <label className="font-bold text-black uppercase block">
+            <label className="font-bold text-black dark:text-zinc-200 uppercase block">
               Notas del Taller (Opcional):
             </label>
             <input
@@ -370,17 +370,17 @@ export function InventoryFormModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Ej: Proveedor Petare, rollo nuevo, lote de marzo..."
-              className="w-full p-2 bg-white border-2 border-black font-mono text-xs text-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A]"
+              className="w-full p-2 bg-white dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
             />
           </div>
 
           {/* PIE Y BOTONES DE ACCIÓN */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t-2 border-dashed border-slate-300">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t-2 border-dashed border-slate-300 dark:border-zinc-700">
             <button
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="font-mono text-xs font-bold uppercase px-3.5 py-2 bg-white text-black border-2 border-black hover:bg-slate-100 shadow-[2px_2px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-50"
+              className="font-mono text-xs font-bold uppercase px-3.5 py-2 bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-zinc-700 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] transition-all hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-50"
             >
               Cancelar
             </button>

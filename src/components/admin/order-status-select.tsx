@@ -55,13 +55,13 @@ export function OrderStatusSelect({
         value={status}
         onChange={handleChange}
         disabled={isPending}
-        className={`font-mono font-bold uppercase border-2 border-black shadow-[2px_2px_0px_#0A0A0A] cursor-pointer appearance-none focus:outline-none focus:ring-2 focus:ring-[#FACC15] transition-all disabled:opacity-60 ${sizeClasses} ${currentConfig.bg} ${currentConfig.text}`}
+        className={`font-mono font-bold uppercase border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] cursor-pointer appearance-none focus:outline-none focus:ring-2 focus:ring-[#FACC15] transition-all disabled:opacity-60 ${sizeClasses} ${currentConfig.bg} ${currentConfig.text}`}
         title="Cambiar estado del pedido"
       >
         {ORDER_STATUSES.map((statusKey) => {
           const item = ORDER_STATUS_CONFIG[statusKey];
           return (
-            <option key={statusKey} value={statusKey} className="bg-white text-black py-1">
+            <option key={statusKey} value={statusKey} className="bg-white dark:bg-zinc-800 text-black dark:text-zinc-100 py-1">
               {item.label}
             </option>
           );

@@ -175,23 +175,23 @@ export function InventoryTable({
       )}
 
       {/* BARRA SUPERIOR DE BÚSQUEDA, FILTROS Y BOTONES */}
-      <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_#0A0A0A] space-y-4">
+      <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-4 shadow-[4px_4px_0px_#0A0A0A] dark:shadow-[4px_4px_0px_#000000] space-y-4">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
           {/* BUSCADOR CON DEBOUNCE (300ms) */}
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 dark:text-zinc-400 pointer-events-none" />
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Buscar por nombre, tela, talla o notas (300ms)..."
-              className="w-full pl-9 pr-8 py-2 bg-[#F8F5EE] border-2 border-black font-mono text-xs text-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A]"
+              className="w-full pl-9 pr-8 py-2 bg-[#F8F5EE] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
             />
             {searchInput && (
               <button
                 type="button"
                 onClick={() => setSearchInput("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-black"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-black dark:text-zinc-400 dark:hover:text-white"
                 title="Limpiar búsqueda"
               >
                 <X className="h-3.5 w-3.5" />
@@ -218,10 +218,10 @@ export function InventoryTable({
             <button
               type="button"
               onClick={() => exportInventoryToCsv(items)}
-              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase bg-white text-black border-2 border-black px-3 py-2 shadow-[2px_2px_0px_#0A0A0A] hover:bg-slate-100 transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 px-3 py-2 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all hover:translate-x-0.5 hover:translate-y-0.5"
               title="Descargar copia del inventario actual en formato CSV para Excel"
             >
-              <Download className="h-3.5 w-3.5 text-black" />
+              <Download className="h-3.5 w-3.5 text-black dark:text-white" />
               <span className="hidden sm:inline">Exportar CSV</span>
             </button>
 
@@ -229,17 +229,17 @@ export function InventoryTable({
             <button
               type="button"
               onClick={() => downloadCsvTemplate()}
-              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase bg-white text-slate-700 border-2 border-black px-2.5 py-2 shadow-[2px_2px_0px_#0A0A0A] hover:bg-slate-100 transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 border-2 border-black dark:border-zinc-700 px-2.5 py-2 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all hover:translate-x-0.5 hover:translate-y-0.5"
               title="Descargar plantilla CSV con ejemplos para rellenar en Excel"
             >
-              <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-700" />
+              <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
               <span className="hidden md:inline">Plantilla CSV</span>
             </button>
           </div>
         </div>
 
         {/* PESTAÑAS DE CATEGORÍA Y FILTROS TOGGLE */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-1 border-t border-dashed border-slate-300">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-1 border-t border-dashed border-slate-300 dark:border-zinc-700">
           <InventoryTabs
             selectedCategory={selectedCategory}
             onSelectCategory={(cat) => setSelectedCategory(cat)}
@@ -251,10 +251,10 @@ export function InventoryTable({
             <button
               type="button"
               onClick={() => setOnlyAlerts((prev) => !prev)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 border-2 border-black font-bold uppercase transition-all ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 border-2 border-black dark:border-zinc-700 font-bold uppercase transition-all ${
                 onlyAlerts
-                  ? "bg-[#F43F5E] text-white shadow-[2px_2px_0px_#0A0A0A]"
-                  : "bg-white text-slate-700 hover:bg-slate-100 shadow-[1px_1px_0px_#0A0A0A]"
+                  ? "bg-[#F43F5E] text-white shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
+                  : "bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-700 shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000]"
               }`}
             >
               <AlertTriangle className="h-3.5 w-3.5" />
@@ -265,10 +265,10 @@ export function InventoryTable({
             <button
               type="button"
               onClick={() => setShowArchived((prev) => !prev)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 border-2 border-black font-bold uppercase transition-all ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 border-2 border-black dark:border-zinc-700 font-bold uppercase transition-all ${
                 showArchived
-                  ? "bg-black text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A]"
-                  : "bg-white text-slate-700 hover:bg-slate-100 shadow-[1px_1px_0px_#0A0A0A]"
+                  ? "bg-black dark:bg-zinc-800 text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]"
+                  : "bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-700 shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000]"
               }`}
             >
               <Archive className="h-3.5 w-3.5" />
@@ -287,14 +287,14 @@ export function InventoryTable({
       )}
 
       {/* TABLA PRINCIPAL DE INVENTARIO */}
-      <div className="bg-white border-2 border-black shadow-[6px_6px_0px_#0A0A0A] overflow-hidden">
+      <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] overflow-hidden">
         {items.length === 0 ? (
           <div className="p-12 text-center space-y-3">
-            <PackageOpen className="h-10 w-10 text-slate-400 mx-auto" />
-            <h3 className="font-oswald text-lg font-black uppercase text-black">
+            <PackageOpen className="h-10 w-10 text-slate-400 dark:text-zinc-600 mx-auto" />
+            <h3 className="font-oswald text-lg font-black uppercase text-black dark:text-white">
               No hay ítems en esta vista
             </h3>
-            <p className="font-mono text-xs text-slate-600 max-w-md mx-auto">
+            <p className="font-mono text-xs text-slate-600 dark:text-zinc-400 max-w-md mx-auto">
               {searchInput || onlyAlerts || showArchived || selectedCategory !== "todos"
                 ? "Ningún ítem coincide con los filtros aplicados."
                 : "Aún no has registrado materiales, telas o prendas en el taller."}
@@ -317,21 +317,21 @@ export function InventoryTable({
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse font-sans">
                 <thead>
-                  <tr className="bg-[#F8F5EE] border-b-2 border-black font-oswald text-xs uppercase tracking-wider text-black">
-                    <th className="p-3 border-r border-black">Categoría</th>
-                    <th className="p-3 border-r border-black">Nombre del Ítem</th>
-                    <th className="p-3 border-r border-black">Variante / Detalle</th>
-                    <th className="p-3 border-r border-black text-center">Existencia</th>
-                    <th className="p-3 border-r border-black text-center">Ajuste Rápido</th>
-                    <th className="p-3 border-r border-black">Stock Mínimo</th>
-                    <th className="p-3 border-r border-black">Costo / Valor</th>
+                  <tr className="bg-[#F8F5EE] dark:bg-zinc-900 border-b-2 border-black dark:border-zinc-700 font-oswald text-xs uppercase tracking-wider text-black dark:text-zinc-200">
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Categoría</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Nombre del Ítem</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Variante / Detalle</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700 text-center">Existencia</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700 text-center">Ajuste Rápido</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Stock Mínimo</th>
+                    <th className="p-3 border-r border-black dark:border-zinc-700">Costo / Valor</th>
                     <th className="p-3 text-center">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y-2 divide-black text-xs">
+                <tbody className="divide-y-2 divide-black dark:divide-zinc-700 text-xs">
                   {items.map((item) => {
                     const catConfig =
-                      INVENTORY_CATEGORY_CONFIG[item.category] ||
+                       INVENTORY_CATEGORY_CONFIG[item.category] ||
                       INVENTORY_CATEGORY_CONFIG.material;
                     const isLowStock =
                       Number(item.quantity) <= Number(item.min_stock_alert);
@@ -343,59 +343,59 @@ export function InventoryTable({
                     return (
                       <tr
                         key={item.id}
-                        className={`hover:bg-[#FFFDF7] transition-colors ${
-                          item.archived_at ? "bg-slate-50 opacity-75" : ""
+                        className={`hover:bg-[#FFFDF7] dark:hover:bg-zinc-800/50 transition-colors ${
+                          item.archived_at ? "bg-slate-50 dark:bg-zinc-900/50 opacity-75" : ""
                         }`}
                       >
                         {/* CATEGORÍA */}
-                        <td className="p-3 border-r border-black align-middle">
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-middle">
                           <span
-                            className={`inline-block font-mono text-[10px] font-bold uppercase px-2 py-0.5 border border-black ${catConfig.badgeBg} ${catConfig.badgeText}`}
+                            className={`inline-block font-mono text-[10px] font-bold uppercase px-2 py-0.5 border border-black dark:border-zinc-700 ${catConfig.badgeBg} ${catConfig.badgeText}`}
                           >
                             {catConfig.shortLabel}
                           </span>
                         </td>
 
                         {/* NOMBRE */}
-                        <td className="p-3 border-r border-black align-middle">
-                          <div className="font-bold text-black text-sm">{item.name}</div>
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-middle">
+                          <div className="font-bold text-black dark:text-white text-sm">{item.name}</div>
                           {item.notes && (
-                            <div className="font-mono text-[10px] text-slate-500 truncate max-w-xs">
+                            <div className="font-mono text-[10px] text-slate-500 dark:text-zinc-400 truncate max-w-xs">
                               {item.notes}
                             </div>
                           )}
                         </td>
 
                         {/* VARIANTE */}
-                        <td className="p-3 border-r border-black align-middle font-mono text-xs">
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-middle font-mono text-xs">
                           {item.variant ? (
-                            <span className="bg-[#F8F5EE] px-1.5 py-0.5 border border-slate-300 font-bold text-slate-800">
+                            <span className="bg-[#F8F5EE] dark:bg-zinc-800 px-1.5 py-0.5 border border-slate-300 dark:border-zinc-700 font-bold text-slate-800 dark:text-zinc-200">
                               {item.variant}
                             </span>
                           ) : (
-                            <span className="text-slate-400 text-[10px]">—</span>
+                            <span className="text-slate-400 dark:text-zinc-500 text-[10px]">—</span>
                           )}
                         </td>
 
                         {/* EXISTENCIA ACTUAL */}
-                        <td className="p-3 border-r border-black align-middle text-center">
-                          <div className="font-oswald text-xl font-black text-black">
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-middle text-center">
+                          <div className="font-oswald text-xl font-black text-black dark:text-white">
                             {item.quantity}{" "}
-                            <span className="font-mono text-xs font-normal text-slate-600">
+                            <span className="font-mono text-xs font-normal text-slate-600 dark:text-zinc-400">
                               {item.unit}
                             </span>
                           </div>
                         </td>
 
                         {/* AJUSTE RÁPIDO (+1 / -1) */}
-                        <td className="p-3 border-r border-black align-middle text-center">
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-middle text-center">
                           <div className="inline-flex items-center gap-1.5">
                             {/* BOTÓN -1 (DESHABILITADO SI QUANTITY <= 0) */}
                             <button
                               type="button"
                               onClick={() => handleAdjustStock(item, -1)}
                               disabled={item.quantity <= 0 || isItemAdjusting}
-                              className="h-7 w-7 inline-flex items-center justify-center font-mono text-xs font-black uppercase bg-white text-black border-2 border-black hover:bg-slate-200 shadow-[1px_1px_0px_#0A0A0A] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                              className="h-7 w-7 inline-flex items-center justify-center font-mono text-xs font-black uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                               title={
                                 item.quantity <= 0
                                   ? "No puedes bajar de cero"
@@ -419,24 +419,24 @@ export function InventoryTable({
                         </td>
 
                         {/* STOCK MÍNIMO & ALERTA */}
-                        <td className="p-3 border-r border-black align-middle space-y-1">
-                          <div className="font-mono text-xs text-slate-700">
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-middle space-y-1">
+                          <div className="font-mono text-xs text-slate-700 dark:text-zinc-300">
                             Min: <strong>{item.min_stock_alert}</strong> {item.unit}
                           </div>
                           {isLowStock && (
-                            <span className="inline-flex items-center gap-1 font-mono text-[9px] font-black uppercase bg-[#FFE4E6] text-[#9F1239] border border-[#F43F5E] px-1.5 py-0.5">
-                              <AlertTriangle className="h-2.5 w-2.5 text-[#F43F5E]" />
+                            <span className="inline-flex items-center gap-1 font-mono text-[9px] font-black uppercase bg-[#FFE4E6] dark:bg-rose-950/40 text-[#9F1239] dark:text-rose-300 border border-[#F43F5E] dark:border-rose-600 px-1.5 py-0.5">
+                              <AlertTriangle className="h-2.5 w-2.5 text-[#F43F5E] dark:text-rose-400" />
                               <span>Bajo Mínimo</span>
                             </span>
                           )}
                         </td>
 
                         {/* COSTO UNITARIO Y VALOR TOTAL */}
-                        <td className="p-3 border-r border-black align-middle font-mono text-xs space-y-0.5">
+                        <td className="p-3 border-r border-black dark:border-zinc-700 align-middle font-mono text-xs space-y-0.5 text-black dark:text-zinc-200">
                           <div>
                             Costo: <strong>${item.cost_per_unit}</strong>
                           </div>
-                          <div className="text-[10px] text-slate-500">
+                          <div className="text-[10px] text-slate-500 dark:text-zinc-400">
                             Total: <strong>${totalValue}</strong>
                           </div>
                         </td>
@@ -451,7 +451,7 @@ export function InventoryTable({
                                 setEditingItem(item);
                                 setIsFormModalOpen(true);
                               }}
-                              className="p-1.5 bg-white text-black border border-black hover:bg-[#FACC15] shadow-[1px_1px_0px_#0A0A0A] transition-all"
+                              className="p-1.5 bg-white dark:bg-zinc-800 text-black dark:text-white border border-black dark:border-zinc-700 hover:bg-[#FACC15] dark:hover:bg-[#FACC15] dark:hover:text-black shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000] transition-all"
                               title="Editar ítem"
                             >
                               <Edit2 className="h-3.5 w-3.5" />
@@ -480,7 +480,7 @@ export function InventoryTable({
                                 <button
                                   type="button"
                                   onClick={() => setConfirmArchiveId(null)}
-                                  className="font-mono text-[10px] uppercase px-1 py-1 bg-white border border-black"
+                                  className="font-mono text-[10px] uppercase px-1 py-1 bg-white dark:bg-zinc-800 text-black dark:text-white border border-black dark:border-zinc-700"
                                 >
                                   ✕
                                 </button>
@@ -489,7 +489,7 @@ export function InventoryTable({
                               <button
                                 type="button"
                                 onClick={() => setConfirmArchiveId(item.id)}
-                                className="p-1.5 bg-white text-slate-700 border border-black hover:bg-[#FFE4E6] hover:text-[#F43F5E] shadow-[1px_1px_0px_#0A0A0A] transition-all"
+                                className="p-1.5 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-black dark:border-zinc-700 hover:bg-[#FFE4E6] dark:hover:bg-rose-950/40 hover:text-[#F43F5E] shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000] transition-all"
                                 title="Archivar ítem (Soft Delete)"
                               >
                                 <Archive className="h-3.5 w-3.5" />
@@ -505,7 +505,7 @@ export function InventoryTable({
             </div>
 
             {/* VISTA MÓVIL (TARJETAS APILADAS) */}
-            <div className="block md:hidden divide-y-2 divide-black">
+            <div className="block md:hidden divide-y-2 divide-black dark:divide-zinc-700">
               {items.map((item) => {
                 const catConfig =
                   INVENTORY_CATEGORY_CONFIG[item.category] ||
@@ -517,19 +517,19 @@ export function InventoryTable({
                   <div
                     key={item.id}
                     className={`p-4 space-y-3 ${
-                      item.archived_at ? "bg-slate-50 opacity-80" : "bg-white"
+                      item.archived_at ? "bg-slate-50 dark:bg-zinc-900/50 opacity-80" : "bg-white dark:bg-[#1E1E1E]"
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-2 border-b border-black pb-2">
+                    <div className="flex items-center justify-between gap-2 border-b border-black dark:border-zinc-700 pb-2">
                       <span
-                        className={`font-mono text-[10px] font-bold uppercase px-2 py-0.5 border border-black ${catConfig.badgeBg} ${catConfig.badgeText}`}
+                        className={`font-mono text-[10px] font-bold uppercase px-2 py-0.5 border border-black dark:border-zinc-700 ${catConfig.badgeBg} ${catConfig.badgeText}`}
                       >
                         {catConfig.shortLabel}
                       </span>
 
                       {isLowStock && (
-                        <span className="inline-flex items-center gap-1 font-mono text-[10px] font-black uppercase bg-[#FFE4E6] text-[#9F1239] border border-[#F43F5E] px-2 py-0.5">
-                          <AlertTriangle className="h-3 w-3 text-[#F43F5E]" />
+                        <span className="inline-flex items-center gap-1 font-mono text-[10px] font-black uppercase bg-[#FFE4E6] dark:bg-rose-950/40 text-[#9F1239] dark:text-rose-300 border border-[#F43F5E] dark:border-rose-600 px-2 py-0.5">
+                          <AlertTriangle className="h-3 w-3 text-[#F43F5E] dark:text-rose-400" />
                           <span>Stock Bajo</span>
                         </span>
                       )}
@@ -537,14 +537,14 @@ export function InventoryTable({
 
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <h4 className="font-bold text-sm text-black">{item.name}</h4>
+                        <h4 className="font-bold text-sm text-black dark:text-white">{item.name}</h4>
                         {item.variant && (
-                          <div className="font-mono text-xs text-slate-700 font-bold pt-0.5">
+                          <div className="font-mono text-xs text-slate-700 dark:text-zinc-300 font-bold pt-0.5">
                             Variante: {item.variant}
                           </div>
                         )}
                         {item.notes && (
-                          <div className="font-mono text-[11px] text-slate-500 pt-0.5">
+                          <div className="font-mono text-[11px] text-slate-500 dark:text-zinc-400 pt-0.5">
                             {item.notes}
                           </div>
                         )}
@@ -552,24 +552,24 @@ export function InventoryTable({
 
                       {/* EXISTENCIA */}
                       <div className="text-right">
-                        <div className="font-oswald text-2xl font-black text-black">
+                        <div className="font-oswald text-2xl font-black text-black dark:text-white">
                           {item.quantity}
                         </div>
-                        <div className="font-mono text-[10px] text-slate-500 uppercase">
+                        <div className="font-mono text-[10px] text-slate-500 dark:text-zinc-400 uppercase">
                           {item.unit}
                         </div>
                       </div>
                     </div>
 
                     {/* AJUSTES Y ACCIONES EN MÓVIL */}
-                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-dashed border-slate-300">
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-dashed border-slate-300 dark:border-zinc-700">
                       {/* CONTROLES +1 Y -1 */}
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
                           onClick={() => handleAdjustStock(item, -1)}
                           disabled={item.quantity <= 0}
-                          className="h-8 w-9 font-mono text-xs font-black uppercase bg-white border-2 border-black hover:bg-slate-200 shadow-[1px_1px_0px_#0A0A0A] disabled:opacity-30"
+                          className="h-8 w-9 font-mono text-xs font-black uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000] disabled:opacity-30"
                         >
                           -1
                         </button>
@@ -590,7 +590,7 @@ export function InventoryTable({
                             setEditingItem(item);
                             setIsFormModalOpen(true);
                           }}
-                          className="px-2.5 py-1.5 font-mono text-xs font-bold uppercase bg-white text-black border border-black hover:bg-[#FACC15] shadow-[1px_1px_0px_#0A0A0A]"
+                          className="px-2.5 py-1.5 font-mono text-xs font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border border-black dark:border-zinc-700 hover:bg-[#FACC15] dark:hover:bg-[#FACC15] dark:hover:text-black shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000]"
                         >
                           Editar
                         </button>
@@ -615,7 +615,7 @@ export function InventoryTable({
                           <button
                             type="button"
                             onClick={() => setConfirmArchiveId(item.id)}
-                            className="px-2.5 py-1.5 font-mono text-xs font-bold uppercase bg-white text-slate-700 border border-black hover:bg-[#FFE4E6]"
+                            className="px-2.5 py-1.5 font-mono text-xs font-bold uppercase bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-black dark:border-zinc-700 hover:bg-[#FFE4E6] dark:hover:bg-rose-950/40"
                           >
                             Archivar
                           </button>
@@ -630,11 +630,11 @@ export function InventoryTable({
         )}
 
         {/* PIE DE TABLA */}
-        <div className="bg-[#F8F5EE] border-t-2 border-black p-3 flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-xs text-slate-700">
+        <div className="bg-[#F8F5EE] dark:bg-zinc-900 border-t-2 border-black dark:border-zinc-700 p-3 flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-xs text-slate-700 dark:text-zinc-300">
           <div>
             Mostrando <strong>{items.length}</strong> ítems en la vista actual.
           </div>
-          <div className="text-[11px] text-slate-500">
+          <div className="text-[11px] text-slate-500 dark:text-zinc-400">
             * Los cambios de stock se guardan en tiempo real en Supabase.
           </div>
         </div>

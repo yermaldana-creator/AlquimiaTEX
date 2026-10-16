@@ -197,10 +197,10 @@ export function OrderDetail({ order }: OrderDetailProps) {
   return (
     <div className="space-y-6">
       {/* NAVEGACIÓN SUPERIOR Y ACCIONES */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-black pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-black dark:border-zinc-700 pb-4">
         <Link
           href="/admin/pedidos"
-          className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase bg-white text-black border-2 border-black px-3 py-1.5 shadow-[2px_2px_0px_#0A0A0A] hover:bg-slate-100 transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+          className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 px-3 py-1.5 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all hover:translate-x-0.5 hover:translate-y-0.5"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Volver a la Lista</span>
@@ -231,17 +231,17 @@ export function OrderDetail({ order }: OrderDetailProps) {
       </div>
 
       {/* ENCABEZADO PRINCIPAL DE LA FICHA */}
-      <div className="bg-white border-2 border-black p-5 shadow-[6px_6px_0px_#0A0A0A] space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-black pb-4">
+      <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-5 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-black dark:border-zinc-700 pb-4">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <span className="font-oswald text-3xl sm:text-4xl font-black uppercase text-black">
+              <span className="font-oswald text-3xl sm:text-4xl font-black uppercase text-black dark:text-white">
                 {order.order_code}
               </span>
               <OrderStatusBadge status={currentStatus} size="lg" />
             </div>
-            <p className="font-mono text-xs text-slate-600 flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5 text-slate-500" />
+            <p className="font-mono text-xs text-slate-600 dark:text-zinc-400 flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 text-slate-500 dark:text-zinc-400" />
               <span>
                 Registrado el{" "}
                 {order.created_at
@@ -258,8 +258,8 @@ export function OrderDetail({ order }: OrderDetailProps) {
           </div>
 
           {/* CAMBIADOR DE ESTADO EN CABECERA */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 bg-[#F8F5EE] p-3 border-2 border-black">
-            <span className="font-mono text-xs font-bold uppercase text-slate-700">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 bg-[#F8F5EE] dark:bg-zinc-900 p-3 border-2 border-black dark:border-zinc-700">
+            <span className="font-mono text-xs font-bold uppercase text-slate-700 dark:text-zinc-300">
               Estado Actual:
             </span>
             <OrderStatusSelect
@@ -273,30 +273,30 @@ export function OrderDetail({ order }: OrderDetailProps) {
         {/* REJILLA: DATOS DEL CLIENTE + RESUMEN FINANCIERO */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
           {/* DATOS DEL CLIENTE */}
-          <div className="border-2 border-black p-4 bg-[#FFFDF7] space-y-3">
-            <div className="flex items-center gap-2 text-black font-oswald text-base uppercase border-b border-black pb-1.5 font-black">
-              <User className="h-4 w-4 text-[#581C87]" />
+          <div className="border-2 border-black dark:border-zinc-700 p-4 bg-[#FFFDF7] dark:bg-zinc-900 space-y-3">
+            <div className="flex items-center gap-2 text-black dark:text-white font-oswald text-base uppercase border-b border-black dark:border-zinc-700 pb-1.5 font-black">
+              <User className="h-4 w-4 text-[#581C87] dark:text-[#C084FC]" />
               <span>Información del Cliente</span>
             </div>
 
             <div className="font-mono text-xs space-y-2">
               <div>
-                <span className="text-slate-500 block text-[10px] uppercase">Nombre:</span>
-                <strong className="text-black text-sm">{order.customer_name}</strong>
+                <span className="text-slate-500 dark:text-zinc-400 block text-[10px] uppercase">Nombre:</span>
+                <strong className="text-black dark:text-white text-sm">{order.customer_name}</strong>
               </div>
 
               <div>
-                <span className="text-slate-500 block text-[10px] uppercase">Teléfono:</span>
-                <span className="text-black text-sm">{order.customer_phone}</span>
+                <span className="text-slate-500 dark:text-zinc-400 block text-[10px] uppercase">Teléfono:</span>
+                <span className="text-black dark:text-zinc-200 text-sm">{order.customer_phone}</span>
               </div>
 
               <div>
-                <span className="text-slate-500 block text-[10px] uppercase">
+                <span className="text-slate-500 dark:text-zinc-400 block text-[10px] uppercase">
                   Fecha Prometida de Entrega:
                 </span>
                 <div className="flex items-center gap-2 pt-0.5">
-                  <span className="font-bold text-black flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5 text-slate-600" />
+                  <span className="font-bold text-black dark:text-zinc-200 flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5 text-slate-600 dark:text-zinc-400" />
                     {order.delivery_date || "No especificada"}
                   </span>
                   {deliveryBadge && (
@@ -324,25 +324,25 @@ export function OrderDetail({ order }: OrderDetailProps) {
           </div>
 
           {/* RESUMEN FINANCIERO Y DE PAGO */}
-          <div className="border-2 border-black p-4 bg-[#FFFDF7] space-y-3">
-            <div className="flex items-center gap-2 text-black font-oswald text-base uppercase border-b border-black pb-1.5 font-black">
+          <div className="border-2 border-black dark:border-zinc-700 p-4 bg-[#FFFDF7] dark:bg-zinc-900 space-y-3">
+            <div className="flex items-center gap-2 text-black dark:text-white font-oswald text-base uppercase border-b border-black dark:border-zinc-700 pb-1.5 font-black">
               <CreditCard className="h-4 w-4 text-[#06B6D4]" />
               <span>Condiciones & Pago</span>
             </div>
 
             <div className="font-mono text-xs space-y-2.5">
               <div>
-                <span className="text-slate-500 block text-[10px] uppercase">
+                <span className="text-slate-500 dark:text-zinc-400 block text-[10px] uppercase">
                   Modalidad de Pedido:
                 </span>
                 <span
-                  className={`inline-block font-mono text-xs font-black uppercase px-2 py-0.5 border border-black mt-1 ${
-                    isDocena ? "bg-[#581C87] text-[#FACC15]" : "bg-white text-black"
+                  className={`inline-block font-mono text-xs font-black uppercase px-2 py-0.5 border border-black dark:border-zinc-700 mt-1 ${
+                    isDocena ? "bg-[#581C87] text-[#FACC15]" : "bg-white dark:bg-zinc-800 text-black dark:text-zinc-200"
                   }`}
                 >
                   {isDocena ? "Pedido al Mayor (Docena)" : "Pedido al Detal (Unidad)"}
                 </span>
-                <p className="text-[11px] text-slate-600 pt-1">
+                <p className="text-[11px] text-slate-600 dark:text-zinc-400 pt-1">
                   {isDocena
                     ? "Condición: 50% de abono para iniciar producción y 50% restante contra entrega."
                     : "Condición: Pago del 100% anticipado para confección y estampado."}
@@ -350,25 +350,25 @@ export function OrderDetail({ order }: OrderDetailProps) {
               </div>
 
               <div>
-                <span className="text-slate-500 block text-[10px] uppercase">Método de Pago:</span>
-                <strong className="text-black uppercase">
+                <span className="text-slate-500 dark:text-zinc-400 block text-[10px] uppercase">Método de Pago:</span>
+                <strong className="text-black dark:text-zinc-200 uppercase">
                   {order.payment_method || "No especificado"}
                 </strong>
               </div>
 
-              <div className="pt-1 border-t border-dashed border-slate-300 flex items-center justify-between">
+              <div className="pt-1 border-t border-dashed border-slate-300 dark:border-zinc-700 flex items-center justify-between">
                 <div>
-                  <span className="text-slate-500 block text-[10px] uppercase">
+                  <span className="text-slate-500 dark:text-zinc-400 block text-[10px] uppercase">
                     Total Prendas:
                   </span>
-                  <strong className="text-black text-base">{totalQuantity} piezas</strong>
+                  <strong className="text-black dark:text-white text-base">{totalQuantity} piezas</strong>
                 </div>
 
                 <div className="text-right">
-                  <span className="text-slate-500 block text-[10px] uppercase">
+                  <span className="text-slate-500 dark:text-zinc-400 block text-[10px] uppercase">
                     Imágenes Adjuntas:
                   </span>
-                  <span className="font-bold text-black">{orderImages.length} archivos</span>
+                  <span className="font-bold text-black dark:text-zinc-200">{orderImages.length} archivos</span>
                 </div>
               </div>
             </div>
@@ -377,11 +377,11 @@ export function OrderDetail({ order }: OrderDetailProps) {
       </div>
 
       {/* LISTA DETALLADA DE PRODUCTOS */}
-      <div className="bg-white border-2 border-black p-5 shadow-[6px_6px_0px_#0A0A0A] space-y-4">
-        <div className="flex items-center justify-between border-b-2 border-black pb-3">
+      <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-5 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] space-y-4">
+        <div className="flex items-center justify-between border-b-2 border-black dark:border-zinc-700 pb-3">
           <div className="flex items-center gap-2">
-            <Layers className="h-5 w-5 text-black" />
-            <h2 className="font-oswald text-xl font-black uppercase text-black">
+            <Layers className="h-5 w-5 text-black dark:text-white" />
+            <h2 className="font-oswald text-xl font-black uppercase text-black dark:text-white">
               Prendas & Especificaciones Técnicas
             </h2>
           </div>
@@ -396,15 +396,15 @@ export function OrderDetail({ order }: OrderDetailProps) {
               return (
                 <div
                   key={item.id || index}
-                  className="border-2 border-black p-4 bg-[#F8F5EE] shadow-[3px_3px_0px_#0A0A0A] space-y-3"
+                  className="border-2 border-black dark:border-zinc-700 p-4 bg-[#F8F5EE] dark:bg-zinc-900 shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000] space-y-3"
                 >
                   {/* ENCABEZADO DEL ITEM */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black pb-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black dark:border-zinc-700 pb-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-black bg-black text-[#FACC15] px-2 py-0.5">
+                      <span className="font-mono text-xs font-black bg-black dark:bg-zinc-800 text-[#FACC15] px-2 py-0.5 border border-black dark:border-zinc-700">
                         ITEM #{index + 1}
                       </span>
-                      <h3 className="font-oswald text-lg font-black uppercase text-black">
+                      <h3 className="font-oswald text-lg font-black uppercase text-black dark:text-white">
                         {item.product === "camisa"
                           ? "Camisa / Franela"
                           : item.product === "mousepad"
@@ -416,7 +416,7 @@ export function OrderDetail({ order }: OrderDetailProps) {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-black bg-white text-black px-2.5 py-1 border border-black shadow-[1.5px_1.5px_0px_#0A0A0A]">
+                      <span className="font-mono text-xs font-black bg-white dark:bg-zinc-800 text-black dark:text-zinc-100 px-2.5 py-1 border border-black dark:border-zinc-700 shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000]">
                         Cantidad: {item.quantity} {item.quantity > 1 ? "unidades" : "unidad"}
                       </span>
                       {item.aiGeneratedImage && (
@@ -432,67 +432,67 @@ export function OrderDetail({ order }: OrderDetailProps) {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 font-mono text-xs">
                     {/* TALLA */}
                     {item.shirtSize && (
-                      <div className="bg-white p-2 border border-black">
-                        <span className="text-[10px] text-slate-500 uppercase block">Talla:</span>
-                        <strong className="text-black">{item.shirtSize}</strong>
+                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Talla:</span>
+                        <strong className="text-black dark:text-zinc-100">{item.shirtSize}</strong>
                       </div>
                     )}
 
                     {/* CORTE */}
                     {item.shirtCut && (
-                      <div className="bg-white p-2 border border-black">
-                        <span className="text-[10px] text-slate-500 uppercase block">Corte:</span>
-                        <strong className="text-black uppercase">{item.shirtCut}</strong>
+                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Corte:</span>
+                        <strong className="text-black dark:text-zinc-100 uppercase">{item.shirtCut}</strong>
                       </div>
                     )}
 
                     {/* TELA */}
                     {item.shirtFabric && (
-                      <div className="bg-white p-2 border border-black">
-                        <span className="text-[10px] text-slate-500 uppercase block">Tela:</span>
-                        <strong className="text-black">{item.shirtFabric}</strong>
+                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Tela:</span>
+                        <strong className="text-black dark:text-zinc-100">{item.shirtFabric}</strong>
                       </div>
                     )}
 
                     {/* COLOR */}
                     {item.shirtColor && (
-                      <div className="bg-white p-2 border border-black">
-                        <span className="text-[10px] text-slate-500 uppercase block">Color:</span>
-                        <strong className="text-black uppercase">{item.shirtColor}</strong>
+                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Color:</span>
+                        <strong className="text-black dark:text-zinc-100 uppercase">{item.shirtColor}</strong>
                       </div>
                     )}
 
                     {/* MEDIDAS MOUSEPAD */}
                     {item.mousepadSize && (
-                      <div className="bg-white p-2 border border-black">
-                        <span className="text-[10px] text-slate-500 uppercase block">Medida:</span>
-                        <strong className="text-black">{item.mousepadSize}</strong>
+                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Medida:</span>
+                        <strong className="text-black dark:text-zinc-100">{item.mousepadSize}</strong>
                       </div>
                     )}
 
                     {/* PIEZAS ROMPECABEZAS */}
                     {item.puzzlePieces && (
-                      <div className="bg-white p-2 border border-black">
-                        <span className="text-[10px] text-slate-500 uppercase block">Piezas:</span>
-                        <strong className="text-black">{item.puzzlePieces} piezas</strong>
+                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Piezas:</span>
+                        <strong className="text-black dark:text-zinc-100">{item.puzzlePieces} piezas</strong>
                       </div>
                     )}
                   </div>
 
                   {/* NOTAS O INDICACIONES */}
                   {(item.notes || item.description) && (
-                    <div className="bg-[#FFFDF7] p-2.5 border border-black font-mono text-xs">
-                      <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                    <div className="bg-[#FFFDF7] dark:bg-zinc-850 p-2.5 border border-black dark:border-zinc-700 font-mono text-xs">
+                      <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase font-bold block">
                         Instrucciones del Cliente:
                       </span>
-                      <p className="text-slate-800 pt-0.5">{item.notes || item.description}</p>
+                      <p className="text-slate-800 dark:text-zinc-200 pt-0.5">{item.notes || item.description}</p>
                     </div>
                   )}
 
                   {/* PREVISUALIZACIÓN DE IMÁGENES & BOTONES DE DESCARGA */}
                   {(item.referenceImage || item.referenceImageUrl || item.aiGeneratedImage) && (
-                    <div className="pt-2 border-t border-black space-y-2">
-                      <span className="font-mono text-[10px] font-bold text-slate-700 uppercase block">
+                    <div className="pt-2 border-t border-black dark:border-zinc-700 space-y-2">
+                      <span className="font-mono text-[10px] font-bold text-slate-700 dark:text-zinc-300 uppercase block">
                         Arte & Referencias Visuales:
                       </span>
 
@@ -500,7 +500,7 @@ export function OrderDetail({ order }: OrderDetailProps) {
                         {/* IMAGEN DE REFERENCIA */}
                         {(item.referenceImageUrl || item.referenceImage) && (
                           <div className="flex flex-col gap-1.5">
-                            <div className="relative h-32 w-32 bg-white border-2 border-black shadow-[2px_2px_0px_#0A0A0A] overflow-hidden group">
+                            <div className="relative h-32 w-32 bg-white dark:bg-zinc-800 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={item.referenceImageUrl || item.referenceImage}
@@ -521,12 +521,12 @@ export function OrderDetail({ order }: OrderDetailProps) {
                                 );
                               }}
                               disabled={downloadingImageIdx === index * 2}
-                              className="inline-flex items-center justify-center gap-1 font-mono text-[11px] font-bold uppercase bg-white text-black border border-black px-2 py-1 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:bg-slate-100 transition-all hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-50"
+                              className="inline-flex items-center justify-center gap-1 font-mono text-[11px] font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border border-black dark:border-zinc-700 px-2 py-1 shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-50"
                             >
                               {downloadingImageIdx === index * 2 ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
                               ) : (
-                                <Download className="h-3 w-3 text-black" />
+                                <Download className="h-3 w-3 text-black dark:text-white" />
                               )}
                               <span>Descargar</span>
                             </button>
@@ -536,7 +536,7 @@ export function OrderDetail({ order }: OrderDetailProps) {
                         {/* ARTE GENERADO POR IA */}
                         {item.aiGeneratedImage && (
                           <div className="flex flex-col gap-1.5">
-                            <div className="relative h-32 w-32 bg-[#FAF5FF] border-2 border-[#581C87] shadow-[2px_2px_0px_#581C87] overflow-hidden group">
+                            <div className="relative h-32 w-32 bg-[#FAF5FF] dark:bg-purple-950/40 border-2 border-[#581C87] dark:border-purple-600 shadow-[2px_2px_0px_#581C87] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={item.aiGeneratedImage}
@@ -578,7 +578,7 @@ export function OrderDetail({ order }: OrderDetailProps) {
             })}
           </div>
         ) : (
-          <p className="font-mono text-xs text-slate-500">
+          <p className="font-mono text-xs text-slate-500 dark:text-zinc-400">
             No hay prendas registradas para este pedido.
           </p>
         )}

@@ -53,9 +53,9 @@ export function LoginForm() {
       <div className="space-y-1.5">
         <label
           htmlFor="email"
-          className="flex items-center gap-1.5 font-oswald text-xs uppercase font-bold text-black tracking-wider"
+          className="flex items-center gap-1.5 font-oswald text-xs uppercase font-bold text-black dark:text-zinc-200 tracking-wider"
         >
-          <Mail className="h-3.5 w-3.5 text-[#581C87]" />
+          <Mail className="h-3.5 w-3.5 text-[#581C87] dark:text-[#C084FC]" />
           <span>Correo de Socio</span>
         </label>
         <input
@@ -66,7 +66,7 @@ export function LoginForm() {
           autoComplete="email"
           placeholder="ej. socio@alquimiatex.com"
           disabled={isPending}
-          className="w-full px-3 py-2.5 bg-[#F8F5EE] border-2 border-black font-mono text-sm text-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] transition-all disabled:opacity-50"
+          className="w-full px-3 py-2.5 bg-[#F8F5EE] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-sm text-black dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] transition-all disabled:opacity-50"
         />
       </div>
 
@@ -74,7 +74,7 @@ export function LoginForm() {
       <div className="space-y-1.5">
         <label
           htmlFor="password"
-          className="flex items-center gap-1.5 font-oswald text-xs uppercase font-bold text-black tracking-wider"
+          className="flex items-center gap-1.5 font-oswald text-xs uppercase font-bold text-black dark:text-zinc-200 tracking-wider"
         >
           <KeyRound className="h-3.5 w-3.5 text-[#F43F5E]" />
           <span>Contraseña</span>
@@ -87,7 +87,7 @@ export function LoginForm() {
           autoComplete="current-password"
           placeholder="••••••••"
           disabled={isPending}
-          className="w-full px-3 py-2.5 bg-[#F8F5EE] border-2 border-black font-mono text-sm text-black placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] transition-all disabled:opacity-50"
+          className="w-full px-3 py-2.5 bg-[#F8F5EE] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 font-mono text-sm text-black dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] transition-all disabled:opacity-50"
         />
       </div>
 
@@ -111,7 +111,7 @@ export function LoginForm() {
       </button>
 
       {/* INDICADOR TÉCNICO INFERIOR */}
-      <p className="text-[11px] font-mono text-slate-500 text-center pt-2 border-t border-dashed border-slate-300">
+      <p className="text-[11px] font-mono text-slate-500 dark:text-zinc-400 text-center pt-2 border-t border-dashed border-slate-300 dark:border-zinc-700">
         Sesión protegida por Supabase Auth con cifrado SSL / TLS
       </p>
     </form>

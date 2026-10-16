@@ -25,7 +25,7 @@ export function OrderStatusBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-mono font-bold uppercase rounded-none border-2 border-black shadow-[2px_2px_0px_#0A0A0A] ${sizeClasses} ${config.bg} ${config.text} ${className}`}
+      className={`inline-flex items-center gap-1.5 font-mono font-bold uppercase rounded-none border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] ${sizeClasses} ${config.bg} ${config.text} ${className}`}
       title={config.description}
     >
       {showDot && (

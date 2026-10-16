@@ -22,10 +22,10 @@ export function InventoryTabs({
       <button
         type="button"
         onClick={() => onSelectCategory("todos")}
-        className={`px-3 py-1.5 border-2 border-black font-bold uppercase transition-all shrink-0 ${
+        className={`px-3 py-1.5 border-2 border-black dark:border-zinc-700 font-bold uppercase transition-all shrink-0 ${
           selectedCategory === "todos"
-            ? "bg-black text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] -translate-y-0.5"
-            : "bg-[#F8F5EE] text-slate-800 hover:bg-white shadow-[1px_1px_0px_#0A0A0A]"
+            ? "bg-black dark:bg-zinc-800 text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] -translate-y-0.5"
+            : "bg-[#F8F5EE] dark:bg-zinc-900 text-slate-800 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000]"
         }`}
       >
         <span>Todos ({totalCount})</span>
@@ -42,15 +42,15 @@ export function InventoryTabs({
             key={catKey}
             type="button"
             onClick={() => onSelectCategory(catKey as InventoryCategory)}
-            className={`px-3 py-1.5 border-2 border-black font-bold uppercase transition-all shrink-0 ${
+            className={`px-3 py-1.5 border-2 border-black dark:border-zinc-700 font-bold uppercase transition-all shrink-0 ${
               isSelected
-                ? "bg-[#581C87] text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] -translate-y-0.5"
-                : `${config.bg} ${config.text} hover:opacity-90 shadow-[1px_1px_0px_#0A0A0A]`
+                ? "bg-[#581C87] text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] -translate-y-0.5"
+                : `${config.bg} ${config.text} hover:opacity-90 shadow-[1px_1px_0px_#0A0A0A] dark:shadow-[1px_1px_0px_#000000]`
             }`}
             title={config.description}
           >
             <span>{config.shortLabel}</span>
-            <span className="ml-1.5 px-1 bg-white text-black text-[10px] border border-black font-mono">
+            <span className="ml-1.5 px-1 bg-white dark:bg-zinc-800 text-black dark:text-zinc-100 text-[10px] border border-black dark:border-zinc-600 font-mono">
               {count}
             </span>
           </button>
