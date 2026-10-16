@@ -73,29 +73,54 @@ export default async function AdminDashboardPage() {
         <OrdersKpiBar orders={orders} />
       </section>
 
-      {/* ACCESO DIRECTO DESTACADO A LA LISTA DE PEDIDOS */}
-      <section className="bg-white border-2 border-black p-5 shadow-[5px_5px_0px_#0A0A0A] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-[#581C87]" />
-            <h3 className="font-oswald text-xl font-black uppercase text-black">
-              Módulo de Gestión de Pedidos
-            </h3>
+      {/* ACCESOS DIRECTOS A MÓDULOS ACTIVOS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* MÓDULO DE PEDIDOS */}
+        <section className="bg-white border-2 border-black p-5 shadow-[5px_5px_0px_#0A0A0A] flex flex-col justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="h-5 w-5 text-[#581C87]" />
+              <h3 className="font-oswald text-xl font-black uppercase text-black">
+                Módulo de Pedidos
+              </h3>
+            </div>
+            <p className="font-mono text-xs text-slate-600">
+              6 estados oficiales, búsqueda en vivo, ficha técnica con WhatsApp y descarga de artes en ZIP.
+            </p>
           </div>
-          <p className="font-mono text-xs text-slate-600">
-            Filtra por los 6 estados oficiales, busca por código o cliente, cambia estados y descarga
-            artes de sublimación en ZIP.
-          </p>
-        </div>
 
-        <Link
-          href="/admin/pedidos"
-          className="inline-flex items-center justify-center gap-2 font-mono text-xs font-black uppercase bg-[#FACC15] text-black border-2 border-black px-4 py-2.5 shadow-[3px_3px_0px_#0A0A0A] hover:bg-[#EAB308] transition-all hover:translate-x-0.5 hover:translate-y-0.5 shrink-0"
-        >
-          <span>Ir a Lista de Pedidos ({totalCount})</span>
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </section>
+          <Link
+            href="/admin/pedidos"
+            className="inline-flex items-center justify-center gap-2 font-mono text-xs font-black uppercase bg-[#FACC15] text-black border-2 border-black px-4 py-2.5 shadow-[3px_3px_0px_#0A0A0A] hover:bg-[#EAB308] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+          >
+            <span>Ver Pedidos ({totalCount})</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </section>
+
+        {/* MÓDULO DE INVENTARIO */}
+        <section className="bg-white border-2 border-black p-5 shadow-[5px_5px_0px_#0A0A0A] flex flex-col justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#06B6D4] border border-black" />
+              <h3 className="font-oswald text-xl font-black uppercase text-black">
+                Módulo de Inventario
+              </h3>
+            </div>
+            <p className="font-mono text-xs text-slate-600">
+              Materiales, telas por metro, prendas terminadas y productos. Ajuste rápido +1 / -1 y alertas de stock bajo.
+            </p>
+          </div>
+
+          <Link
+            href="/admin/inventario"
+            className="inline-flex items-center justify-center gap-2 font-mono text-xs font-black uppercase bg-[#06B6D4] text-black border-2 border-black px-4 py-2.5 shadow-[3px_3px_0px_#0A0A0A] hover:opacity-90 transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+          >
+            <span>Entrar a Inventario</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </section>
+      </div>
 
       {/* BLOQUE 2: ÚLTIMOS PEDIDOS REGISTRADOS */}
       <section className="space-y-3 pt-2">

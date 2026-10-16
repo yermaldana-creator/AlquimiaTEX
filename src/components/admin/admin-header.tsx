@@ -12,8 +12,12 @@ import {
   Loader2,
   LayoutDashboard,
   ShoppingBag,
+  Boxes,
+  HelpCircle,
 } from "lucide-react";
 import { logoutAction } from "@/actions/auth.actions";
+import { AdminHelpModal } from "./admin-help-modal";
+import { OnboardingModal } from "./onboarding-modal";
 
 interface AdminHeaderProps {
   userEmail: string;
@@ -22,6 +26,8 @@ interface AdminHeaderProps {
 export function AdminHeader({ userEmail }: AdminHeaderProps) {
   const pathname = usePathname();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [forceOnboarding, setForceOnboarding] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleConfirmLogout = () => {
@@ -78,15 +84,38 @@ export function AdminHeader({ userEmail }: AdminHeaderProps) {
               <ShoppingBag className="h-3.5 w-3.5" />
               <span>Pedidos</span>
             </Link>
+
+            <Link
+              href="/admin/inventario"
+              className={`inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase px-2.5 py-1.5 border-2 border-black transition-all ${
+                pathname.startsWith("/admin/inventario")
+                  ? "bg-black text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] -translate-y-0.5"
+                  : "bg-white text-black hover:bg-slate-100 shadow-[1.5px_1.5px_0px_#0A0A0A]"
+              }`}
+            >
+              <Boxes className="h-3.5 w-3.5" />
+              <span>Inventario</span>
+            </Link>
           </nav>
 
           {/* ACCIONES Y DATOS DEL SOCIO */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {/* BOTÓN AYUDA Y TUTORIAL */}
+            <button
+              type="button"
+              onClick={() => setShowHelpModal(true)}
+              className="inline-flex items-center gap-1 font-mono text-xs font-bold uppercase bg-white text-black hover:bg-[#FACC15] px-2.5 py-1.5 border-2 border-black shadow-[1.5px_1.5px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+              title="Preguntas frecuentes y tutorial del taller"
+            >
+              <HelpCircle className="h-3.5 w-3.5 text-[#581C87]" />
+              <span className="hidden md:inline">Ayuda</span>
+            </button>
+
             {/* VER TIENDA PÚBLICA */}
             <Link
               href="/"
               target="_blank"
-              className="hidden md:inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-slate-800 hover:text-black px-2.5 py-1.5 border border-black bg-white shadow-[1.5px_1.5px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+              className="hidden lg:inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-slate-800 hover:text-black px-2 py-1.5 border border-black bg-white shadow-[1.5px_1.5px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
               title="Abrir tienda pública en una pestaña nueva"
             >
               <span>Tienda</span>
@@ -97,7 +126,7 @@ export function AdminHeader({ userEmail }: AdminHeaderProps) {
             <div className="hidden sm:flex items-center gap-1.5 bg-white px-2.5 py-1 border-2 border-black shadow-[2px_2px_0px_#0A0A0A]">
               <User className="h-3.5 w-3.5 text-[#581C87]" />
               <div className="flex flex-col text-left">
-                <span className="font-mono text-[11px] font-bold text-black max-w-[120px] md:max-w-[180px] truncate">
+                <span className="font-mono text-[11px] font-bold text-black max-w-[100px] md:max-w-[140px] truncate">
                   {userEmail}
                 </span>
               </div>
@@ -115,6 +144,19 @@ export function AdminHeader({ userEmail }: AdminHeaderProps) {
           </div>
         </div>
       </header>
+
+      {/* MODAL DE AYUDA / DUDAS */}
+      <AdminHelpModal
+        isOpen={showHelpModal}
+        onClose={() => setShowHelpModal(false)}
+        onRestartTutorial={() => setForceOnboarding(true)}
+      />
+
+      {/* MODAL DE BIENVENIDA / TUTORIAL */}
+      <OnboardingModal
+        forceOpen={forceOnboarding}
+        onClose={() => setForceOnboarding(false)}
+      />
 
       {/* DIÁLOGO / MODAL DE CONFIRMACIÓN DE CIERRE DE SESIÓN */}
       {showConfirmModal && (

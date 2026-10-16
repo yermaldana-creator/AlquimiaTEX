@@ -291,3 +291,164 @@ export function normalizeOrderStatus(rawStatus: string | null | undefined): Orde
   return "pendiente_contacto";
 }
 
+// -------------------------------------------------------------
+// Catálogo de Inventario del Taller (Sub-módulo 2B)
+// -------------------------------------------------------------
+export const INVENTORY_CATEGORIES = [
+  "material",
+  "tela",
+  "prenda",
+  "otro",
+] as const;
+
+export type InventoryCategoryValue = (typeof INVENTORY_CATEGORIES)[number];
+
+export interface InventoryCategoryConfigItem {
+  id: InventoryCategoryValue;
+  label: string;
+  shortLabel: string;
+  bg: string;
+  text: string;
+  border: string;
+  hex: string;
+  badgeBg: string;
+  badgeText: string;
+  description: string;
+  defaultUnit: string;
+}
+
+export const INVENTORY_CATEGORY_CONFIG: Record<
+  InventoryCategoryValue,
+  InventoryCategoryConfigItem
+> = {
+  material: {
+    id: "material",
+    label: "🟡 Materiales / Insumos",
+    shortLabel: "Materiales",
+    bg: "bg-[#FEF9C3]",
+    text: "text-[#854D0E]",
+    border: "border-[#CA8A04]",
+    hex: "#FACC15",
+    badgeBg: "bg-[#FACC15]",
+    badgeText: "text-black",
+    description: "Tintas de sublimación, papel, cinta térmica, vinil textil, bolsas",
+    defaultUnit: "unidad",
+  },
+  tela: {
+    id: "tela",
+    label: "🔵 Telas por Metro",
+    shortLabel: "Telas",
+    bg: "bg-[#CFFAFE]",
+    text: "text-[#155E75]",
+    border: "border-[#06B6D4]",
+    hex: "#06B6D4",
+    badgeBg: "bg-[#06B6D4]",
+    badgeText: "text-black",
+    description: "Microdurazno Heavy, Micro Rib, Jersey Boxer por metros",
+    defaultUnit: "metro",
+  },
+  prenda: {
+    id: "prenda",
+    label: "🟣 Prendas en Stock",
+    shortLabel: "Prendas",
+    bg: "bg-[#F3E8FF]",
+    text: "text-[#581C87]",
+    border: "border-[#7E22CE]",
+    hex: "#581C87",
+    badgeBg: "bg-[#581C87]",
+    badgeText: "text-[#FACC15]",
+    description: "Franelas listas por tela + color + talla + corte",
+    defaultUnit: "unidad",
+  },
+  otro: {
+    id: "otro",
+    label: "🔴 Otros Productos",
+    shortLabel: "Otros",
+    bg: "bg-[#FFE4E6]",
+    text: "text-[#9F1239]",
+    border: "border-[#F43F5E]",
+    hex: "#F43F5E",
+    badgeBg: "bg-[#F43F5E]",
+    badgeText: "text-white",
+    description: "Tazas 11oz, mágicas, mousepads, rompecabezas, peluches",
+    defaultUnit: "unidad",
+  },
+};
+
+export const INVENTORY_COMMON_UNITS = [
+  { value: "unidad", label: "Unidades (uds)" },
+  { value: "metro", label: "Metros (m)" },
+  { value: "hoja", label: "Hojas" },
+  { value: "resma", label: "Resmas" },
+  { value: "ml", label: "Mililitros (ml)" },
+  { value: "rollo", label: "Rollos" },
+  { value: "paquete", label: "Paquetes" },
+  { value: "set", label: "Sets / Juegos" },
+] as const;
+
+// -------------------------------------------------------------
+// Onboarding y Ayuda del Taller (Lenguaje Coloquial Venezolano)
+// -------------------------------------------------------------
+export const ONBOARDING_SLIDES = [
+  {
+    step: 1,
+    title: "¡Epa, bienvenido al taller digital! 🛠️",
+    badge: "PASO 1 DE 3",
+    tagline: "Le decimos adiós al Excel fastidioso",
+    description:
+      "Aquí los 3 socios controlamos los pedidos, el inventario y las cuentas del taller sin enredos ni libros que se pierdan. Todo sincronizado en vivo.",
+    tip: "Tip: Si tienes el celular en la mano en el taller, todo el panel se adapta fino a la pantalla.",
+  },
+  {
+    step: 2,
+    title: "Inventario activo y ajuste al vuelo 🧵",
+    badge: "PASO 2 DE 3",
+    tagline: "Telas por metro, tintas, franelas y tazas",
+    description:
+      "Usa los botones rápidos [+1] y [-1] para cuadrar stock cuando cortes o empaques. Si intentas meter un ítem que ya existe, el taller no se vuelve loco: te suma la cantidad automáticamente.",
+    tip: "Ojo: Si una tela o tinta baja del mínimo que pusiste, el taller te prende una alerta roja para comprar a tiempo.",
+  },
+  {
+    step: 3,
+    title: "Pedidos claritos y artes directos 🚀",
+    badge: "PASO 3 DE 3",
+    tagline: "WhatsApp en un toque y descarga de artes",
+    description:
+      "En la sección de Pedidos ves cada orden que llega de la web. Puedes cambiar el estado, escribirle al cliente con un clic a su WhatsApp y descargar todas las imágenes para sublimación en un solo archivo ZIP.",
+    tip: "Si alguna vez te pierdes, dale al botón '¿Dudas del taller?' arriba y revisas las preguntas frecuentes.",
+  },
+];
+
+export const WORKSHOP_FAQS = [
+  {
+    question: "¿Cómo marco un pedido como entregado?",
+    answer:
+      "Te vas a la pestaña 'Pedidos', abres la ficha del pedido que acabas de despachar y en el selector de estado lo cambias a '⚪ Entregado'. El sistema guarda el cambio de inmediato y avisa que ya salió del taller.",
+  },
+  {
+    question: "¿Cómo agrego tela o franelas al inventario?",
+    answer:
+      "En 'Inventario', dale al botón amarillo '+ Nuevo Ítem'. Escoge la categoría (ej: 'Telas por Metro'), pon el nombre ('Microdurazno Heavy'), el color ('Blanca') y los metros. Si ya tenías esa tela registrada, el sistema no la duplica, sino que le suma los metros nuevos automáticamente.",
+  },
+  {
+    question: "¿Qué pasa si me equivoqué de cantidad?",
+    answer:
+      "No hay rollo. En la tabla tienes botones rápidos [-1] y [+1] para ajustar al momento. O le das al botón de 'Editar' y corriges el número exacto. Eso sí: el taller te bloquea números negativos para que la cuenta nunca dé en rojo.",
+  },
+  {
+    question: "¿Cómo descargo las imágenes del cliente para estampar?",
+    answer:
+      "Abre la ficha del pedido en 'Pedidos'. Arriba a la derecha tienes el botón amarillo 'Descargar todas las imágenes (ZIP)'. Te baja un archivo comprimido con todos los artes limpios listos para mandar a la impresora o plancha.",
+  },
+  {
+    question: "¿Cómo borro un material que ya no usamos sin perder historial?",
+    answer:
+      "Ahora usamos 'Archivar' en vez de borrar directo. Le das al botón 'Archivar' y el ítem se esconde de la lista diaria. Si algún día vuelve a entrar al taller, activas la casilla 'Ver archivados' y le das a 'Restaurar'.",
+  },
+  {
+    question: "¿Cómo me llevo una copia del inventario a Excel?",
+    answer:
+      "En la parte superior de la tabla de inventario tienes el botón 'Exportar CSV'. Le das clic y te baja un archivo compatible con Excel al instante con todas tus existencias, metros y costos.",
+  },
+];
+
