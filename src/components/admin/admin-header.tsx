@@ -3,7 +3,16 @@
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { LogOut, ExternalLink, User, AlertTriangle, Loader2 } from "lucide-react";
+import { usePathname } from "next/navigation";
+import {
+  LogOut,
+  ExternalLink,
+  User,
+  AlertTriangle,
+  Loader2,
+  LayoutDashboard,
+  ShoppingBag,
+} from "lucide-react";
 import { logoutAction } from "@/actions/auth.actions";
 
 interface AdminHeaderProps {
@@ -11,6 +20,7 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ userEmail }: AdminHeaderProps) {
+  const pathname = usePathname();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -41,20 +51,42 @@ export function AdminHeader({ userEmail }: AdminHeaderProps) {
                 PANEL DE SOCIOS
               </span>
             </Link>
-
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-mono font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-emerald-600">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
-              TALLER EN LÍNEA
-            </span>
           </div>
 
+          {/* ENLACES DE NAVEGACIÓN ADMIN */}
+          <nav className="flex items-center gap-1.5 sm:gap-2">
+            <Link
+              href="/admin"
+              className={`inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase px-2.5 py-1.5 border-2 border-black transition-all ${
+                pathname === "/admin"
+                  ? "bg-black text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] -translate-y-0.5"
+                  : "bg-white text-black hover:bg-slate-100 shadow-[1.5px_1.5px_0px_#0A0A0A]"
+              }`}
+            >
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </Link>
+
+            <Link
+              href="/admin/pedidos"
+              className={`inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase px-2.5 py-1.5 border-2 border-black transition-all ${
+                pathname.startsWith("/admin/pedidos")
+                  ? "bg-black text-[#FACC15] shadow-[2px_2px_0px_#0A0A0A] -translate-y-0.5"
+                  : "bg-white text-black hover:bg-slate-100 shadow-[1.5px_1.5px_0px_#0A0A0A]"
+              }`}
+            >
+              <ShoppingBag className="h-3.5 w-3.5" />
+              <span>Pedidos</span>
+            </Link>
+          </nav>
+
           {/* ACCIONES Y DATOS DEL SOCIO */}
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* VER TIENDA PÚBLICA */}
             <Link
               href="/"
               target="_blank"
-              className="hidden sm:inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-slate-800 hover:text-black px-2.5 py-1.5 border border-black bg-white shadow-[1.5px_1.5px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+              className="hidden md:inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-slate-800 hover:text-black px-2.5 py-1.5 border border-black bg-white shadow-[1.5px_1.5px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
               title="Abrir tienda pública en una pestaña nueva"
             >
               <span>Tienda</span>
@@ -62,19 +94,19 @@ export function AdminHeader({ userEmail }: AdminHeaderProps) {
             </Link>
 
             {/* BADGE DEL SOCIO CONECTADO */}
-            <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 border-2 border-black shadow-[2px_2px_0px_#0A0A0A]">
+            <div className="hidden sm:flex items-center gap-1.5 bg-white px-2.5 py-1 border-2 border-black shadow-[2px_2px_0px_#0A0A0A]">
               <User className="h-3.5 w-3.5 text-[#581C87]" />
               <div className="flex flex-col text-left">
-                <span className="font-mono text-[11px] font-bold text-black max-w-[140px] sm:max-w-[200px] truncate">
+                <span className="font-mono text-[11px] font-bold text-black max-w-[120px] md:max-w-[180px] truncate">
                   {userEmail}
                 </span>
               </div>
             </div>
 
-            {/* BOTÓN CERRAR SESIÓN (ABRE MODAL DE CONFIRMACIÓN) */}
+            {/* BOTÓN CERRAR SESIÓN */}
             <button
               onClick={() => setShowConfirmModal(true)}
-              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-white bg-[#F43F5E] hover:bg-[#E11D48] px-3 py-1.5 border-2 border-black shadow-[2px_2px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-white bg-[#F43F5E] hover:bg-[#E11D48] px-2.5 sm:px-3 py-1.5 border-2 border-black shadow-[2px_2px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
               title="Cerrar sesión de socio"
             >
               <LogOut className="h-3.5 w-3.5" />

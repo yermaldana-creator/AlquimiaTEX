@@ -20,8 +20,10 @@ export const orderItemSchema = z
       .string()
       .max(500, "La descripción no puede superar los 500 caracteres")
       .optional(),
+    notes: z.string().optional(),
     referenceImage: z.string().optional(),
     referenceImageName: z.string().optional(),
+    referenceImageUrl: z.string().optional(),
     aiGeneratedImage: z.string().optional(),
   })
   .superRefine((data, ctx) => {

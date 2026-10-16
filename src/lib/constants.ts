@@ -187,3 +187,107 @@ export const PAYMENT_INFO = {
     currency: "Dólares en efectivo (billetes en buen estado) o Bolívares en efectivo",
   },
 };
+
+// -------------------------------------------------------------
+// Catálogo Oficial de los 6 Estados de Pedidos (Sub-módulo 2A)
+// -------------------------------------------------------------
+export const ORDER_STATUSES = [
+  "pendiente_contacto",
+  "abono_verificado",
+  "en_produccion",
+  "listo_para_entrega",
+  "entregado",
+  "cancelado",
+] as const;
+
+export type OrderStatusValue = (typeof ORDER_STATUSES)[number];
+
+export interface OrderStatusConfigItem {
+  label: string;
+  shortLabel: string;
+  bg: string;
+  text: string;
+  border: string;
+  dotColor: string;
+  hex: string;
+  description: string;
+}
+
+export const ORDER_STATUS_CONFIG: Record<OrderStatusValue, OrderStatusConfigItem> = {
+  pendiente_contacto: {
+    label: "🟡 Pendiente de Contacto",
+    shortLabel: "Pendiente",
+    bg: "bg-[#FEF9C3]",
+    text: "text-[#854D0E]",
+    border: "border-[#CA8A04]",
+    dotColor: "bg-[#FACC15]",
+    hex: "#FACC15",
+    description: "Pedido recibido en web, contacto inicial pendiente",
+  },
+  abono_verificado: {
+    label: "🔵 Abono Verificado",
+    shortLabel: "Abonado",
+    bg: "bg-[#CFFAFE]",
+    text: "text-[#155E75]",
+    border: "border-[#06B6D4]",
+    dotColor: "bg-[#06B6D4]",
+    hex: "#06B6D4",
+    description: "50% mayor o 100% detal confirmado en banco",
+  },
+  en_produccion: {
+    label: "🟣 En Producción",
+    shortLabel: "En Producción",
+    bg: "bg-[#F3E8FF]",
+    text: "text-[#581C87]",
+    border: "border-[#7E22CE]",
+    dotColor: "bg-[#581C87]",
+    hex: "#581C87",
+    description: "En corte, impresión de papel o planchado",
+  },
+  listo_para_entrega: {
+    label: "🟢 Listo para Entrega",
+    shortLabel: "Listo",
+    bg: "bg-[#DCFCE7]",
+    text: "text-[#166534]",
+    border: "border-[#10B981]",
+    dotColor: "bg-[#10B981]",
+    hex: "#10B981",
+    description: "Prenda terminada, revisada y empacada",
+  },
+  entregado: {
+    label: "⚪ Entregado",
+    shortLabel: "Entregado",
+    bg: "bg-[#F1F5F9]",
+    text: "text-[#334155]",
+    border: "border-[#64748B]",
+    dotColor: "bg-[#6B7280]",
+    hex: "#6B7280",
+    description: "Entregado en La Dolorita o despachado",
+  },
+  cancelado: {
+    label: "🔴 Cancelado",
+    shortLabel: "Cancelado",
+    bg: "bg-[#FFE4E6]",
+    text: "text-[#9F1239]",
+    border: "border-[#F43F5E]",
+    dotColor: "bg-[#F43F5E]",
+    hex: "#F43F5E",
+    description: "Anulado por el cliente o falta de pago",
+  },
+};
+
+/**
+ * Normaliza estados anteriores de la BD para compatibilidad retroactiva.
+ */
+export function normalizeOrderStatus(rawStatus: string | null | undefined): OrderStatusValue {
+  if (!rawStatus) return "pendiente_contacto";
+  if (rawStatus === "abonado") return "abono_verificado";
+  if (rawStatus === "en_confeccion") return "en_produccion";
+  if (rawStatus === "listo") return "listo_para_entrega";
+
+  if (rawStatus in ORDER_STATUS_CONFIG) {
+    return rawStatus as OrderStatusValue;
+  }
+  return "pendiente_contacto";
+}
+

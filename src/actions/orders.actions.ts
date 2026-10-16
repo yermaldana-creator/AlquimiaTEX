@@ -1,8 +1,12 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
+import { getSessionUser } from "@/actions/auth.actions";
+import { normalizeOrderStatus, ORDER_STATUSES } from "@/lib/constants";
 import type { OrderItem, Step3ContactFormData } from "@/lib/schemas";
+import type { AdminOrder, GetOrdersParams, GetOrdersResult, OrderStatus } from "@/types";
 
 export interface SubmitOrderPayload {
   items: OrderItem[];
@@ -124,5 +128,152 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
       whatsappUrl: "",
       error: "Ocurrió un error al procesar el pedido. Por favor intenta de nuevo.",
     };
+  }
+}
+
+/**
+ * Obtiene la lista de pedidos con paginación, filtros de estado y búsqueda.
+ * Valida sesión de socio mediante getSessionUser().
+ */
+export async function getOrders(params?: GetOrdersParams): Promise<GetOrdersResult> {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("No autorizado. Debes iniciar sesión como socio del taller.");
+  }
+
+  const { page = 1, limit = 20, status = "todos", search = "" } = params || {};
+  const supabase = createClient();
+
+  let query = supabase.from("orders").select("*", { count: "exact" });
+
+  // Filtro por Estado
+  if (status && status !== "todos") {
+    if (status === "abono_verificado") {
+      query = query.in("status", ["abono_verificado", "abonado"]);
+    } else if (status === "en_produccion") {
+      query = query.in("status", ["en_produccion", "en_confeccion"]);
+    } else if (status === "listo_para_entrega") {
+      query = query.in("status", ["listo_para_entrega", "listo"]);
+    } else {
+      query = query.eq("status", status);
+    }
+  }
+
+  // Filtro por búsqueda (código, cliente o teléfono)
+  const trimmedSearch = search.trim();
+  if (trimmedSearch) {
+    query = query.or(
+      `order_code.ilike.%${trimmedSearch}%,customer_name.ilike.%${trimmedSearch}%,customer_phone.ilike.%${trimmedSearch}%`
+    );
+  }
+
+  // Paginación
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.max(1, limit);
+  const from = (safePage - 1) * safeLimit;
+  const to = from + safeLimit - 1;
+
+  query = query.order("created_at", { ascending: false }).range(from, to);
+
+  const { data, count, error } = await query;
+
+  if (error) {
+    console.error("Error al obtener pedidos en getOrders:", error.message);
+    return {
+      orders: [],
+      totalCount: 0,
+      page: safePage,
+      totalPages: 0,
+    };
+  }
+
+  const normalizedOrders = (data || []).map((order) => ({
+    ...order,
+    status: normalizeOrderStatus(order.status),
+  })) as AdminOrder[];
+
+  const totalCount = count || 0;
+  const totalPages = Math.ceil(totalCount / safeLimit);
+
+  return {
+    orders: normalizedOrders,
+    totalCount,
+    page: safePage,
+    totalPages,
+  };
+}
+
+/**
+ * Obtiene la ficha completa de un pedido por su ID de BD o por su código #ALQ-XXXX.
+ * Valida sesión de socio mediante getSessionUser().
+ */
+export async function getOrderById(id: string): Promise<AdminOrder | null> {
+  const user = await getSessionUser();
+  if (!user) {
+    throw new Error("No autorizado. Debes iniciar sesión como socio del taller.");
+  }
+
+  const supabase = createClient();
+  const cleanId = decodeURIComponent(id).trim();
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
+
+  let query = supabase.from("orders").select("*");
+  if (isUuid) {
+    query = query.eq("id", cleanId);
+  } else {
+    const formattedCode = cleanId.startsWith("#") ? cleanId : `#${cleanId}`;
+    query = query.or(`id.eq.${cleanId},order_code.eq.${formattedCode},order_code.eq.${cleanId}`);
+  }
+
+  const { data, error } = await query.single();
+
+  if (error || !data) {
+    console.error("Error al buscar pedido por ID:", error?.message);
+    return null;
+  }
+
+  return {
+    ...data,
+    status: normalizeOrderStatus(data.status),
+  } as AdminOrder;
+}
+
+/**
+ * Actualiza el estado de un pedido en Supabase con los 6 estados oficiales.
+ * Valida sesión de socio mediante getSessionUser().
+ */
+export async function updateOrderStatus(
+  orderId: string,
+  newStatus: OrderStatus
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      return { success: false, error: "No autorizado. Inicia sesión como socio." };
+    }
+
+    if (!ORDER_STATUSES.includes(newStatus)) {
+      return { success: false, error: "Estado no válido para el pedido." };
+    }
+
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: newStatus })
+      .eq("id", orderId);
+
+    if (error) {
+      console.error("Error al actualizar estado en Supabase:", error.message);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/pedidos");
+    revalidatePath(`/admin/pedidos/${orderId}`);
+
+    return { success: true };
+  } catch (err: unknown) {
+    console.error("Error inesperado en updateOrderStatus:", err);
+    return { success: false, error: "Ocurrió un error inesperado al actualizar el estado." };
   }
 }

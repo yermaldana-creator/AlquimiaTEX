@@ -1,4 +1,5 @@
 import { Package, Clock, Flame, CheckCircle2 } from "lucide-react";
+import { normalizeOrderStatus } from "@/lib/constants";
 import type { AdminOrder } from "@/types";
 
 interface OrdersKpiBarProps {
@@ -7,11 +8,16 @@ interface OrdersKpiBarProps {
 
 export function OrdersKpiBar({ orders }: OrdersKpiBarProps) {
   const totalOrders = orders.length;
-  const pendingOrders = orders.filter((o) => o.status === "pendiente_contacto").length;
-  const inWorkshopOrders = orders.filter(
-    (o) => o.status === "en_confeccion" || o.status === "abonado"
+  const pendingOrders = orders.filter(
+    (o) => normalizeOrderStatus(o.status) === "pendiente_contacto"
   ).length;
-  const readyOrders = orders.filter((o) => o.status === "listo").length;
+  const inWorkshopOrders = orders.filter((o) => {
+    const s = normalizeOrderStatus(o.status);
+    return s === "en_produccion" || s === "abono_verificado";
+  }).length;
+  const readyOrders = orders.filter(
+    (o) => normalizeOrderStatus(o.status) === "listo_para_entrega"
+  ).length;
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -47,7 +53,7 @@ export function OrdersKpiBar({ orders }: OrdersKpiBarProps) {
         </p>
       </div>
 
-      {/* 3. EN PLANCHA / TALLER */}
+      {/* 3. EN PRODUCCIÓN / ABONO */}
       <div className="bg-[#FAF5FF] border-2 border-black p-4 shadow-[4px_4px_0px_#0A0A0A] space-y-1">
         <div className="flex items-center justify-between">
           <span className="font-mono text-[10px] sm:text-xs font-bold uppercase text-purple-800">
@@ -75,7 +81,7 @@ export function OrdersKpiBar({ orders }: OrdersKpiBarProps) {
           {readyOrders}
         </div>
         <p className="font-mono text-[11px] text-emerald-700">
-          Esperando retiro o envío
+          Esperando retiro o despacho
         </p>
       </div>
     </div>

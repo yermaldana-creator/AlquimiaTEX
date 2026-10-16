@@ -15,12 +15,20 @@ export interface OrderDraftState {
   globalAiAttemptsUsed: number;
 }
 
+/**
+ * 6 Estados Oficiales del Taller AlquimiaTex
+ */
 export type OrderStatus =
   | "pendiente_contacto"
-  | "abonado"
-  | "en_confeccion"
-  | "listo"
-  | "entregado";
+  | "abono_verificado"
+  | "en_produccion"
+  | "listo_para_entrega"
+  | "entregado"
+  | "cancelado";
+
+export type LegacyOrderStatus = "abonado" | "en_confeccion" | "listo";
+
+export type AnyOrderStatus = OrderStatus | LegacyOrderStatus | string;
 
 export interface AdminOrder {
   id: string;
@@ -32,7 +40,23 @@ export interface AdminOrder {
   order_pricing_type?: "unidad" | "docena" | string;
   payment_method: string;
   items: OrderItem[];
-  status: OrderStatus;
-  ai_attempts_used: number;
+  status: OrderStatus | string;
+  ai_attempts_used?: number;
   created_at: string;
+}
+
+export type AdminOrderDetail = AdminOrder;
+
+export interface GetOrdersParams {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}
+
+export interface GetOrdersResult {
+  orders: AdminOrder[];
+  totalCount: number;
+  page: number;
+  totalPages: number;
 }
