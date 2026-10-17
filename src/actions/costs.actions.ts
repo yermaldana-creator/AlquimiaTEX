@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getCachedSupabaseClient } from "@/lib/supabase/cached-client";
 import { getSessionUser } from "@/actions/auth.actions";
 import type {
   CostComponent,
@@ -164,18 +165,9 @@ export interface GetCostComponentsParams {
   showArchived?: boolean;
 }
 
-export async function getCostComponents(
-  params?: GetCostComponentsParams
-): Promise<{ components: CostComponent[]; error?: string }> {
-  try {
-    const user = await getSessionUser();
-    if (!user) {
-      return { components: [], error: "No autorizado. Inicia sesión como socio." };
-    }
-
-    const { category = "todos", search = "", showArchived = false } = params || {};
-    const supabase = createClient();
-
+const getCachedCostComponents = unstable_cache(
+  async (category: string, search: string, showArchived: boolean) => {
+    const supabase = getCachedSupabaseClient();
     let query = supabase.from("cost_components").select("*");
 
     if (showArchived) {
@@ -196,11 +188,30 @@ export async function getCostComponents(
 
     const { data, error } = await query;
     if (error) {
-      console.error("[getCostComponents] Error de consulta:", error);
+      console.error("[getCachedCostComponents] Error de consulta:", error);
       return { components: [], error: error.message };
     }
 
     return { components: (data || []) as CostComponent[] };
+  },
+  ["admin-cost-components-query"],
+  {
+    tags: ["admin-costs"],
+    revalidate: 60,
+  }
+);
+
+export async function getCostComponents(
+  params?: GetCostComponentsParams
+): Promise<{ components: CostComponent[]; error?: string }> {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      return { components: [], error: "No autorizado. Inicia sesión como socio." };
+    }
+
+    const { category = "todos", search = "", showArchived = false } = params || {};
+    return await getCachedCostComponents(category, search, showArchived);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error desconocido al obtener componentes";
     console.error("[getCostComponents] Excepción:", err);
@@ -245,6 +256,7 @@ export async function createCostComponent(
     }
 
     revalidatePath("/admin/costos");
+    revalidateTag("admin-costs");
     return { success: true, component: inserted as CostComponent };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error al registrar insumo";
@@ -290,6 +302,7 @@ export async function updateCostComponent(
     }
 
     revalidatePath("/admin/costos");
+    revalidateTag("admin-costs");
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error al actualizar insumo";
@@ -322,6 +335,7 @@ export async function archiveCostComponent(
     }
 
     revalidatePath("/admin/costos");
+    revalidateTag("admin-costs");
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error al archivar insumo";
@@ -347,31 +361,22 @@ export interface GetTemplatesResult {
   error?: string;
 }
 
-export async function getProductCostTemplates(
-  params?: GetTemplatesParams
-): Promise<GetTemplatesResult> {
-  const emptyKpis: CostsKpiData = {
-    totalActiveTemplates: 0,
-    totalComponents: 0,
-    averageMarginPercentage: 0,
-    mostProfitableTemplate: null,
-    lowMarginAlertsCount: 0,
-  };
+const getCachedProductCostTemplates = unstable_cache(
+  async (
+    category: string,
+    profitability: string,
+    search: string,
+    showArchived: boolean
+  ) => {
+    const emptyKpis: CostsKpiData = {
+      totalActiveTemplates: 0,
+      totalComponents: 0,
+      averageMarginPercentage: 0,
+      mostProfitableTemplate: null,
+      lowMarginAlertsCount: 0,
+    };
 
-  try {
-    const user = await getSessionUser();
-    if (!user) {
-      return { templates: [], kpis: emptyKpis, allComponents: [], error: "No autorizado." };
-    }
-
-    const {
-      category = "todos",
-      profitability = "todos",
-      search = "",
-      showArchived = false,
-    } = params || {};
-
-    const supabase = createClient();
+    const supabase = getCachedSupabaseClient();
 
     // 1. Obtener todos los componentes activos para hidratación
     const { data: rawComponents, error: compError } = await supabase
@@ -380,7 +385,7 @@ export async function getProductCostTemplates(
       .order("name", { ascending: true });
 
     if (compError) {
-      console.error("[getProductCostTemplates] Error cargando componentes:", compError);
+      console.error("[getCachedProductCostTemplates] Error cargando componentes:", compError);
       return { templates: [], kpis: emptyKpis, allComponents: [], error: compError.message };
     }
 
@@ -411,7 +416,7 @@ export async function getProductCostTemplates(
 
     const { data: rawTemplates, error: tempError } = await query;
     if (tempError) {
-      console.error("[getProductCostTemplates] Error cargando recetas:", tempError);
+      console.error("[getCachedProductCostTemplates] Error cargando recetas:", tempError);
       return { templates: [], kpis: emptyKpis, allComponents, error: tempError.message };
     }
 
@@ -433,7 +438,9 @@ export async function getProductCostTemplates(
     }
 
     // 5. Calcular KPIs métricos del taller
-    const activeTemplates = calculatedTemplates.filter((t) => t.template.is_active && !t.template.archived_at);
+    const activeTemplates = calculatedTemplates.filter(
+      (t) => t.template.is_active && !t.template.archived_at
+    );
     const totalActive = activeTemplates.length;
     let sumMargins = 0;
     let mostProfitable: { name: string; margin: number } | null = null;
@@ -467,6 +474,39 @@ export async function getProductCostTemplates(
       kpis,
       allComponents,
     };
+  },
+  ["admin-product-cost-templates-query"],
+  {
+    tags: ["admin-costs"],
+    revalidate: 60,
+  }
+);
+
+export async function getProductCostTemplates(
+  params?: GetTemplatesParams
+): Promise<GetTemplatesResult> {
+  const emptyKpis: CostsKpiData = {
+    totalActiveTemplates: 0,
+    totalComponents: 0,
+    averageMarginPercentage: 0,
+    mostProfitableTemplate: null,
+    lowMarginAlertsCount: 0,
+  };
+
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      return { templates: [], kpis: emptyKpis, allComponents: [], error: "No autorizado." };
+    }
+
+    const {
+      category = "todos",
+      profitability = "todos",
+      search = "",
+      showArchived = false,
+    } = params || {};
+
+    return await getCachedProductCostTemplates(category, profitability, search, showArchived);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error al consultar recetas";
     console.error("[getProductCostTemplates] Excepción:", err);
@@ -512,6 +552,7 @@ export async function createProductCostTemplate(
     }
 
     revalidatePath("/admin/costos");
+    revalidateTag("admin-costs");
     return { success: true, template: inserted as ProductCostTemplate };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error al registrar receta";
@@ -554,6 +595,7 @@ export async function updateProductCostTemplate(
     }
 
     revalidatePath("/admin/costos");
+    revalidateTag("admin-costs");
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error al actualizar receta";
@@ -586,6 +628,7 @@ export async function archiveProductCostTemplate(
     }
 
     revalidatePath("/admin/costos");
+    revalidateTag("admin-costs");
     return { success: true };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error al archivar receta";

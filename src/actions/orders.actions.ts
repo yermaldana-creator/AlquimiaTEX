@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getCachedSupabaseClient } from "@/lib/supabase/cached-client";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { getSessionUser } from "@/actions/auth.actions";
 import { normalizeOrderStatus, ORDER_STATUSES } from "@/lib/constants";
@@ -115,6 +116,7 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
       items: processedItems,
     });
 
+    revalidateTag("admin-orders");
     return {
       success: true,
       orderCode,
@@ -131,9 +133,54 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
   }
 }
 
+const getCachedOrders = unstable_cache(
+  async (safePage: number, safeLimit: number, status: string, search: string) => {
+    const supabase = getCachedSupabaseClient();
+    let query = supabase.from("orders").select("*", { count: "exact" });
+
+    // Filtro por Estado
+    if (status && status !== "todos") {
+      if (status === "abono_verificado") {
+        query = query.in("status", ["abono_verificado", "abonado"]);
+      } else if (status === "en_produccion") {
+        query = query.in("status", ["en_produccion", "en_confeccion"]);
+      } else if (status === "listo_para_entrega") {
+        query = query.in("status", ["listo_para_entrega", "listo"]);
+      } else {
+        query = query.eq("status", status);
+      }
+    }
+
+    // Filtro por búsqueda (código, cliente o teléfono)
+    if (search) {
+      query = query.or(
+        `order_code.ilike.%${search}%,customer_name.ilike.%${search}%,customer_phone.ilike.%${search}%`
+      );
+    }
+
+    const from = (safePage - 1) * safeLimit;
+    const to = from + safeLimit - 1;
+
+    query = query.order("created_at", { ascending: false }).range(from, to);
+
+    const { data, count, error } = await query;
+    return {
+      data,
+      count,
+      error: error ? error.message : null,
+    };
+  },
+  ["admin-orders-query"],
+  {
+    tags: ["admin-orders"],
+    revalidate: 30,
+  }
+);
+
 /**
  * Obtiene la lista de pedidos con paginación, filtros de estado y búsqueda.
  * Valida sesión de socio mediante getSessionUser().
+ * Usa caché de servidor (TTL 30s) e invalidación reactiva por tags.
  */
 export async function getOrders(params?: GetOrdersParams): Promise<GetOrdersResult> {
   const user = await getSessionUser();
@@ -142,43 +189,18 @@ export async function getOrders(params?: GetOrdersParams): Promise<GetOrdersResu
   }
 
   const { page = 1, limit = 20, status = "todos", search = "" } = params || {};
-  const supabase = createClient();
-
-  let query = supabase.from("orders").select("*", { count: "exact" });
-
-  // Filtro por Estado
-  if (status && status !== "todos") {
-    if (status === "abono_verificado") {
-      query = query.in("status", ["abono_verificado", "abonado"]);
-    } else if (status === "en_produccion") {
-      query = query.in("status", ["en_produccion", "en_confeccion"]);
-    } else if (status === "listo_para_entrega") {
-      query = query.in("status", ["listo_para_entrega", "listo"]);
-    } else {
-      query = query.eq("status", status);
-    }
-  }
-
-  // Filtro por búsqueda (código, cliente o teléfono)
-  const trimmedSearch = search.trim();
-  if (trimmedSearch) {
-    query = query.or(
-      `order_code.ilike.%${trimmedSearch}%,customer_name.ilike.%${trimmedSearch}%,customer_phone.ilike.%${trimmedSearch}%`
-    );
-  }
-
-  // Paginación
   const safePage = Math.max(1, page);
   const safeLimit = Math.max(1, limit);
-  const from = (safePage - 1) * safeLimit;
-  const to = from + safeLimit - 1;
 
-  query = query.order("created_at", { ascending: false }).range(from, to);
-
-  const { data, count, error } = await query;
+  const { data, count, error } = await getCachedOrders(
+    safePage,
+    safeLimit,
+    status,
+    search.trim()
+  );
 
   if (error) {
-    console.error("Error al obtener pedidos en getOrders:", error.message);
+    console.error("Error al obtener pedidos en getOrders:", error);
     return {
       orders: [],
       totalCount: 0,
@@ -270,6 +292,7 @@ export async function updateOrderStatus(
     revalidatePath("/admin");
     revalidatePath("/admin/pedidos");
     revalidatePath(`/admin/pedidos/${orderId}`);
+    revalidateTag("admin-orders");
 
     return { success: true };
   } catch (err: unknown) {

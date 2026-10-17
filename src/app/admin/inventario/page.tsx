@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowLeft, Boxes } from "lucide-react";
+import { getSessionUser } from "@/actions/auth.actions";
 import { getInventory } from "@/actions/inventory.actions";
 import { InventoryKpis } from "@/components/admin/inventory-kpis";
 import { InventoryTable } from "@/components/admin/inventory-table";
@@ -10,9 +12,14 @@ export const metadata: Metadata = {
   description: "Control de materiales, telas por metro, prendas terminadas y productos del taller AlquimiaTex.",
 };
 
-export const revalidate = 0; // Datos frescos en cada solicitud
+export const dynamic = "force-dynamic";
 
 export default async function AdminInventarioPage() {
+  const user = await getSessionUser();
+  if (!user) {
+    redirect("/admin/login");
+  }
+
   const { items, kpis } = await getInventory({ category: "todos" });
 
   return (

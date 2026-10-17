@@ -1,7 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getCachedSupabaseClient } from "@/lib/supabase/cached-client";
 import { getSessionUser } from "@/actions/auth.actions";
 import type {
   InventoryItem,
@@ -28,6 +29,113 @@ export interface InventoryMutationResult {
  * Consulta el inventario en Supabase con filtros por categoría, búsqueda y alertas.
  * Valida sesión de socio mediante getSessionUser().
  */
+const getCachedInventoryData = unstable_cache(
+  async (
+    category: string,
+    search: string,
+    onlyAlerts: boolean,
+    showArchived: boolean
+  ) => {
+    const supabase = getCachedSupabaseClient();
+
+    // 1. Consulta base para los items
+    let query = supabase.from("inventory_items").select("*");
+
+    // Filtro de archivados (Soft Delete)
+    if (showArchived) {
+      query = query.not("archived_at", "is", null);
+    } else {
+      query = query.is("archived_at", null);
+    }
+
+    // Filtro por categoría
+    if (category && category !== "todos") {
+      query = query.eq("category", category);
+    }
+
+    // Buscador por nombre, variante o notas
+    if (search) {
+      query = query.or(
+        `name.ilike.%${search}%,variant.ilike.%${search}%,notes.ilike.%${search}%`
+      );
+    }
+
+    // Ordenamiento por fecha de actualización
+    query = query.order("updated_at", { ascending: false });
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error al obtener inventario en getInventory:", error.message);
+      return {
+        items: [],
+        kpis: {
+          totalItems: 0,
+          lowStockAlerts: 0,
+          totalFabricMeters: 0,
+          totalInventoryValue: 0,
+        },
+        totalCount: 0,
+        error: error.message,
+      };
+    }
+
+    let items = (data as InventoryItem[]) || [];
+
+    // Filtro en memoria si pide "solo alertas"
+    if (onlyAlerts) {
+      items = items.filter(
+        (item) => Number(item.quantity) <= Number(item.min_stock_alert)
+      );
+    }
+
+    // 2. Consulta paralela o cálculo de KPIs sobre ítems activos (no archivados)
+    const { data: allActiveItems } = await supabase
+      .from("inventory_items")
+      .select("category, quantity, min_stock_alert, cost_per_unit")
+      .is("archived_at", null);
+
+    const active = allActiveItems || [];
+
+    const totalItems = active.length;
+    const lowStockAlerts = active.filter(
+      (item) => Number(item.quantity) <= Number(item.min_stock_alert)
+    ).length;
+
+    const totalFabricMeters = active
+      .filter((item) => item.category === "tela")
+      .reduce((acc, curr) => acc + Number(curr.quantity || 0), 0);
+
+    const totalInventoryValue = active.reduce(
+      (acc, curr) =>
+        acc + Number(curr.quantity || 0) * Number(curr.cost_per_unit || 0),
+      0
+    );
+
+    return {
+      items,
+      kpis: {
+        totalItems,
+        lowStockAlerts,
+        totalFabricMeters: Number(totalFabricMeters.toFixed(2)),
+        totalInventoryValue: Number(totalInventoryValue.toFixed(2)),
+      },
+      totalCount: items.length,
+      error: null,
+    };
+  },
+  ["admin-inventory-query"],
+  {
+    tags: ["admin-inventory"],
+    revalidate: 30,
+  }
+);
+
+/**
+ * Consulta el inventario en Supabase con filtros por categoría, búsqueda y alertas.
+ * Valida sesión de socio mediante getSessionUser().
+ * Utiliza unstable_cache con tag 'admin-inventory' y TTL de 30s.
+ */
 export async function getInventory(params?: GetInventoryParams): Promise<GetInventoryResult> {
   const user = await getSessionUser();
   if (!user) {
@@ -41,90 +149,17 @@ export async function getInventory(params?: GetInventoryParams): Promise<GetInve
     showArchived = false,
   } = params || {};
 
-  const supabase = createClient();
-
-  // 1. Consulta base para los items
-  let query = supabase.from("inventory_items").select("*");
-
-  // Filtro de archivados (Soft Delete)
-  if (showArchived) {
-    query = query.not("archived_at", "is", null);
-  } else {
-    query = query.is("archived_at", null);
-  }
-
-  // Filtro por categoría
-  if (category && category !== "todos") {
-    query = query.eq("category", category);
-  }
-
-  // Buscador por nombre, variante o notas
-  const trimmedSearch = search.trim();
-  if (trimmedSearch) {
-    query = query.or(
-      `name.ilike.%${trimmedSearch}%,variant.ilike.%${trimmedSearch}%,notes.ilike.%${trimmedSearch}%`
-    );
-  }
-
-  // Ordenamiento por fecha de actualización
-  query = query.order("updated_at", { ascending: false });
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Error al obtener inventario en getInventory:", error.message);
-    return {
-      items: [],
-      kpis: {
-        totalItems: 0,
-        lowStockAlerts: 0,
-        totalFabricMeters: 0,
-        totalInventoryValue: 0,
-      },
-      totalCount: 0,
-    };
-  }
-
-  let items = (data as InventoryItem[]) || [];
-
-  // Filtro en memoria si pide "solo alertas"
-  if (onlyAlerts) {
-    items = items.filter(
-      (item) => Number(item.quantity) <= Number(item.min_stock_alert)
-    );
-  }
-
-  // 2. Consulta paralela o cálculo de KPIs sobre ítems activos (no archivados)
-  const { data: allActiveItems } = await supabase
-    .from("inventory_items")
-    .select("category, quantity, min_stock_alert, cost_per_unit")
-    .is("archived_at", null);
-
-  const active = allActiveItems || [];
-
-  const totalItems = active.length;
-  const lowStockAlerts = active.filter(
-    (item) => Number(item.quantity) <= Number(item.min_stock_alert)
-  ).length;
-
-  const totalFabricMeters = active
-    .filter((item) => item.category === "tela")
-    .reduce((acc, curr) => acc + Number(curr.quantity || 0), 0);
-
-  const totalInventoryValue = active.reduce(
-    (acc, curr) => acc + Number(curr.quantity || 0) * Number(curr.cost_per_unit || 0),
-    0
+  const res = await getCachedInventoryData(
+    category,
+    search.trim(),
+    onlyAlerts,
+    showArchived
   );
 
   return {
-    items,
-    kpis: {
-      totalItems,
-      lowStockAlerts,
-      totalFabricMeters: Number(totalFabricMeters.toFixed(2)),
-      totalInventoryValue: Number(totalInventoryValue.toFixed(2)),
-    },
-    totalCount: items.length,
+    items: res.items,
+    kpis: res.kpis,
+    totalCount: res.totalCount,
   };
 }
 
@@ -194,6 +229,7 @@ export async function createOrUpdateInventoryItem(
       }
 
       revalidatePath("/admin/inventario");
+      revalidateTag("admin-inventory");
       return {
         success: true,
         merged: true,
@@ -223,6 +259,7 @@ export async function createOrUpdateInventoryItem(
     }
 
     revalidatePath("/admin/inventario");
+    revalidateTag("admin-inventory");
     return {
       success: true,
       merged: false,
@@ -274,6 +311,7 @@ export async function updateInventoryItem(
     }
 
     revalidatePath("/admin/inventario");
+    revalidateTag("admin-inventory");
     return { success: true, message: "Ítem actualizado correctamente." };
   } catch (err: unknown) {
     console.error("Error inesperado en updateInventoryItem:", err);
@@ -327,6 +365,7 @@ export async function adjustStockDelta(
     }
 
     revalidatePath("/admin/inventario");
+    revalidateTag("admin-inventory");
     return { success: true, newQuantity: newQty };
   } catch (err: unknown) {
     console.error("Error inesperado en adjustStockDelta:", err);
@@ -359,6 +398,7 @@ export async function archiveInventoryItem(id: string): Promise<InventoryMutatio
     }
 
     revalidatePath("/admin/inventario");
+    revalidateTag("admin-inventory");
     return { success: true, message: "Ítem archivado correctamente." };
   } catch (err: unknown) {
     console.error("Error inesperado en archiveInventoryItem:", err);
@@ -391,6 +431,7 @@ export async function restoreInventoryItem(id: string): Promise<InventoryMutatio
     }
 
     revalidatePath("/admin/inventario");
+    revalidateTag("admin-inventory");
     return { success: true, message: "Ítem restaurado al inventario activo." };
   } catch (err: unknown) {
     console.error("Error inesperado en restoreInventoryItem:", err);

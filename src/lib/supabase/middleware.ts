@@ -59,5 +59,24 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return supabaseResponse;
+  // 3. Rendimiento: Inyectar headers de usuario para Server Components downstream
+  // Esto evita que layout.tsx y page.tsx hagan llamadas remotas repetidas a Supabase Auth.
+  const requestHeaders = new Headers(request.headers);
+  if (user) {
+    requestHeaders.set("x-user-id", user.id);
+    requestHeaders.set("x-user-email", user.email || "");
+  }
+
+  const finalResponse = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+
+  // Preservar las cookies de sesión actualizadas
+  supabaseResponse.cookies.getAll().forEach((cookie) => {
+    finalResponse.cookies.set(cookie.name, cookie.value);
+  });
+
+  return finalResponse;
 }

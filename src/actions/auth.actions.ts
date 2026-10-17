@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -94,11 +95,30 @@ export async function logoutAction(): Promise<void> {
 }
 
 /**
- * Obtiene el usuario autenticado actual desde el servidor.
- * Retorna null si no hay sesión activa.
+ * Obtiene el usuario autenticado actual desde el servidor con memoización React cache().
+ * Si el middleware ya validó la sesión e inyectó los headers x-user-id y x-user-email,
+ * responde en 0ms sin hacer petición remota a Supabase Auth.
  */
-export async function getSessionUser() {
+export const getSessionUser = cache(async () => {
   try {
+    // 1. Camino ultrarrápido: leer headers inyectados por el middleware
+    const headerList = headers();
+    const injectedUserId = headerList.get("x-user-id");
+    const injectedUserEmail = headerList.get("x-user-email");
+
+    if (injectedUserId && injectedUserEmail) {
+      return {
+        id: injectedUserId,
+        email: injectedUserEmail,
+        aud: "authenticated",
+        role: "authenticated",
+        app_metadata: {},
+        user_metadata: {},
+        created_at: "",
+      };
+    }
+
+    // 2. Fallback si se llama fuera del middleware
     const supabase = createClient();
     const {
       data: { user },
@@ -113,4 +133,4 @@ export async function getSessionUser() {
   } catch {
     return null;
   }
-}
+});

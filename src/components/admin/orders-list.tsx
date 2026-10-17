@@ -13,7 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  Loader2,
   RefreshCw,
 } from "lucide-react";
 import { ORDER_STATUS_CONFIG, ORDER_STATUSES, normalizeOrderStatus } from "@/lib/constants";
@@ -241,17 +240,42 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
         </div>
       </div>
 
-      {/* ESTADO DE CARGA */}
-      {isPending && (
-        <div className="flex items-center justify-center py-2 text-xs font-mono text-slate-600 gap-2">
-          <Loader2 className="h-4 w-4 animate-spin text-[#581C87]" />
-          <span>Consultando base de datos de Supabase...</span>
-        </div>
-      )}
-
       {/* CONTENEDOR DE RESULTADOS: TABLA EN DESKTOP / TARJETAS EN MOBILE */}
       <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] overflow-hidden">
-        {orders.length === 0 ? (
+        {isPending ? (
+          <div className="p-4 space-y-3 animate-pulse">
+            <div className="border-b-2 border-black dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 p-3 grid grid-cols-12 gap-2">
+              <div className="col-span-2 h-4 bg-slate-200 dark:bg-zinc-700" />
+              <div className="col-span-4 h-4 bg-slate-200 dark:bg-zinc-700" />
+              <div className="col-span-2 h-4 bg-slate-200 dark:bg-zinc-700" />
+              <div className="col-span-2 h-4 bg-slate-200 dark:bg-zinc-700" />
+              <div className="col-span-2 h-4 bg-slate-200 dark:bg-zinc-700" />
+            </div>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="py-3 px-2 grid grid-cols-12 gap-2 items-center border-b border-slate-100 dark:border-zinc-800 last:border-0"
+              >
+                <div className="col-span-2">
+                  <div className="h-4 w-20 bg-slate-200 dark:bg-zinc-700" />
+                </div>
+                <div className="col-span-4 space-y-1">
+                  <div className="h-4 w-36 bg-slate-200 dark:bg-zinc-700" />
+                  <div className="h-3 w-28 bg-slate-200 dark:bg-zinc-700" />
+                </div>
+                <div className="col-span-2">
+                  <div className="h-4 w-16 bg-slate-200 dark:bg-zinc-700" />
+                </div>
+                <div className="col-span-2">
+                  <div className="h-6 w-24 bg-slate-200 dark:bg-zinc-700 border border-black dark:border-zinc-700" />
+                </div>
+                <div className="col-span-2 flex justify-end">
+                  <div className="h-7 w-20 bg-slate-200 dark:bg-zinc-700 border border-black dark:border-zinc-700 shadow-[1.5px_1.5px_0px_#0A0A0A]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : orders.length === 0 ? (
           <div className="p-12 text-center space-y-3">
             <ShoppingBag className="h-10 w-10 text-slate-400 dark:text-zinc-600 mx-auto" />
             <h3 className="font-oswald text-lg font-black uppercase text-black dark:text-white">

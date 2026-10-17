@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   ShieldCheck,
   ExternalLink,
@@ -14,11 +15,14 @@ import { getOrders } from "@/actions/orders.actions";
 import { OrdersKpiBar } from "@/components/admin/orders-kpi-bar";
 import { OrderStatusBadge } from "@/components/admin/order-status-badge";
 
-export const revalidate = 0; // Datos frescos en cada carga
+export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   const user = await getSessionUser();
-  const { orders, totalCount } = await getOrders({ page: 1, limit: 6 });
+  if (!user) {
+    redirect("/admin/login");
+  }
+  const { orders, totalCount } = await getOrders({ page: 1, limit: 5 });
 
   return (
     <div className="space-y-6">

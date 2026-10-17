@@ -11,7 +11,6 @@ import {
   AlertTriangle,
   Download,
   FileSpreadsheet,
-  Loader2,
   PackageOpen,
 } from "lucide-react";
 import { INVENTORY_CATEGORY_CONFIG } from "@/lib/constants";
@@ -278,17 +277,45 @@ export function InventoryTable({
         </div>
       </div>
 
-      {/* ESTADO DE CARGA */}
-      {isPending && (
-        <div className="flex items-center justify-center py-2 text-xs font-mono text-slate-600 gap-2">
-          <Loader2 className="h-4 w-4 animate-spin text-[#581C87]" />
-          <span>Sincronizando inventario con la base de datos...</span>
-        </div>
-      )}
-
       {/* TABLA PRINCIPAL DE INVENTARIO */}
       <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] overflow-hidden">
-        {items.length === 0 ? (
+        {isPending ? (
+          <div className="p-4 space-y-3 animate-pulse">
+            <div className="border-b-2 border-black dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 p-3 grid grid-cols-12 gap-2">
+              <div className="col-span-4 h-4 bg-slate-200 dark:bg-zinc-700" />
+              <div className="col-span-2 h-4 bg-slate-200 dark:bg-zinc-700" />
+              <div className="col-span-3 h-4 bg-slate-200 dark:bg-zinc-700" />
+              <div className="col-span-1 h-4 bg-slate-200 dark:bg-zinc-700" />
+              <div className="col-span-2 h-4 bg-slate-200 dark:bg-zinc-700" />
+            </div>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="py-3 px-2 grid grid-cols-12 gap-2 items-center border-b border-slate-100 dark:border-zinc-800 last:border-0"
+              >
+                <div className="col-span-4 space-y-1">
+                  <div className="h-4 w-40 bg-slate-200 dark:bg-zinc-700" />
+                  <div className="h-3 w-24 bg-slate-200 dark:bg-zinc-700" />
+                </div>
+                <div className="col-span-2">
+                  <div className="h-6 w-20 bg-slate-200 dark:bg-zinc-700 border border-black dark:border-zinc-700" />
+                </div>
+                <div className="col-span-3 flex items-center gap-2">
+                  <div className="h-7 w-7 bg-slate-200 dark:bg-zinc-700 border border-black dark:border-zinc-700" />
+                  <div className="h-6 w-14 bg-slate-200 dark:bg-zinc-700" />
+                  <div className="h-7 w-7 bg-slate-200 dark:bg-zinc-700 border border-black dark:border-zinc-700" />
+                </div>
+                <div className="col-span-1">
+                  <div className="h-4 w-12 bg-slate-200 dark:bg-zinc-700" />
+                </div>
+                <div className="col-span-2 flex justify-end gap-1.5">
+                  <div className="h-7 w-7 bg-slate-200 dark:bg-zinc-700 border border-black dark:border-zinc-700" />
+                  <div className="h-7 w-7 bg-slate-200 dark:bg-zinc-700 border border-black dark:border-zinc-700" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : items.length === 0 ? (
           <div className="p-12 text-center space-y-3">
             <PackageOpen className="h-10 w-10 text-slate-400 dark:text-zinc-600 mx-auto" />
             <h3 className="font-oswald text-lg font-black uppercase text-black dark:text-white">

@@ -159,7 +159,30 @@ export function CostTemplatesList({
       </div>
 
       {/* CUADRÍCULA DE TARJETAS DE RECETAS */}
-      {filteredTemplates.length === 0 ? (
+      {isPending ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-4 shadow-[4px_4px_0px_#0A0A0A] dark:shadow-[4px_4px_0px_#000000] space-y-4"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1">
+                  <div className="h-5 w-36 bg-slate-200 dark:bg-zinc-700" />
+                  <div className="h-3 w-24 bg-slate-200 dark:bg-zinc-700" />
+                </div>
+                <div className="h-5 w-16 bg-slate-200 dark:bg-zinc-700 border border-black dark:border-zinc-700" />
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 p-2.5 bg-slate-100 dark:bg-zinc-800 border-2 border-black dark:border-zinc-700">
+                <div className="h-8 bg-slate-200 dark:bg-zinc-700" />
+                <div className="h-8 bg-slate-200 dark:bg-zinc-700" />
+                <div className="h-8 bg-slate-200 dark:bg-zinc-700" />
+              </div>
+              <div className="h-8 w-full bg-slate-200 dark:bg-zinc-700 border border-black dark:border-zinc-700" />
+            </div>
+          ))}
+        </div>
+      ) : filteredTemplates.length === 0 ? (
         <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-10 text-center space-y-3 shadow-[4px_4px_0px_#0A0A0A] dark:shadow-[4px_4px_0px_#000000]">
           <Layers className="h-10 w-10 text-slate-400 dark:text-zinc-500 mx-auto" />
           <h4 className="font-oswald text-lg font-black uppercase text-black dark:text-[#F5F5F5]">

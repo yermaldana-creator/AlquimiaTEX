@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { getSessionUser } from "@/actions/auth.actions";
 import { getOrders } from "@/actions/orders.actions";
 import { OrdersList } from "@/components/admin/orders-list";
 
@@ -9,9 +11,14 @@ export const metadata: Metadata = {
   description: "Lista completa de pedidos, control de estados y filtros de producción.",
 };
 
-export const revalidate = 0; // Datos frescos en cada solicitud
+export const dynamic = "force-dynamic";
 
 export default async function AdminPedidosPage() {
+  const user = await getSessionUser();
+  if (!user) {
+    redirect("/admin/login");
+  }
+
   const initialResult = await getOrders({ page: 1, limit: 20 });
 
   return (
