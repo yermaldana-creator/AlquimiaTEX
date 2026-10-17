@@ -641,27 +641,52 @@ async function run() {
     console.error('❌ Error en inventory_items:', err.message);
   }
 
-  // 2. Insertar cost_components
+  // 2. Insertar cost_components y obtener sus IDs
+  let createdComponentIds = new Map<string, string>();
   try {
     console.log(`🧪 Insertando ${costComponents.length} componentes en cost_components...`);
-    const { error: compErr } = await supabase.from('cost_components').insert(costComponents);
+    const { data: insertedComps, error: compErr } = await supabase
+      .from('cost_components')
+      .insert(costComponents)
+      .select('id, name');
+    
     if (compErr) {
       console.error('❌ Error al insertar en cost_components:', compErr.message);
+      // Intentar obtener existentes para mapear recetas
+      const { data: existing } = await supabase.from('cost_components').select('id, name');
+      for (const c of existing || []) {
+        createdComponentIds.set(c.name.trim().toLowerCase(), c.id);
+      }
     } else {
       console.log('✅ cost_components insertados exitosamente.');
+      for (const c of insertedComps || []) {
+        createdComponentIds.set(c.name.trim().toLowerCase(), c.id);
+      }
     }
   } catch (err: any) {
     console.error('❌ Error en cost_components:', err.message);
   }
 
-  // 3. Insertar product_cost_templates
+  // 3. Insertar product_cost_templates vinculando component_id
   try {
     console.log(`📜 Insertando ${costTemplates.length} recetas en product_cost_templates...`);
-    const { error: tempErr } = await supabase.from('product_cost_templates').insert(costTemplates);
+    const templatesWithIds = costTemplates.map(tmpl => {
+      const updatedComponents = tmpl.components.map(item => ({
+        component_id: createdComponentIds.get(item.name?.trim().toLowerCase()) || '',
+        quantity: 1,
+        unit: item.unit || 'unidad'
+      }));
+      return {
+        ...tmpl,
+        components: updatedComponents
+      };
+    });
+
+    const { error: tempErr } = await supabase.from('product_cost_templates').insert(templatesWithIds);
     if (tempErr) {
       console.error('❌ Error al insertar en product_cost_templates:', tempErr.message);
     } else {
-      console.log('✅ product_cost_templates insertados exitosamente.');
+      console.log('✅ product_cost_templates insertados exitosamente con componentes vinculados.');
     }
   } catch (err: any) {
     console.error('❌ Error en product_cost_templates:', err.message);
@@ -683,6 +708,31 @@ async function run() {
     }
   } catch (err: any) {
     console.error('❌ Error en inventory_purchases:', err.message);
+  }
+
+  // 5. Revalidación de Caché de Next.js (On-Demand Revalidation)
+  console.log('\n🔄 Solicitando revalidación de caché en Next.js (/admin/inventario, /admin/costos, /admin/pedidos)...');
+  try {
+    const revalidateRes = await fetch('http://localhost:3000/api/revalidate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseKey}`
+      },
+      body: JSON.stringify({
+        paths: ['/admin/inventario', '/admin/costos', '/admin/pedidos'],
+        tags: ['admin-inventory', 'admin-costs', 'admin-orders']
+      })
+    });
+
+    if (revalidateRes.ok) {
+      const json = await revalidateRes.json();
+      console.log('✅ Caché revalidada con éxito en Next.js (paths y tags actualizados en vivo).');
+    } else {
+      console.log('ℹ️ Servidor Next.js no respondió a la revalidación automática (puede que esté apagado o cargando).');
+    }
+  } catch (e: any) {
+    console.log('ℹ️ Nota: Si el servidor dev no está activo, Next.js leerá los nuevos datos al reiniciar.');
   }
 
   console.log('\n🏁 PROCESO DE MIGRACIÓN FINALIZADO.');
