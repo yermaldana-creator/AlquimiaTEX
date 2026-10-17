@@ -79,10 +79,11 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     title: "Taza Mágica",
     category: "tazas",
     categoryLabel: "Tazas & Mugs",
-    technique: "Termosensible HD",
+    technique: "Video Real",
     description: "Totalmente negra en frío; revela la foto o diseño oculto al verter líquido caliente.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/galeria/taza-magica.mp4",
+    videoUrl: "/images/galeria/taza-magica.mp4",
+    mediaType: "video",
     featured: true,
   },
   {
@@ -98,23 +99,22 @@ export const GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: "g4",
-    title: "Franela 50/50 Jersey Corporativa",
+    title: "Franela Jersey Algodón",
     category: "franelas",
     categoryLabel: "Franelas & Textil",
     technique: "Estampado Delante y Detrás",
     description: "Resistencia superior y frescura óptima para dotaciones corporativas y eventos.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/galeria/franela-jersey.gif",
+    videoUrl: "/images/galeria/franela-jersey.gif",
   },
   {
     id: "g5",
-    title: "Mousepad Gaming Gran Formato",
+    title: "Mousepad",
     category: "mousepads",
     categoryLabel: "Mousepads",
     technique: "Sublimación sobre Neopreno",
     description: "Base de caucho antideslizante y superficie textil optimizada para precisión óptica.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/galeria/mousepad-diseno.jpg",
   },
   {
     id: "g6",
@@ -128,13 +128,12 @@ export const GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: "g8",
-    title: "Franela Negra Microdurazno",
+    title: "Franela Oversize Negra",
     category: "franelas",
     categoryLabel: "Franelas & Textil",
     technique: "Sublimación Especial",
     description: "Corte estándar y entallado en tela negra suave de alta resistencia al uso intensivo.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/galeria/franela-oversize-negra.jpg",
   },
 ];
 

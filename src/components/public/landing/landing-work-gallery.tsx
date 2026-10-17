@@ -80,10 +80,11 @@ export function LandingWorkGallery() {
 
               {/* IMAGEN O VIDEO DE LA OBRA */}
               <div className="relative aspect-square w-full overflow-hidden bg-slate-900 border-b-2 border-black">
-                {item.videoUrl &&
-                (item.videoUrl.endsWith(".mp4") ||
-                  item.videoUrl.endsWith(".webm") ||
-                  item.mediaType === "video") ? (
+                {item.mediaType === "video" ||
+                (item.videoUrl &&
+                  (item.videoUrl.endsWith(".mp4") || item.videoUrl.endsWith(".webm"))) ||
+                (item.imageUrl &&
+                  (item.imageUrl.endsWith(".mp4") || item.imageUrl.endsWith(".webm"))) ? (
                   <video
                     autoPlay
                     loop
@@ -92,8 +93,8 @@ export function LandingWorkGallery() {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   >
                     <source
-                      src={item.videoUrl}
-                      type={item.videoUrl.endsWith(".webm") ? "video/webm" : "video/mp4"}
+                      src={item.videoUrl || item.imageUrl}
+                      type={(item.videoUrl || item.imageUrl).endsWith(".webm") ? "video/webm" : "video/mp4"}
                     />
                     Tu navegador no soporta video HTML5.
                   </video>
