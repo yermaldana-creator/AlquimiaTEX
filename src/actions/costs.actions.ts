@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getCachedSupabaseClient } from "@/lib/supabase/cached-client";
+import { getSupabaseQueryClient } from "@/lib/supabase/cached-client";
 import { getSessionUser } from "@/actions/auth.actions";
 import type {
   CostComponent,
@@ -172,7 +172,7 @@ export interface GetCostComponentsParams {
 }
 
 async function queryCostComponentsDirectly(category: string, search: string, showArchived: boolean) {
-  const supabase = getCachedSupabaseClient();
+  const supabase = getSupabaseQueryClient();
     let query = supabase.from("cost_components").select("*");
 
     if (showArchived) {
@@ -376,7 +376,7 @@ async function queryProductCostTemplatesDirectly(
     lowMarginAlertsCount: 0,
   };
 
-  const supabase = getCachedSupabaseClient();
+  const supabase = getSupabaseQueryClient();
 
     // 1. Obtener todos los componentes activos para hidratación
     const { data: rawComponents, error: compError } = await supabase

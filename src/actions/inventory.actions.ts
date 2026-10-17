@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getCachedSupabaseClient } from "@/lib/supabase/cached-client";
+import { getSupabaseQueryClient } from "@/lib/supabase/cached-client";
 import { getSessionUser } from "@/actions/auth.actions";
 import type {
   InventoryItem,
@@ -35,7 +35,7 @@ async function queryInventoryDataDirectly(
   onlyAlerts: boolean,
   showArchived: boolean
 ) {
-  const supabase = getCachedSupabaseClient();
+  const supabase = getSupabaseQueryClient();
 
   // 1. Consulta base para los items
   let query = supabase.from("inventory_items").select("*");

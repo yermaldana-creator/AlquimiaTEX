@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getCachedSupabaseClient } from "@/lib/supabase/cached-client";
+import { getSupabaseQueryClient } from "@/lib/supabase/cached-client";
 import { getSessionUser } from "@/actions/auth.actions";
 import { debtFormSchema, debtPaymentFormSchema } from "@/lib/schemas";
 import type {
@@ -29,7 +29,7 @@ export async function getDebts(params: GetDebtsParams = {}): Promise<GetDebtsRes
   const { type = "todos", status = "todos", currency = "todas", search = "" } = params;
 
   try {
-    const supabase = getCachedSupabaseClient();
+    const supabase = getSupabaseQueryClient();
     const todayStr = new Date().toISOString().split("T")[0];
 
     // 1. Consulta base filtrada para la tabla
