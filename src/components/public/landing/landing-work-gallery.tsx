@@ -32,13 +32,13 @@ export function LandingWorkGallery() {
               NUESTROS TRABAJOS COMO <span className="bg-[#FACC15] px-2">OBRAS DE ARTE</span>
             </h2>
             <p className="font-mono text-xs sm:text-sm text-slate-700 max-w-xl">
-              Cada pieza pasa por control térmico artesanal en La Dolorita. Especialistas en <strong>tazas mágicas</strong>, mugs cerámicos y franelas microdurazno.
+              Cada pieza pasa por control térmico en La Dolorita. Especialistas en <strong>tazas mágicas</strong>, Mousepads y mucho más.
             </p>
           </div>
 
           <div className="font-mono text-xs font-bold text-right hidden sm:block">
-            <span>[ TOTAL MUESTRAS: {GALLERY_ITEMS.length} ]</span> <br />
-            <span className="text-[#F43F5E]">TINTAS SUBLIMACIÓN HD</span>
+            <span>[ GALERÍA DE TALLER ]</span> <br />
+            <span className="text-[#F43F5E]">DISEÑOS PERSONALIZADOS</span>
           </div>
         </div>
 
@@ -77,18 +77,31 @@ export function LandingWorkGallery() {
                 <span className="text-[#F43F5E] uppercase">{item.category}</span>
               </div>
 
-              {/* IMAGEN DE LA OBRA */}
+              {/* IMAGEN O VIDEO DE LA OBRA */}
               <div className="relative aspect-square w-full overflow-hidden bg-slate-900 border-b-2 border-black">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+                {item.videoUrl ? (
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  >
+                    <source src={item.videoUrl} type="video/mp4" />
+                    Tu navegador no soporta video HTML5.
+                  </video>
+                ) : (
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                )}
 
                 {/* BADGE DE TÉCNICA FLOTANTE */}
-                <div className="absolute top-2.5 left-2.5">
+                <div className="absolute top-2.5 left-2.5 z-10 pointer-events-none">
                   <span className="inline-flex items-center gap-1 bg-black/90 text-white px-2 py-0.5 text-[10px] font-mono font-bold border border-white/30 backdrop-blur-sm">
                     <Sparkles className="h-2.5 w-2.5 text-[#FACC15]" />
                     {item.technique}

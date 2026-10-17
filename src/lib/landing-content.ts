@@ -6,6 +6,8 @@ export interface GalleryItem {
   technique: string;
   description: string;
   imageUrl: string;
+  videoUrl?: string;
+  mediaType?: "image" | "video";
   featured?: boolean;
 }
 
@@ -33,7 +35,7 @@ export const LANDING_HERO = {
     // Foto secundaria superpuesta: Taza mágica revelándose con calor
     secondaryProduct:
       "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80",
-    secondaryProductTitle: "Taza Mágica Termosensible",
+    secondaryProductTitle: "Taza Mágica",
     secondaryProductTag: "EFECTO CALOR 11OZ",
   },
   badges: [
@@ -63,7 +65,7 @@ export const GALLERY_CATEGORIES = [
 export const GALLERY_ITEMS: GalleryItem[] = [
   {
     id: "g1",
-    title: "Franela Microdurazno Full Print",
+    title: "Franela Microdurazno",
     category: "franelas",
     categoryLabel: "Franelas & Textil",
     technique: "Sublimación HD",
@@ -74,7 +76,7 @@ export const GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: "g2",
-    title: "Taza Mágica Termosensible",
+    title: "Taza Mágica",
     category: "tazas",
     categoryLabel: "Tazas & Mugs",
     technique: "Termosensible HD",
