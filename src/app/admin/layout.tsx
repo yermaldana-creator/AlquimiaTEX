@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { getSessionUser } from "@/actions/auth.actions";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { AdminNavTabBar } from "@/components/admin/admin-nav-tab-bar";
 import { AdminThemeProvider, ADMIN_THEME_STORAGE_KEY } from "@/components/admin/theme-provider";
 
 export const metadata: Metadata = {
@@ -57,6 +58,7 @@ export default async function AdminLayout({
         {user ? (
           <>
             <AdminHeader userEmail={user.email || "socio@alquimiatex.com"} />
+            <AdminNavTabBar />
             <main className="flex-1 container mx-auto max-w-7xl px-4 sm:px-6 md:px-8 py-6">
               {children}
             </main>

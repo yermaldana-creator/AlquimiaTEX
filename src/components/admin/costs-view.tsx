@@ -167,6 +167,7 @@ export function CostsView({
         onSuccess={handleRefresh}
         allComponents={initialComponents}
         initialTemplate={editingTemplate}
+        onGoToInsumos={() => setActiveTab("insumos")}
       />
 
       {/* MODAL FICHA TÉCNICA DETALLE */}

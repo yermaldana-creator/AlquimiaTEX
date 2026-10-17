@@ -9,6 +9,7 @@ import {
   Loader2,
   AlertCircle,
   TrendingUp,
+  HelpCircle,
 } from "lucide-react";
 import {
   createProductCostTemplate,
@@ -34,12 +35,28 @@ import type {
   ProductCostTemplateFormData,
 } from "@/types";
 
+const MARGIN_MODE_EXAMPLES: Record<CostMarginType, { short: string; example: string }> = {
+  fixed: {
+    short: "Ganancia fija directa ($)",
+    example: "Ejemplo: Si el costo es $5.24 y pones $1.76, el precio de venta será $7.00. Así funcionaba tu Excel.",
+  },
+  percentage: {
+    short: "Mark-up sobre costo (%)",
+    example: "Ejemplo: Si el costo es $5.24 y aplicas 34%, el precio de venta será $7.02.",
+  },
+  target_price: {
+    short: "Precio en calle deseado ($)",
+    example: "Ejemplo: Si pones $10, el sistema calcula que ganas $4.76 (47.6% de margen).",
+  },
+};
+
 interface CostTemplateFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
   allComponents: CostComponent[];
   initialTemplate?: ProductCostTemplate | null;
+  onGoToInsumos?: () => void;
 }
 
 export function CostTemplateFormModal({
@@ -48,6 +65,7 @@ export function CostTemplateFormModal({
   onSuccess,
   allComponents,
   initialTemplate,
+  onGoToInsumos,
 }: CostTemplateFormModalProps) {
   const [productName, setProductName] = useState<string>(
     initialTemplate?.product_name || ""
@@ -291,8 +309,28 @@ export function CostTemplateFormModal({
             </div>
 
             {allComponents.length === 0 ? (
-              <div className="p-4 bg-[#FEF9C3] dark:bg-yellow-950/40 border border-black dark:border-zinc-700 font-mono text-xs text-black dark:text-[#F5F5F5]">
-                ⚠️ Aún no tienes componentes base registrados. Primero registra telas, tintas y empaques en la pestaña &quot;Insumos y Costos Base&quot;.
+              <div className="p-4 bg-[#FEF9C3] dark:bg-yellow-950/50 border-2 border-black dark:border-zinc-700 shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000] space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-[#CA8A04] shrink-0" />
+                  <span className="font-oswald text-sm font-black uppercase text-black dark:text-[#F5F5F5]">
+                    No hay insumos registrados en el taller
+                  </span>
+                </div>
+                <p className="font-mono text-xs text-slate-700 dark:text-zinc-300">
+                  Para armar una receta de producto, primero necesitas registrar los insumos base (telas por metro, prendas vírgenes, tintas, papel o empaques).
+                </p>
+                {onGoToInsumos && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onGoToInsumos();
+                    }}
+                    className="inline-flex items-center gap-2 bg-black dark:bg-[#FACC15] text-[#FACC15] dark:text-black font-mono text-xs font-black uppercase px-4 py-2 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_#0A0A0A] hover:opacity-90 transition-all hover:translate-x-0.5"
+                  >
+                    <span>→ Ir a registrar insumos</span>
+                  </button>
+                )}
               </div>
             ) : componentsList.length === 0 ? (
               <div className="p-6 text-center border-2 border-dashed border-black/30 dark:border-zinc-700 space-y-2">
@@ -408,10 +446,13 @@ export function CostTemplateFormModal({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {Object.values(COST_MARGIN_TYPES).map((mode) => {
                 const isSelected = marginType === mode.id;
+                const exampleInfo = MARGIN_MODE_EXAMPLES[mode.id as CostMarginType];
+
                 return (
                   <button
                     key={mode.id}
                     type="button"
+                    title={exampleInfo.example}
                     onClick={() => {
                       setMarginType(mode.id as CostMarginType);
                       // Ajustar valor sugerido inicial si cambia el modo
@@ -427,13 +468,29 @@ export function CostTemplateFormModal({
                         : "bg-white dark:bg-[#262626] text-black dark:text-[#F5F5F5] hover:bg-slate-50 dark:hover:bg-zinc-800"
                     }`}
                   >
-                    <span className="font-bold">{mode.label}</span>
+                    <div className="flex items-center justify-between w-full">
+                      <span className="font-bold">{mode.label}</span>
+                      <HelpCircle className="h-3.5 w-3.5 opacity-60 shrink-0" />
+                    </div>
                     <span className="text-[10px] opacity-80 leading-tight">
                       {mode.description}
                     </span>
                   </button>
                 );
               })}
+            </div>
+
+            {/* EXPLICACIÓN DINÁMICA CON EJEMPLOS REALES DEL TALLER */}
+            <div className="p-3 bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 font-mono text-xs flex items-start gap-2.5 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000]">
+              <HelpCircle className="h-4 w-4 text-[#2563EB] dark:text-blue-400 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <span className="font-bold text-black dark:text-[#F5F5F5] block">
+                  ¿Cómo funciona este modo en el taller?
+                </span>
+                <p className="text-slate-600 dark:text-zinc-300 text-[11px] leading-relaxed">
+                  {MARGIN_MODE_EXAMPLES[marginType].example}
+                </p>
+              </div>
             </div>
 
             {/* INPUT DEL VALOR DEL MARGEN */}
@@ -511,23 +568,41 @@ export function CostTemplateFormModal({
           </div>
 
           {/* BOTONES DE ACCIÓN */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t-2 border-black dark:border-zinc-700">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isPending}
-              className="px-4 py-2 border-2 border-black dark:border-zinc-700 font-mono text-xs font-bold bg-white dark:bg-[#262626] text-black dark:text-[#F5F5F5] hover:bg-slate-100"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isPending || componentsList.length === 0}
-              className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-black dark:border-zinc-700 font-mono text-xs font-black uppercase bg-[#FACC15] text-black shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000] hover:bg-[#EAB308] disabled:opacity-50"
-            >
-              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              <span>{initialTemplate ? "Guardar Cambios" : "Guardar Receta"}</span>
-            </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t-2 border-black dark:border-zinc-700">
+            <div className="text-left">
+              {(allComponents.length === 0 || componentsList.length === 0) && (
+                <p className="font-mono text-[11px] text-amber-700 dark:text-yellow-400 font-bold">
+                  ⚠️ Primero necesitas registrar insumos en la pestaña Insumos y Costos Base
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isPending}
+                className="px-4 py-2 border-2 border-black dark:border-zinc-700 font-mono text-xs font-bold bg-white dark:bg-[#262626] text-black dark:text-[#F5F5F5] hover:bg-slate-100"
+              >
+                Cancelar
+              </button>
+              <div
+                title={
+                  allComponents.length === 0 || componentsList.length === 0
+                    ? "Primero necesitas registrar insumos en la pestaña Insumos y Costos Base"
+                    : undefined
+                }
+              >
+                <button
+                  type="submit"
+                  disabled={isPending || allComponents.length === 0 || componentsList.length === 0}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 border-2 border-black dark:border-zinc-700 font-mono text-xs font-black uppercase bg-[#FACC15] text-black shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000] hover:bg-[#EAB308] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                  <span>{initialTemplate ? "Guardar Cambios" : "Guardar Receta"}</span>
+                </button>
+              </div>
+            </div>
           </div>
         </form>
       </div>
