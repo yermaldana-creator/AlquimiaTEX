@@ -15,6 +15,8 @@ export interface InstagramPost {
   id: string;
   caption: string;
   imageUrl: string;
+  videoUrl?: string;
+  mediaType?: "image" | "video";
   postUrl: string;
   likes: number;
 }
@@ -26,15 +28,15 @@ export const LANDING_HERO = {
     "En AlquimiaTex fusionamos confección de alto nivel, tecnología de sublimación indeleble de máxima viveza. Creamos franelas, tazas mágicas y accesorios únicos para marcas, empresas y personas.",
   // FOTOS DEL HERO: Reemplaza estas URLs con las fotos reales de tus productos cuando las tengas
   photos: {
-    // Foto principal: Franela con diseño colgada en gancho
+    // Foto principal: Camiseta con diseño gráfico / custom printed graphic tee
     mainProduct:
-      "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80",
     mainProductTitle: "ART_01: MICRODURAZNO BLANCA",
     mainProductBadge: "HASTA XL",
     mainProductPrice: "$5 c/u x Docena",
-    // Foto secundaria superpuesta: Taza mágica negra
+    // Foto secundaria superpuesta: Taza cerámica negra / magic mug
     secondaryProduct:
-      "https://images.unsplash.com/photo-1570784332176-fdd73da66f03?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1578357078586-491adf1aa5ba?auto=format&fit=crop&w=400&q=80",
     secondaryProductTitle: "Taza Mágica",
     secondaryProductTag: "EFECTO CALOR 11OZ",
   },
@@ -139,51 +141,47 @@ export const GALLERY_ITEMS: GalleryItem[] = [
 export const INSTAGRAM_POSTS: InstagramPost[] = [
   {
     id: "p1",
-    caption: "¡Salida de producción por docena! Franelas microdurazno listas para entrega en Caracas. 🔥👕",
-    imageUrl:
-      "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80",
+    caption: "Tazas apilables 11oz personalizadas en taller. Ideales para cafeterías y combos de regalo. ✨☕",
+    imageUrl: "/images/galeria/taza-apilable.gif",
     postUrl: "https://instagram.com/alquimia_tex",
-    likes: 142,
+    likes: 189,
   },
   {
     id: "p2",
-    caption: "Tazas mágicas en acción: mira cómo desaparece el negro al contacto con agua caliente ✨☕",
-    imageUrl:
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
+    caption: "¡Salida de producción! Franelas microdurazno con tacto suave y sublimación indeleble en Caracas. 🔥👕",
+    imageUrl: "/images/galeria/franela-microdurazno.jpg",
     postUrl: "https://instagram.com/alquimia_tex",
-    likes: 215,
+    likes: 245,
   },
   {
     id: "p3",
-    caption: "Control de calidad en prensa térmica. Cada detalle cuenta antes del empaque final. ⚡",
-    imageUrl:
-      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80",
+    caption: "Mousepads con base de caucho antideslizante y estampado a todo color de máxima fidelidad. 🖱️⚡",
+    imageUrl: "/images/galeria/mousepad-diseno.jpg",
     postUrl: "https://instagram.com/alquimia_tex",
-    likes: 98,
+    likes: 173,
   },
   {
     id: "p4",
-    caption: "Mugs personalizados para regalos corporativos. Acabado brillante e impecable. 💼✨",
-    imageUrl:
-      "https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&w=600&q=80",
+    caption: "Rompecabezas sublimados A4 de 120 piezas con acabado brillante. Hechos con precisión en La Dolorita. 🧩❤️",
+    imageUrl: "/images/galeria/rompecabezas.jpg",
     postUrl: "https://instagram.com/alquimia_tex",
-    likes: 184,
+    likes: 152,
   },
   {
     id: "p5",
-    caption: "Puzzles personalizados en formato A4 y Corazón. Una idea original para fechas especiales 🧩❤️",
-    imageUrl:
-      "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80",
+    caption: "Franelas Jersey de algodón con confección reforzada y colores sólidos para tu marca o evento. 👕🧵",
+    imageUrl: "/images/galeria/franela-jersey.gif",
     postUrl: "https://instagram.com/alquimia_tex",
-    likes: 129,
+    likes: 198,
   },
   {
     id: "p6",
-    caption: "Mousepads ergonómicos con estampado gamer de alta fidelidad. Calidad que se siente. 🖱️🎮",
-    imageUrl:
-      "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=600&q=80",
+    caption: "Tazas mágicas termosensibles en acción: el diseño oculto se revela al contacto con calor. ✨☕",
+    imageUrl: "/images/galeria/taza-magica.mp4",
+    videoUrl: "/images/galeria/taza-magica.mp4",
+    mediaType: "video",
     postUrl: "https://instagram.com/alquimia_tex",
-    likes: 173,
+    likes: 312,
   },
 ];
 

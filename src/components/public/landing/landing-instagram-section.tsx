@@ -53,16 +53,29 @@ export function LandingInstagramSection() {
               rel="noopener noreferrer"
               className="group relative aspect-square overflow-hidden bg-black border-2 border-black shadow-[4px_4px_0px_#0A0A0A] hover:shadow-[6px_6px_0px_#FACC15] transition-all duration-300 hover:-translate-y-1 block"
             >
-              <Image
-                src={post.imageUrl}
-                alt={post.caption}
-                fill
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-              />
+              {post.videoUrl || post.imageUrl.endsWith(".mp4") ? (
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                >
+                  <source src={post.videoUrl || post.imageUrl} type="video/mp4" />
+                </video>
+              ) : (
+                <Image
+                  src={post.imageUrl}
+                  alt={post.caption}
+                  fill
+                  unoptimized={post.imageUrl.toLowerCase().endsWith(".gif")}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              )}
 
               {/* OVERLAY DE INTERACCIÓN */}
-              <div className="absolute inset-0 flex flex-col justify-between bg-black/85 p-3 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100 text-white">
+              <div className="absolute inset-0 flex flex-col justify-between bg-black/85 p-3 opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100 text-white z-10 pointer-events-none">
                 <div className="flex items-center justify-between text-[11px] font-mono font-bold">
                   <span className="flex items-center gap-1 text-[#F43F5E]">
                     <Heart className="h-3 w-3 fill-[#F43F5E]" />
