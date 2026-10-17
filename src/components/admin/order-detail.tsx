@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import JSZip from "jszip";
 import {
   ArrowLeft,
@@ -20,10 +21,12 @@ import {
 import { normalizeOrderStatus } from "@/lib/constants";
 import { OrderStatusBadge } from "./order-status-badge";
 import { OrderStatusSelect } from "./order-status-select";
-import type { AdminOrder, OrderStatus } from "@/types";
+import { OrderInventoryPanel } from "./order-inventory-panel";
+import type { AdminOrder, OrderStatus, InventoryItem } from "@/types";
 
 interface OrderDetailProps {
   order: AdminOrder;
+  inventoryItems?: InventoryItem[];
 }
 
 function cleanPhoneForWhatsApp(phone: string): string {
@@ -69,7 +72,8 @@ function getDeliveryBadge(dateStr: string) {
   };
 }
 
-export function OrderDetail({ order }: OrderDetailProps) {
+export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
+  const router = useRouter();
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>(
     normalizeOrderStatus(order.status)
   );
@@ -375,6 +379,13 @@ export function OrderDetail({ order }: OrderDetailProps) {
           </div>
         </div>
       </div>
+
+      {/* SUBMÓDULO 4: ESTADO & RESERVA DE INVENTARIO */}
+      <OrderInventoryPanel
+        order={order}
+        inventoryItems={inventoryItems}
+        onOrderUpdated={() => router.refresh()}
+      />
 
       {/* LISTA DETALLADA DE PRODUCTOS */}
       <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-5 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] space-y-4">

@@ -1,6 +1,8 @@
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getSessionUser } from "@/actions/auth.actions";
 import { getOrderById } from "@/actions/orders.actions";
+import { getInventory } from "@/actions/inventory.actions";
 import { OrderDetail } from "@/components/admin/order-detail";
 
 interface OrderDetailPageProps {
@@ -13,18 +15,26 @@ export async function generateMetadata({ params }: OrderDetailPageProps): Promis
   const decodedId = decodeURIComponent(params.id);
   return {
     title: `Ficha de Pedido ${decodedId} | AlquimiaTex Admin`,
-    description: "Ficha técnica, especificaciones de prendas y descarga de artes del pedido.",
+    description: "Ficha técnica, especificaciones de prendas, reserva de inventario y descarga de artes del pedido.",
   };
 }
 
-export const revalidate = 0; // Datos frescos
+export const dynamic = "force-dynamic";
 
 export default async function AdminOrderDetailPage({ params }: OrderDetailPageProps) {
-  const order = await getOrderById(params.id);
+  const user = await getSessionUser();
+  if (!user) {
+    redirect("/admin/login");
+  }
+
+  const [order, inventoryData] = await Promise.all([
+    getOrderById(params.id),
+    getInventory({ category: "todos" }),
+  ]);
 
   if (!order) {
     notFound();
   }
 
-  return <OrderDetail order={order} />;
+  return <OrderDetail order={order} inventoryItems={inventoryData.items || []} />;
 }

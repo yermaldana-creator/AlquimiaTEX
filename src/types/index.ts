@@ -30,6 +30,15 @@ export type LegacyOrderStatus = "abonado" | "en_confeccion" | "listo";
 
 export type AnyOrderStatus = OrderStatus | LegacyOrderStatus | string;
 
+export interface OrderInventoryReservationRecord {
+  order_item_id: string;
+  inventory_item_id: string;
+  inventory_item_name: string;
+  quantity: number;
+  stock_after_reserve?: number;
+  reserved_at?: string;
+}
+
 export interface AdminOrder {
   id: string;
   order_code: string;
@@ -42,6 +51,9 @@ export interface AdminOrder {
   items: OrderItem[];
   status: OrderStatus | string;
   ai_attempts_used?: number;
+  inventory_reserved?: boolean;
+  inventory_reserved_at?: string | null;
+  inventory_reservations?: OrderInventoryReservationRecord[];
   created_at: string;
 }
 
