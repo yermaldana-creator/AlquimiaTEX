@@ -1,7 +1,7 @@
 export interface GalleryItem {
   id: string;
   title: string;
-  category: "franelas" | "tazas" | "puzzles" | "mousepads";
+  category: "franelas" | "tazas" | "rompecabezas" | "puzzles" | "mousepads";
   categoryLabel: string;
   technique: string;
   description: string;
@@ -58,7 +58,7 @@ export const GALLERY_CATEGORIES = [
   { id: "todas", label: "Todos los Trabajos" },
   { id: "franelas", label: "Franelas & Textil" },
   { id: "tazas", label: "Tazas & Mugs" },
-  { id: "puzzles", label: "Puzzles" },
+  { id: "rompecabezas", label: "Rompecabezas" },
   { id: "mousepads", label: "Mousepads" },
 ] as const;
 
@@ -87,13 +87,14 @@ export const GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: "g3",
-    title: "Mug Cerámica Premium 11oz",
+    title: "TAZA APILABLE PEQUEÑA",
     category: "tazas",
     categoryLabel: "Tazas & Mugs",
     technique: "Sublimación Cerámica",
-    description: "Brillo porcelánico con acabado vitrificado apto para microondas y lavavajillas.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1577937927133-66ef06acdf18?auto=format&fit=crop&w=800&q=80",
+    description:
+      "Tazas apilables de 11oz, perfectas para personalizar con diseños únicos. Ideales para regalos o cafeterías.",
+    imageUrl: "/images/tazas/taza-apilable.gif",
+    videoUrl: "/images/tazas/taza-apilable.gif",
   },
   {
     id: "g4",
@@ -118,22 +119,12 @@ export const GALLERY_ITEMS: GalleryItem[] = [
   {
     id: "g6",
     title: "Rompecabezas Sublimado A4",
-    category: "puzzles",
-    categoryLabel: "Puzzles",
+    category: "rompecabezas",
+    categoryLabel: "Rompecabezas",
     technique: "Prensado Térmico Rígido",
     description: "120 piezas con acabado brillante, ideal para recuerdos de bodas, cumpleaños y regalos.",
     imageUrl:
       "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: "g7",
-    title: "Mug Bicolor de Colección",
-    category: "tazas",
-    categoryLabel: "Tazas & Mugs",
-    technique: "Sublimación Full Color",
-    description: "Taza personalizada con asa e interior en color de contraste y exterior estampado nítido.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: "g8",

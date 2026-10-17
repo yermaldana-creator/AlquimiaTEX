@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Coffee, Layers } from "lucide-react";
+import { ArrowRight, Sparkles, Coffee, Layers, Puzzle } from "lucide-react";
 import { RegistrationMark } from "./alchemy-graphics";
 import {
   GALLERY_CATEGORIES,
@@ -58,6 +58,7 @@ export function LandingWorkGallery() {
               >
                 {cat.id === "tazas" && <Coffee className="h-3.5 w-3.5 text-[#F43F5E]" />}
                 {cat.id === "franelas" && <Layers className="h-3.5 w-3.5 text-[#06B6D4]" />}
+                {cat.id === "rompecabezas" && <Puzzle className="h-3.5 w-3.5 text-[#F59E0B]" />}
                 <span>{cat.label}</span>
               </button>
             );
@@ -79,7 +80,10 @@ export function LandingWorkGallery() {
 
               {/* IMAGEN O VIDEO DE LA OBRA */}
               <div className="relative aspect-square w-full overflow-hidden bg-slate-900 border-b-2 border-black">
-                {item.videoUrl ? (
+                {item.videoUrl &&
+                (item.videoUrl.endsWith(".mp4") ||
+                  item.videoUrl.endsWith(".webm") ||
+                  item.mediaType === "video") ? (
                   <video
                     autoPlay
                     loop
@@ -87,14 +91,18 @@ export function LandingWorkGallery() {
                     playsInline
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   >
-                    <source src={item.videoUrl} type="video/mp4" />
+                    <source
+                      src={item.videoUrl}
+                      type={item.videoUrl.endsWith(".webm") ? "video/webm" : "video/mp4"}
+                    />
                     Tu navegador no soporta video HTML5.
                   </video>
                 ) : (
                   <Image
-                    src={item.imageUrl}
+                    src={item.videoUrl || item.imageUrl}
                     alt={item.title}
                     fill
+                    unoptimized={(item.videoUrl || item.imageUrl).toLowerCase().endsWith(".gif")}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
