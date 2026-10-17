@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, unstable_cache, revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCachedSupabaseClient } from "@/lib/supabase/cached-client";
 import { getSessionUser } from "@/actions/auth.actions";
@@ -165,9 +165,8 @@ export interface GetCostComponentsParams {
   showArchived?: boolean;
 }
 
-const getCachedCostComponents = unstable_cache(
-  async (category: string, search: string, showArchived: boolean) => {
-    const supabase = getCachedSupabaseClient();
+async function queryCostComponentsDirectly(category: string, search: string, showArchived: boolean) {
+  const supabase = getCachedSupabaseClient();
     let query = supabase.from("cost_components").select("*");
 
     if (showArchived) {
@@ -187,19 +186,14 @@ const getCachedCostComponents = unstable_cache(
     query = query.order("category", { ascending: true }).order("name", { ascending: true });
 
     const { data, error } = await query;
+    console.log("DEBUG COST COMPONENTS: filas obtenidas =", data?.length, "error =", error);
     if (error) {
       console.error("[getCachedCostComponents] Error de consulta:", error);
       return { components: [], error: error.message };
     }
 
     return { components: (data || []) as CostComponent[] };
-  },
-  ["admin-cost-components-query"],
-  {
-    tags: ["admin-costs"],
-    revalidate: 60,
   }
-);
 
 export async function getCostComponents(
   params?: GetCostComponentsParams
@@ -211,7 +205,8 @@ export async function getCostComponents(
     }
 
     const { category = "todos", search = "", showArchived = false } = params || {};
-    return await getCachedCostComponents(category, search, showArchived);
+    // Bypass temporal de unstable_cache para depuración forense
+    return await queryCostComponentsDirectly(category, search, showArchived);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error desconocido al obtener componentes";
     console.error("[getCostComponents] Excepción:", err);
@@ -361,22 +356,21 @@ export interface GetTemplatesResult {
   error?: string;
 }
 
-const getCachedProductCostTemplates = unstable_cache(
-  async (
-    category: string,
-    profitability: string,
-    search: string,
-    showArchived: boolean
-  ) => {
-    const emptyKpis: CostsKpiData = {
-      totalActiveTemplates: 0,
-      totalComponents: 0,
-      averageMarginPercentage: 0,
-      mostProfitableTemplate: null,
-      lowMarginAlertsCount: 0,
-    };
+async function queryProductCostTemplatesDirectly(
+  category: string,
+  profitability: string,
+  search: string,
+  showArchived: boolean
+) {
+  const emptyKpis: CostsKpiData = {
+    totalActiveTemplates: 0,
+    totalComponents: 0,
+    averageMarginPercentage: 0,
+    mostProfitableTemplate: null,
+    lowMarginAlertsCount: 0,
+  };
 
-    const supabase = getCachedSupabaseClient();
+  const supabase = getCachedSupabaseClient();
 
     // 1. Obtener todos los componentes activos para hidratación
     const { data: rawComponents, error: compError } = await supabase
@@ -474,13 +468,7 @@ const getCachedProductCostTemplates = unstable_cache(
       kpis,
       allComponents,
     };
-  },
-  ["admin-product-cost-templates-query"],
-  {
-    tags: ["admin-costs"],
-    revalidate: 60,
   }
-);
 
 export async function getProductCostTemplates(
   params?: GetTemplatesParams
@@ -506,7 +494,7 @@ export async function getProductCostTemplates(
       showArchived = false,
     } = params || {};
 
-    return await getCachedProductCostTemplates(category, profitability, search, showArchived);
+    return await queryProductCostTemplatesDirectly(category, profitability, search, showArchived);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error al consultar recetas";
     console.error("[getProductCostTemplates] Excepción:", err);

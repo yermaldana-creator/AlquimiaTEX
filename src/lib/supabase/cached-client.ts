@@ -5,9 +5,14 @@ import { createClient } from "@supabase/supabase-js";
  * Diseñado específicamente para ejecutarse de forma segura dentro de Next.js unstable_cache().
  */
 export function getCachedSupabaseClient() {
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseKey,
     {
       auth: {
         persistSession: false,
