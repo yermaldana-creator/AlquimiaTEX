@@ -138,10 +138,16 @@ export async function hydrateTemplateItem(
 
   const unitCost = roundTo(totalUnitCost, 2);
 
+  // En modo 'target_price', el precio de venta deseado es target_price (o margin_value como fallback)
+  const effectiveMarginValue =
+    template.margin_type === "target_price"
+      ? (Number(template.target_price) || Number(template.margin_value) || 0)
+      : (Number(template.margin_value) || 0);
+
   const pricing = await calculatePricing(
     unitCost,
     template.margin_type,
-    template.margin_value
+    effectiveMarginValue
   );
 
   return {
@@ -515,8 +521,13 @@ export async function createProductCostTemplate(
       return { success: false, error: "El nombre del producto/receta es obligatorio." };
     }
 
-    const marginValue = Number(data.margin_value) || 0;
-    const targetPrice = data.target_price ? Number(data.target_price) : null;
+    let marginValue = Number(data.margin_value) || 0;
+    let targetPrice = data.target_price !== undefined && data.target_price !== null ? Number(data.target_price) : null;
+    if (data.margin_type === "target_price") {
+      const effective = targetPrice || marginValue || 0;
+      marginValue = effective;
+      targetPrice = effective;
+    }
 
     const supabase = createClient();
     const { data: inserted, error } = await supabase
@@ -568,6 +579,13 @@ export async function updateProductCostTemplate(
     if (data.margin_type !== undefined) updatePayload.margin_type = data.margin_type;
     if (data.margin_value !== undefined) updatePayload.margin_value = Number(data.margin_value) || 0;
     if (data.target_price !== undefined) updatePayload.target_price = data.target_price ? Number(data.target_price) : null;
+    if (data.margin_type === "target_price" || updatePayload.margin_type === "target_price") {
+      const effective = (updatePayload.target_price as number) || (updatePayload.margin_value as number) || 0;
+      if (effective > 0) {
+        updatePayload.margin_value = effective;
+        updatePayload.target_price = effective;
+      }
+    }
     if (data.components !== undefined) updatePayload.components = data.components;
     if (data.is_active !== undefined) updatePayload.is_active = data.is_active;
 

@@ -365,7 +365,7 @@ function parseCostData(wb: XLSX.WorkBook): {
       category: 'camisa',
       description: 'Estampado térmico full color en tela microdurazno tacto suave',
       margin_type: 'target_price',
-      margin_value: 1.76,
+      margin_value: 7.0,
       target_price: 7.0,
       components: [
         { name: 'Prenda Virgen Microdurazno', cost: 3.63, unit: 'unidad' },
@@ -382,7 +382,7 @@ function parseCostData(wb: XLSX.WorkBook): {
       category: 'camisa',
       description: 'Transfer digital DTF directo a prenda microdurazno',
       margin_type: 'target_price',
-      margin_value: 4.42,
+      margin_value: 9.0,
       target_price: 9.0,
       components: [
         { name: 'Prenda Virgen Microdurazno', cost: 1.9, unit: 'unidad' },
@@ -398,7 +398,7 @@ function parseCostData(wb: XLSX.WorkBook): {
       category: 'camisa',
       description: 'Transfer digital DTF sobre franela 100% algodón jersey',
       margin_type: 'target_price',
-      margin_value: 5.52,
+      margin_value: 12.0,
       target_price: 12.0,
       components: [
         { name: 'Prenda Virgen Algodón', cost: 3.8, unit: 'unidad' },
@@ -414,7 +414,7 @@ function parseCostData(wb: XLSX.WorkBook): {
       category: 'taza',
       description: 'Taza blanca estándar sublimada full color con acabado brillante',
       margin_type: 'target_price',
-      margin_value: 1.02,
+      margin_value: 4.0,
       target_price: 4.0,
       components: [
         { name: 'Taza Cerámica 11oz (Virgen)', cost: 2.0, unit: 'unidad' },
@@ -430,7 +430,7 @@ function parseCostData(wb: XLSX.WorkBook): {
       category: 'taza',
       description: 'Taza mágica termosensible que revela el arte con calor',
       margin_type: 'target_price',
-      margin_value: 1.52,
+      margin_value: 6.0,
       target_price: 6.0,
       components: [
         { name: 'Taza Mágica 11oz (Virgen)', cost: 3.5, unit: 'unidad' },
