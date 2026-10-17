@@ -116,3 +116,126 @@ export interface InventoryKpiData {
   totalFabricMeters: number;
   totalInventoryValue: number;
 }
+
+// ----------------------------------------------------------------------
+// SUB-MÓDULO 3: COSTOS Y PRECIOS
+// ----------------------------------------------------------------------
+
+export type CostComponentCategory =
+  | "prenda_base"
+  | "prenda_dtf"
+  | "tinta"
+  | "papel"
+  | "empaque"
+  | "mano_obra"
+  | "otro";
+
+export type CostMarginType = "fixed" | "percentage" | "target_price";
+
+export type CostTemplateCategory = "camisa" | "taza" | "mousepad" | "otro";
+
+export type ProfitabilityLevel = "high" | "medium" | "low" | "loss";
+
+export interface CostComponent {
+  id: string;
+  name: string;
+  category: CostComponentCategory;
+  unit: string;
+  cost_per_unit: number;
+  notes: string | null;
+  archived_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CostComponentFormData {
+  name: string;
+  category: CostComponentCategory;
+  unit: string;
+  cost_per_unit: number;
+  notes?: string | null;
+}
+
+export interface CostTemplateItem {
+  component_id: string;
+  quantity: number;
+  unit?: string;
+}
+
+export interface HydratedCostTemplateItem {
+  component_id: string;
+  quantity: number;
+  unit: string;
+  component_name: string;
+  component_category: CostComponentCategory;
+  cost_per_unit: number;
+  subtotal: number;
+}
+
+export interface ProductCostTemplate {
+  id: string;
+  product_name: string;
+  category: CostTemplateCategory;
+  description: string | null;
+  margin_type: CostMarginType;
+  margin_value: number;
+  target_price?: number | null;
+  components: CostTemplateItem[];
+  is_active: boolean;
+  archived_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductCostTemplateFormData {
+  product_name: string;
+  category: CostTemplateCategory;
+  description?: string | null;
+  margin_type: CostMarginType;
+  margin_value: number;
+  target_price?: number | null;
+  components: CostTemplateItem[];
+  is_active?: boolean;
+}
+
+export interface CalculatedTemplatePricing {
+  template: ProductCostTemplate;
+  hydratedComponents: HydratedCostTemplateItem[];
+  unitCost: number;
+  salePrice: number;
+  profit: number;
+  marginPercentage: number;
+  profitabilityLevel: ProfitabilityLevel;
+}
+
+export interface CostSimulationRequiredItem {
+  component_id: string;
+  name: string;
+  category: CostComponentCategory;
+  totalQuantity: number;
+  unit: string;
+  unitCost: number;
+  totalCost: number;
+}
+
+export interface CostSimulationResult {
+  templateId: string;
+  productName: string;
+  quantity: number;
+  unitCost: number;
+  unitSalePrice: number;
+  unitProfit: number;
+  totalCost: number;
+  totalRevenue: number;
+  totalProfit: number;
+  marginPercentage: number;
+  requiredComponents: CostSimulationRequiredItem[];
+}
+
+export interface CostsKpiData {
+  totalActiveTemplates: number;
+  totalComponents: number;
+  averageMarginPercentage: number;
+  mostProfitableTemplate?: { name: string; margin: number } | null;
+  lowMarginAlertsCount: number;
+}

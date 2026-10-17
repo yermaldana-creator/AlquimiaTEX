@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   Boxes,
   HelpCircle,
+  Calculator,
 } from "lucide-react";
 import { logoutAction } from "@/actions/auth.actions";
 import { AdminHelpModal } from "./admin-help-modal";
@@ -96,6 +97,18 @@ export function AdminHeader({ userEmail }: AdminHeaderProps) {
             >
               <Boxes className="h-3.5 w-3.5" />
               <span>Inventario</span>
+            </Link>
+
+            <Link
+              href="/admin/costos"
+              className={`inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase px-2.5 py-1.5 border-2 border-black dark:border-zinc-700 transition-all ${
+                pathname.startsWith("/admin/costos")
+                  ? "bg-black dark:bg-[#FACC15] text-[#FACC15] dark:text-black shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] -translate-y-0.5"
+                  : "bg-white dark:bg-[#262626] text-black dark:text-[#F5F5F5] hover:bg-slate-100 dark:hover:bg-zinc-800 shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000]"
+              }`}
+            >
+              <Calculator className="h-3.5 w-3.5" />
+              <span>Costos</span>
             </Link>
           </nav>
 

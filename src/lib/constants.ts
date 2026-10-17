@@ -452,3 +452,197 @@ export const WORKSHOP_FAQS = [
   },
 ];
 
+// -------------------------------------------------------------
+// Submódulo 3: Costos y Precios (Fórmulas y Catálogos)
+// -------------------------------------------------------------
+
+export const COST_COMPONENT_CATEGORIES = {
+  prenda_base: {
+    id: "prenda_base",
+    label: "🟣 Prenda Base (Sublimación)",
+    shortLabel: "Prenda Sublimación",
+    bg: "bg-[#F3E8FF] dark:bg-purple-950/40",
+    text: "text-[#581C87] dark:text-purple-300",
+    border: "border-[#7E22CE] dark:border-purple-600",
+    hex: "#7E22CE",
+    badgeBg: "bg-[#581C87] dark:bg-purple-600",
+    badgeText: "text-[#FACC15] dark:text-white",
+    description: "Franelas y prendas aptas para sublimar (Microdurazno, poliéster, etc.)",
+    defaultUnit: "unidad",
+  },
+  prenda_dtf: {
+    id: "prenda_dtf",
+    label: "🔵 Prenda DTF",
+    shortLabel: "Prenda DTF",
+    bg: "bg-[#DBEAFE] dark:bg-blue-950/40",
+    text: "text-[#1E40AF] dark:text-blue-300",
+    border: "border-[#2563EB] dark:border-blue-600",
+    hex: "#2563EB",
+    badgeBg: "bg-[#1E40AF] dark:bg-blue-600",
+    badgeText: "text-white",
+    description: "Prendas para técnica DTF (algodón, colores oscuros, mezclas)",
+    defaultUnit: "unidad",
+  },
+  tinta: {
+    id: "tinta",
+    label: "🟡 Tinta de Impresión",
+    shortLabel: "Tinta",
+    bg: "bg-[#FEF9C3] dark:bg-yellow-950/40",
+    text: "text-[#854D0E] dark:text-yellow-300",
+    border: "border-[#CA8A04] dark:border-yellow-600",
+    hex: "#CA8A04",
+    badgeBg: "bg-[#CA8A04] dark:bg-yellow-500",
+    badgeText: "text-black",
+    description: "Tintas de sublimación (CMYK) o tintas textiles / DTF (por ml)",
+    defaultUnit: "ml",
+  },
+  papel: {
+    id: "papel",
+    label: "🟢 Papel / Film de Transferencia",
+    shortLabel: "Papel / Film",
+    bg: "bg-[#DCFCE7] dark:bg-emerald-950/40",
+    text: "text-[#166534] dark:text-emerald-300",
+    border: "border-[#16A34A] dark:border-emerald-600",
+    hex: "#16A34A",
+    badgeBg: "bg-[#16A34A] dark:bg-emerald-600",
+    badgeText: "text-white",
+    description: "Hojas de sublimación premium, papel transfer o film DTF",
+    defaultUnit: "hoja",
+  },
+  empaque: {
+    id: "empaque",
+    label: "📦 Empaque y Bolsas",
+    shortLabel: "Empaque",
+    bg: "bg-[#E0E7FF] dark:bg-indigo-950/40",
+    text: "text-[#3730A3] dark:text-indigo-300",
+    border: "border-[#4F46E5] dark:border-indigo-600",
+    hex: "#4F46E5",
+    badgeBg: "bg-[#4F46E5] dark:bg-indigo-600",
+    badgeText: "text-white",
+    description: "Bolsas de entrega, etiquetas, precintos y cajas protectoras",
+    defaultUnit: "unidad",
+  },
+  mano_obra: {
+    id: "mano_obra",
+    label: "🛠️ Mano de Obra / Operación",
+    shortLabel: "Mano de Obra",
+    bg: "bg-[#FFEDD5] dark:bg-amber-950/40",
+    text: "text-[#9A3412] dark:text-amber-300",
+    border: "border-[#EA580C] dark:border-amber-600",
+    hex: "#EA580C",
+    badgeBg: "bg-[#EA580C] dark:bg-amber-600",
+    badgeText: "text-white",
+    description: "Corte, planchado, estampado y control de calidad por prenda",
+    defaultUnit: "servicio",
+  },
+  otro: {
+    id: "otro",
+    label: "🔴 Insumos Secundarios / Otros",
+    shortLabel: "Otros Insumos",
+    bg: "bg-[#FFE4E6] dark:bg-rose-950/40",
+    text: "text-[#9F1239] dark:text-rose-300",
+    border: "border-[#E11D48] dark:border-rose-600",
+    hex: "#E11D48",
+    badgeBg: "bg-[#E11D48] dark:bg-rose-600",
+    badgeText: "text-white",
+    description: "Cinta térmica, tazas base 11oz, mousepads base, rompecabezas virgen",
+    defaultUnit: "unidad",
+  },
+} as const;
+
+export const COST_TEMPLATE_CATEGORIES = {
+  camisa: {
+    id: "camisa",
+    label: "👕 Franelas y Ropa",
+    description: "Prendas sublimadas, DTF o transfer textil",
+  },
+  taza: {
+    id: "taza",
+    label: "☕ Tazas y Pocillos",
+    description: "Tazas 11oz, mágicas, cónicas y sets apilables",
+  },
+  mousepad: {
+    id: "mousepad",
+    label: "🖱️ Mousepads y Accesorios",
+    description: "Almohadillas gamer y de oficina sublimadas",
+  },
+  otro: {
+    id: "otro",
+    label: "📦 Otros Productos",
+    description: "Puzzles, bolsos, llaveros y artículos promocionales",
+  },
+} as const;
+
+export const COST_MARGIN_TYPES = {
+  fixed: {
+    id: "fixed",
+    label: "💵 Margen Fijo ($)",
+    description: "Sumar una cantidad fija de dólares de ganancia al costo de fabricación",
+    placeholder: "Ej: 1.76",
+    symbol: "$",
+  },
+  percentage: {
+    id: "percentage",
+    label: "📈 Porcentaje de Recargo (%)",
+    description: "Aplicar un margen porcentual sobre el costo de fabricación (Mark-up)",
+    placeholder: "Ej: 33.6",
+    symbol: "%",
+  },
+  target_price: {
+    id: "target_price",
+    label: "🎯 Precio de Venta Deseado ($)",
+    description: "Fijar el precio final de calle y calcular la ganancia y margen automáticamente",
+    placeholder: "Ej: 7.00",
+    symbol: "$",
+  },
+} as const;
+
+export const COST_COMMON_UNITS = [
+  { value: "unidad", label: "Unidad (ud)" },
+  { value: "ml", label: "Mililitro (ml)" },
+  { value: "hoja", label: "Hoja" },
+  { value: "metro", label: "Metro (m)" },
+  { value: "servicio", label: "Servicio / Pasada" },
+  { value: "cm", label: "Centímetro (cm)" },
+  { value: "set", label: "Set / Juego" },
+] as const;
+
+export const PROFITABILITY_CONFIG = {
+  high: {
+    minMargin: 40,
+    label: "Alta Rentabilidad",
+    badgeBg: "bg-[#10B981] dark:bg-emerald-600",
+    badgeText: "text-white font-bold",
+    border: "border-[#059669]",
+    icon: "🟢",
+    description: "Margen saludable superior al 40%. Excelente retorno de inversión.",
+  },
+  medium: {
+    minMargin: 20,
+    label: "Rentabilidad Media",
+    badgeBg: "bg-[#FACC15] dark:bg-yellow-500",
+    badgeText: "text-black font-bold",
+    border: "border-[#CA8A04]",
+    icon: "🟡",
+    description: "Margen estándar entre 20% y 40%. Aceptable para volumen o mayoreo.",
+  },
+  low: {
+    minMargin: 0,
+    label: "Baja Rentabilidad",
+    badgeBg: "bg-[#EF4444] dark:bg-rose-600",
+    badgeText: "text-white font-bold",
+    border: "border-[#DC2626]",
+    icon: "🔴",
+    description: "Margen menor al 20%. Evaluar aumento de precio o reducción de insumos.",
+  },
+  loss: {
+    minMargin: -Infinity,
+    label: "¡Pérdida Crítica!",
+    badgeBg: "bg-black dark:bg-zinc-950",
+    badgeText: "text-red-400 font-black",
+    border: "border-red-600",
+    icon: "⚠️",
+    description: "El precio de venta está por debajo del costo de fabricación.",
+  },
+} as const;
+

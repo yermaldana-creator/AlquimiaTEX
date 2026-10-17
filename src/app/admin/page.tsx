@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Eye,
   Calendar,
+  Calculator,
 } from "lucide-react";
 import { RegistrationMark } from "@/components/public/landing/alchemy-graphics";
 import { getSessionUser } from "@/actions/auth.actions";
@@ -74,7 +75,7 @@ export default async function AdminDashboardPage() {
       </section>
 
       {/* ACCESOS DIRECTOS A MÓDULOS ACTIVOS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* MÓDULO DE PEDIDOS */}
         <section className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-5 shadow-[5px_5px_0px_#0A0A0A] dark:shadow-[5px_5px_0px_#000000] flex flex-col justify-between gap-4">
           <div className="space-y-1">
@@ -117,6 +118,29 @@ export default async function AdminDashboardPage() {
             className="inline-flex items-center justify-center gap-2 font-mono text-xs font-black uppercase bg-[#06B6D4] text-black border-2 border-black dark:border-zinc-700 px-4 py-2.5 shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000] hover:opacity-90 transition-all hover:translate-x-0.5 hover:translate-y-0.5"
           >
             <span>Entrar a Inventario</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </section>
+
+        {/* MÓDULO DE COSTOS Y PRECIOS */}
+        <section className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-5 shadow-[5px_5px_0px_#0A0A0A] dark:shadow-[5px_5px_0px_#000000] flex flex-col justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Calculator className="h-5 w-5 text-[#10B981] dark:text-emerald-400" />
+              <h3 className="font-oswald text-xl font-black uppercase text-black dark:text-[#F5F5F5]">
+                Costos y Precios
+              </h3>
+            </div>
+            <p className="font-mono text-xs text-slate-600 dark:text-zinc-400">
+              Insumos, recetas de producto, cálculo automático de margen en 3 modos y simulador de volumen.
+            </p>
+          </div>
+
+          <Link
+            href="/admin/costos"
+            className="inline-flex items-center justify-center gap-2 font-mono text-xs font-black uppercase bg-[#10B981] text-white border-2 border-black dark:border-zinc-700 px-4 py-2.5 shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000] hover:bg-[#059669] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+          >
+            <span>Ver Costos y Precios</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </section>
