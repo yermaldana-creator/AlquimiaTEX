@@ -7,7 +7,6 @@ import { LandingWholesaleOffers } from "@/components/public/landing/landing-whol
 import { LandingInstagramSection } from "@/components/public/landing/landing-instagram-section";
 import { LandingOrderCta } from "@/components/public/landing/landing-order-cta";
 import { LandingFooter } from "@/components/public/landing/landing-footer";
-import { RegistrationMark } from "@/components/public/landing/alchemy-graphics";
 
 export default function HomePage() {
   return (
@@ -48,7 +47,6 @@ export default function HomePage() {
                   <div className="flex h-10 w-10 items-center justify-center bg-black text-[#FACC15] font-oswald text-xl font-black border-2 border-black shadow-[2px_2px_0px_#0A0A0A]">
                     01
                   </div>
-                  <RegistrationMark label="STEP_SELECTION" />
                 </div>
                 <h3 className="text-xl font-oswald font-black uppercase text-black">
                   Selecciona tus Artículos
@@ -63,7 +61,6 @@ export default function HomePage() {
                   <div className="flex h-10 w-10 items-center justify-center bg-[#F43F5E] text-white font-oswald text-xl font-black border-2 border-black shadow-[2px_2px_0px_#0A0A0A]">
                     02
                   </div>
-                  <RegistrationMark label="STEP_DESIGN_AI" />
                 </div>
                 <h3 className="text-xl font-oswald font-black uppercase text-black">
                   Personaliza o Crea con IA
@@ -78,7 +75,6 @@ export default function HomePage() {
                   <div className="flex h-10 w-10 items-center justify-center bg-[#06B6D4] text-black font-oswald text-xl font-black border-2 border-black shadow-[2px_2px_0px_#0A0A0A]">
                     03
                   </div>
-                  <RegistrationMark label="STEP_WHATSAPP" />
                 </div>
                 <h3 className="text-xl font-oswald font-black uppercase text-black">
                   Envía directo a WhatsApp

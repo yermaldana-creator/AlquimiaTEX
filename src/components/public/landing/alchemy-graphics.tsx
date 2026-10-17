@@ -72,26 +72,15 @@ export function AlchemistFlask({
 }
 
 export function RegistrationMark({
-  label = "REG_01",
-  className = "",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  label: _label = "REG_01",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  className: _className = "",
 }: {
   label?: string;
   className?: string;
 }) {
-  return (
-    <div
-      className={`flex items-center gap-1.5 font-mono text-[10px] text-black/50 select-none ${className}`}
-    >
-      <span className="font-bold text-xs">⌖</span>
-      <span className="tracking-widest">{label}</span>
-      <div className="flex items-center gap-0.5 ml-1">
-        <span className="w-1.5 h-1.5 bg-[#06B6D4] inline-block"></span>
-        <span className="w-1.5 h-1.5 bg-[#F43F5E] inline-block"></span>
-        <span className="w-1.5 h-1.5 bg-[#FACC15] inline-block"></span>
-        <span className="w-1.5 h-1.5 bg-[#0A0A0A] inline-block"></span>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 export function IndustrialTapeBanner() {

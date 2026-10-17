@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { Heart, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/instagram-icon";
-import { RegistrationMark } from "./alchemy-graphics";
 import { SOCIAL_INFO, INSTAGRAM_POSTS } from "@/lib/landing-content";
 
 export function LandingInstagramSection() {
@@ -92,8 +91,7 @@ export function LandingInstagramSection() {
         </div>
 
         {/* FOOTNOTE DE HASHTAG */}
-        <div className="flex items-center justify-between border-t border-black/20 pt-4 text-xs font-mono text-slate-700">
-          <RegistrationMark label="INSTA_FEED_01" />
+        <div className="flex items-center justify-center border-t border-black/20 pt-4 text-xs font-mono text-slate-700 text-center">
           <span>
             Etiquétanos con <strong className="text-black">#AlquimiaTex</strong> para aparecer en nuestra vitrina.
           </span>

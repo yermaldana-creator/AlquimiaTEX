@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, MapPin, Clock, ShieldCheck } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/instagram-icon";
-import { RegistrationMark } from "./alchemy-graphics";
 import { SOCIAL_INFO } from "@/lib/landing-content";
 
 export function LandingFooter() {
@@ -138,7 +137,6 @@ export function LandingFooter() {
               </Link>
             </div>
           </div>
-          <RegistrationMark label="PRINT_SYSTEM_V2" />
         </div>
       </div>
     </footer>

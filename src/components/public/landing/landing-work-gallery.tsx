@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Coffee, Layers, Puzzle } from "lucide-react";
-import { RegistrationMark } from "./alchemy-graphics";
 import {
   GALLERY_CATEGORIES,
   GALLERY_ITEMS,
@@ -67,17 +66,11 @@ export function LandingWorkGallery() {
 
         {/* GRILLA DE OBRAS DE ARTE / EXHIBICIÓN */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredItems.map((item, idx) => (
+          {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="group relative flex flex-col bg-white border-2 border-black shadow-[5px_5px_0px_#0A0A0A] hover:shadow-[7px_7px_0px_#F43F5E] transition-all duration-300 hover:-translate-y-1"
+              className="group relative flex flex-col bg-white border-2 border-black shadow-[5px_5px_0px_#0A0A0A] hover:shadow-[7px_7px_0px_#F43F5E] transition-all duration-300 hover:-translate-y-1 overflow-hidden"
             >
-              {/* ENCABEZADO DE FICHA TÉCNICA */}
-              <div className="flex items-center justify-between border-b border-black px-3 py-1.5 bg-[#F8F5EE] text-[10px] font-mono font-bold">
-                <RegistrationMark label={`OBRA_0${idx + 1}`} />
-                <span className="text-[#F43F5E] uppercase">{item.category}</span>
-              </div>
-
               {/* IMAGEN O VIDEO DE LA OBRA */}
               <div className="relative aspect-square w-full overflow-hidden bg-slate-900 border-b-2 border-black">
                 {item.mediaType === "video" ||

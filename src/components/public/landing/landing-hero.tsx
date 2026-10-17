@@ -4,7 +4,6 @@ import { ArrowRight, MessageCircle } from "lucide-react";
 import {
   StampSeal,
   AlchemistFlask,
-  RegistrationMark,
 } from "./alchemy-graphics";
 import { LANDING_HERO, SOCIAL_INFO } from "@/lib/landing-content";
 
@@ -97,9 +96,6 @@ export function LandingHero() {
 
           {/* COLUMNA DERECHA: COLLAGE DE PIEZAS DE TALLER */}
           <div className="lg:col-span-5 relative mt-6 lg:mt-0">
-            {/* MARCA DE CORTE SUPERIOR */}
-            <RegistrationMark label="REG_CARACAS_01" className="absolute -top-6 -left-2" />
-
             {/* TARJETA PRINCIPAL EN ÁNGULO (MICRODURAZNO) */}
             <div className="relative bg-white border-3 border-black p-4 shadow-[8px_8px_0px_#0A0A0A] -rotate-1 transition-transform hover:rotate-0 duration-300">
               {/* FOTOGRAFÍA PRINCIPAL */}

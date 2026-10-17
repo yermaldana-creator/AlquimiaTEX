@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Check, ArrowRight, AlertTriangle } from "lucide-react";
-import { RegistrationMark } from "./alchemy-graphics";
 import {
   WHOLESALE_CATALOG_OFFERS,
   CATALOG_POLICIES,
@@ -51,7 +50,6 @@ export function LandingWholesaleOffers() {
                     <span className="bg-black text-[#FACC15] px-1.5 py-0.5 uppercase">
                       {offer.tag}
                     </span>
-                    <RegistrationMark label={`PACK_${index + 1}`} />
                   </div>
 
                   <div>

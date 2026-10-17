@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight, MessageCircle, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
-import { RegistrationMark } from "./alchemy-graphics";
 import { SOCIAL_INFO, ORDER_CTA_CONTENT } from "@/lib/landing-content";
 
 export function LandingOrderCta() {
@@ -66,8 +65,6 @@ export function LandingOrderCta() {
             <span>Pago Móvil, Efectivo y Binance USDT</span>
           </span>
         </div>
-
-        <RegistrationMark label="CLOSING_CTA_LAB" className="text-white/40 justify-center pt-2" />
       </div>
     </section>
   );
