@@ -70,8 +70,7 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     categoryLabel: "Franelas & Textil",
     technique: "Sublimación HD",
     description: "Tacto ultra suave con tintas de curado térmico de alta durabilidad.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "/images/galeria/franela-microdurazno.jpg",
     featured: true,
   },
   {
@@ -122,9 +121,9 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     category: "rompecabezas",
     categoryLabel: "Rompecabezas",
     technique: "Prensado Térmico Rígido",
-    description: "120 piezas con acabado brillante, ideal para recuerdos de bodas, cumpleaños y regalos.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=800&q=80",
+    description:
+      "120 piezas con acabado brillante, ideal para recuerdos de bodas, cumpleaños y regalos personalizados.",
+    imageUrl: "/images/galeria/rompecabezas.jpg",
   },
   {
     id: "g8",
