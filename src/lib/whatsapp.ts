@@ -1,4 +1,4 @@
-import { DEFAULT_WHATSAPP_NUMBER, SHIRT_FABRICS, SHIRT_CUT_LABELS } from "./constants";
+import { DEFAULT_WHATSAPP_NUMBER, SHIRT_FABRICS, SHIRT_CUT_LABELS, MUG_TYPES } from "./constants";
 import type { OrderItem } from "./schemas";
 
 export function cleanPhoneNumber(phone: string): string {
@@ -60,6 +60,9 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
       message += `   • Formato: ${item.mousepadSize || "Estándar"}\n`;
     } else if (item.product === "rompecabezas") {
       message += `   • Piezas: ${item.puzzlePieces || "A4"}\n`;
+    } else if (item.product === "taza") {
+      const mugObj = MUG_TYPES.find((m) => m.value === item.mugType);
+      message += `   • Modelo: ${mugObj ? mugObj.label : (item.mugType || "Taza")}\n`;
     } else if (item.product === "otro") {
       message += `   • Detalle: ${item.customProductDetails || "Personalizado"}\n`;
     }

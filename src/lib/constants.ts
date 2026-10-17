@@ -20,9 +20,15 @@ export const PRODUCT_TYPES = [
     badge: "Regalo ideal",
   },
   {
+    id: "taza",
+    name: "Tazas",
+    description: "Taza mágica, normal blanca o set apilable",
+    badge: "Populares",
+  },
+  {
     id: "otro",
     name: "Otro Producto",
-    description: "Tazas, gorras u otros artículos personalizados a cotizar",
+    description: "Gorras u otros artículos personalizados a cotizar",
     badge: "A convenir",
   },
 ] as const;
@@ -45,7 +51,6 @@ export const SHIRT_SIZES = [
 export const SHIRT_CUTS = [
   { value: "unisex", label: "Caballero / Unisex (Corte clásico recto)" },
   { value: "dama", label: "Dama (Corte entallado femenino)" },
-  { value: "oversize", label: "Oversize (Corte amplio y holgado)" },
 ] as const;
 
 export const SHIRT_COLORS = [
@@ -80,20 +85,42 @@ export const SHIRT_FABRICS = [
     label: "Poliéster Deportivo",
     description: "Secado rápido, fresca y ligera. Ideal para entrenamiento y uniformes.",
   },
+  {
+    value: "oversize",
+    label: "Oversize",
+    description: "Corte amplio y holgado con tela gruesa de estilo urbano.",
+  },
 ] as const;
 
 export const MOUSEPAD_SIZES = [
   { value: "estandar", label: "Estándar (22 x 18 cm) — Ideal para trabajo diario" },
-  { value: "gamer_xl", label: "Gamer XL (70 x 30 cm) — Abarca teclado y mouse" },
-  { value: "gamer_xxl", label: "Gamer XXL (90 x 40 cm) — Escritorio completo" },
-  { value: "ergonomico", label: "Ergonómico — Con almohadilla de gel para muñeca" },
 ] as const;
 
 export const PUZZLE_FORMATS = [
-  { value: "a5_80", label: "A5 (Aprox. 80 piezas - 15 x 20 cm)" },
-  { value: "a4_120", label: "A4 (Aprox. 120 piezas - 20 x 29 cm - Más pedido)" },
-  { value: "a3_240", label: "A3 (Aprox. 240 piezas - 29 x 40 cm - Gran formato)" },
-  { value: "corazon_75", label: "Corazón (Aprox. 75 piezas - Especial parejas / regalos)" },
+  { value: "a4_120", label: "A4 (Aprox. 120 piezas - 20 x 29 cm)" },
+] as const;
+
+export const MUG_TYPES = [
+  {
+    value: "taza_magica",
+    label: "Taza Mágica",
+    description: "Termosensible negra: revela la imagen o diseño al llenarse con calor.",
+  },
+  {
+    value: "taza_blanca",
+    label: "Taza Normal Blanca",
+    description: "Cerámica brillante 11oz de alta calidad, perfecta para regalos o uso diario.",
+  },
+  {
+    value: "set_apilable",
+    label: "Set Apilable (Set completo con base)",
+    description: "Torre de 4 tazas apilables con su soporte metálico organizador.",
+  },
+  {
+    value: "taza_apilable_individual",
+    label: "Taza Apilable (Individual)",
+    description: "Taza apilable por unidad sin soporte (para complementar o compra individual).",
+  },
 ] as const;
 
 export const DEFAULT_WHATSAPP_NUMBER = "584241589317";

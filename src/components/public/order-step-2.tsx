@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { OrderItem } from "@/lib/schemas";
+import { MUG_TYPES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -201,6 +202,9 @@ export function OrderStep2({
             variantLabel = item.mousepadSize || "Estándar";
           } else if (item.product === "rompecabezas") {
             variantLabel = item.puzzlePieces || "A4";
+          } else if (item.product === "taza") {
+            const mugObj = MUG_TYPES.find((m) => m.value === item.mugType);
+            variantLabel = mugObj ? mugObj.label : (item.mugType || "Taza");
           } else {
             variantLabel = item.customProductDetails || "Personalizado";
           }

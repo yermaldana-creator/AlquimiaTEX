@@ -78,6 +78,7 @@ export function findBestInventoryMatch(
   const requestedColor = normalizeStem(orderItem.shirtColor || "");
   const requestedCut = normalizeStem(orderItem.shirtCut || "");
   const requestedMousepad = normalizeStem(orderItem.mousepadSize || "");
+  const requestedMug = normalizeStem(orderItem.mugType || "");
   const requestedDetails = normalizeStem(orderItem.customProductDetails || "");
 
   const candidates: MatchCandidate[] = [];
@@ -134,6 +135,18 @@ export function findBestInventoryMatch(
     if (requestedDetails && fullInvText.includes(requestedDetails)) {
       score += 50;
       reasons.push("Detalle personalizado");
+    }
+
+    // Regla 7: Tazas (+45 pts)
+    if (orderItem.product === "taza") {
+      if (fullInvText.includes("taza") || fullInvText.includes("mug")) {
+        score += 45;
+        reasons.push("Taza de cerámica");
+      }
+      if (requestedMug && fullInvText.includes(requestedMug)) {
+        score += 25;
+        reasons.push(`Modelo ${orderItem.mugType}`);
+      }
     }
 
     const finalScore = Math.max(0, Math.min(100, score));

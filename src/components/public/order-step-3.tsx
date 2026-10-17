@@ -20,7 +20,7 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PAYMENT_INFO, SHIRT_CUT_LABELS, SHIRT_FABRICS } from "@/lib/constants";
+import { PAYMENT_INFO, SHIRT_CUT_LABELS, SHIRT_FABRICS, MUG_TYPES } from "@/lib/constants";
 import { step3ContactSchema, type Step3ContactFormData, type OrderItem } from "@/lib/schemas";
 import { submitOrderAction, type SubmitOrderResponse } from "@/actions/orders.actions";
 import { Button } from "@/components/ui/button";
@@ -153,6 +153,7 @@ export function OrderStep3({
                       {item.product === "camisa" && "Camisa / Franela"}
                       {item.product === "mousepad" && "Mousepad Personalizado"}
                       {item.product === "rompecabezas" && "Rompecabezas Sublimado"}
+                      {item.product === "taza" && "Taza Sublimada"}
                       {item.product === "otro" && (item.customProductDetails || "Producto a cotizar")}
                     </span>
                     <Badge variant="outline" className="text-xs">
@@ -178,6 +179,9 @@ export function OrderStep3({
                     )}
                     {item.product === "rompecabezas" && (
                       <span>Formato: <strong className="uppercase">{item.puzzlePieces}</strong></span>
+                    )}
+                    {item.product === "taza" && (
+                      <span>Modelo: <strong>{MUG_TYPES.find(m => m.value === item.mugType)?.label || item.mugType || "Taza"}</strong></span>
                     )}
                   </div>
 

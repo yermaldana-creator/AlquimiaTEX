@@ -422,6 +422,8 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                           ? "Mousepad"
                           : item.product === "rompecabezas"
                           ? "Rompecabezas"
+                          : item.product === "taza"
+                          ? "Taza / Mug"
                           : "Producto Especial"}
                       </h3>
                     </div>
@@ -486,6 +488,14 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                       <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
                         <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Piezas:</span>
                         <strong className="text-black dark:text-zinc-100">{item.puzzlePieces} piezas</strong>
+                      </div>
+                    )}
+
+                    {/* MODELO TAZA */}
+                    {item.mugType && (
+                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Modelo Taza:</span>
+                        <strong className="text-black dark:text-zinc-100">{item.mugType}</strong>
                       </div>
                     )}
                   </div>

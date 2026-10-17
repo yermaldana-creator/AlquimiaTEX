@@ -8,6 +8,7 @@ import {
   Square,
   Puzzle,
   Sparkles,
+  Coffee,
   Plus,
   Minus,
   Check,
@@ -29,6 +30,7 @@ import {
   SHIRT_FABRICS,
   MOUSEPAD_SIZES,
   PUZZLE_FORMATS,
+  MUG_TYPES,
   MAX_ORDER_ITEMS,
 } from "@/lib/constants";
 import { orderItemSchema, type OrderItem } from "@/lib/schemas";
@@ -44,6 +46,7 @@ const PRODUCT_ICONS = {
   camisa: Shirt,
   mousepad: Square,
   rompecabezas: Puzzle,
+  taza: Coffee,
   otro: Sparkles,
 };
 
@@ -78,6 +81,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtFabric: "microdurazno",
       mousepadSize: "",
       puzzlePieces: "",
+      mugType: "",
       customProductDetails: "",
     },
     mode: "onChange",
@@ -99,6 +103,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
   const selectedShirtFabric = watch("shirtFabric");
   const selectedMousepadSize = watch("mousepadSize");
   const selectedPuzzlePieces = watch("puzzlePieces");
+  const selectedMugType = watch("mugType");
   const customDetails = watch("customProductDetails");
 
   // Restaurar items de localStorage al montar
@@ -129,6 +134,14 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       setValue("shirtCut", "unisex");
       setValue("shirtColor", "blanco");
       setValue("shirtFabric", "microdurazno");
+    } else if (prodId === "mousepad") {
+      setValue("mousepadSize", "estandar", { shouldValidate: true });
+    } else if (prodId === "rompecabezas") {
+      setValue("puzzlePieces", "a4_120", { shouldValidate: true });
+    } else if (prodId === "taza") {
+      if (!selectedMugType) {
+        setValue("mugType", "taza_blanca", { shouldValidate: true });
+      }
     }
   };
 
@@ -170,6 +183,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtFabric: "microdurazno",
       mousepadSize: "",
       puzzlePieces: "",
+      mugType: "",
       customProductDetails: "",
     });
   };
@@ -185,6 +199,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       setValue("shirtFabric", "microdurazno", { shouldValidate: false });
       setValue("mousepadSize", "", { shouldValidate: false });
       setValue("puzzlePieces", "", { shouldValidate: false });
+      setValue("mugType", "", { shouldValidate: false });
       setValue("customProductDetails", "", { shouldValidate: false });
       setValue("quantity", 1, { shouldValidate: false });
       setAddedToast(true);
@@ -208,6 +223,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtFabric: item.shirtFabric || "microdurazno",
       mousepadSize: item.mousepadSize || "",
       puzzlePieces: item.puzzlePieces || "",
+      mugType: item.mugType || "",
       customProductDetails: item.customProductDetails || "",
       description: item.description || "",
       referenceImage: item.referenceImage || "",
@@ -233,6 +249,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtFabric: "microdurazno",
       mousepadSize: "",
       puzzlePieces: "",
+      mugType: "",
       customProductDetails: "",
     });
   };
@@ -272,7 +289,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
             Tipo de producto <span className="text-destructive">*</span>
           </Label>
 
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
             {PRODUCT_TYPES.map((prod) => {
               const Icon = PRODUCT_ICONS[prod.id as keyof typeof PRODUCT_ICONS];
               const isSelected = selectedProduct === prod.id;
@@ -366,7 +383,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                 <Label className="text-xs font-semibold text-foreground">
                   Corte <span className="text-destructive">*</span>
                 </Label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {SHIRT_CUTS.map((cut) => (
                     <button
                       key={cut.value}
@@ -519,6 +536,46 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
             </div>
           )}
 
+          {/* TAZAS */}
+          {selectedProduct === "taza" && (
+            <div className="space-y-2 animate-in fade-in-50 duration-200">
+              <Label className="text-xs font-semibold text-foreground">
+                Modelo de Taza <span className="text-destructive">*</span>
+              </Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {MUG_TYPES.map((mug) => (
+                  <button
+                    key={mug.value}
+                    type="button"
+                    onClick={() => setValue("mugType", mug.value, { shouldValidate: true })}
+                    className={cn(
+                      "p-3 rounded-lg border text-left transition-all",
+                      selectedMugType === mug.value
+                        ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary shadow-sm"
+                        : "border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold text-foreground">{mug.label}</p>
+                      {selectedMugType === mug.value && (
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                      {mug.description}
+                    </p>
+                  </button>
+                ))}
+              </div>
+              {errors.mugType && (
+                <p className="text-xs text-destructive flex items-center gap-1 font-medium">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {errors.mugType.message}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* OTRO */}
           {selectedProduct === "otro" && (
             <div className="space-y-2 animate-in fade-in-50 duration-200">
@@ -527,7 +584,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
               </Label>
               <Input
                 id="customDetails"
-                placeholder="Ej: Taza blanca 11oz, gorra trucker, llavero acrílico..."
+                placeholder="Ej: Gorra bordada/estampada, llavero acrílico, bolso tote..."
                 value={customDetails || ""}
                 onChange={(e) => setValue("customProductDetails", e.target.value, { shouldValidate: true })}
                 className="bg-background text-xs"
@@ -619,11 +676,11 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
               variant="secondary"
               onClick={handleAddAnotherVariant}
               disabled={items.length >= MAX_ORDER_ITEMS}
-              className="flex-1 sm:flex-none h-11 text-xs sm:text-sm font-semibold gap-2 border border-border bg-secondary/80 hover:bg-secondary text-secondary-foreground shadow-sm"
+              className="flex-1 sm:flex-none h-11 text-xs sm:text-sm font-semibold gap-2 border border-border bg-secondary/80 hover:bg-secondary text-secondary-foreground shadow-sm px-4 whitespace-normal text-center"
               title="Guarda este artículo y prepara el formulario para elegir otra talla o color"
             >
-              <Plus className="h-3.5 w-3.5 text-primary" />
-              <span>+ Agregar otra variante de este mismo producto</span>
+              <Plus className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span>+ Otra variante del mismo producto</span>
             </Button>
           )}
         </div>
@@ -672,6 +729,10 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                 variantSummary = `Mousepad — Medida ${item.mousepadSize || "Estándar"} — x${item.quantity}`;
               } else if (item.product === "rompecabezas") {
                 variantSummary = `Rompecabezas — Formato ${item.puzzlePieces || "A4"} — x${item.quantity}`;
+              } else if (item.product === "taza") {
+                const mugObj = MUG_TYPES.find((m) => m.value === item.mugType);
+                const mugLabel = mugObj ? mugObj.label : (item.mugType || "Taza");
+                variantSummary = `${mugLabel} — x${item.quantity}`;
               } else {
                 variantSummary = `${item.customProductDetails || "Personalizado"} — x${item.quantity}`;
               }

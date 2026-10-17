@@ -3,7 +3,7 @@ import { z } from "zod";
 export const orderItemSchema = z
   .object({
     id: z.string(),
-    product: z.enum(["camisa", "mousepad", "rompecabezas", "otro"]),
+    product: z.enum(["camisa", "mousepad", "rompecabezas", "taza", "otro"]),
     quantity: z
       .number()
       .int("La cantidad debe ser un número entero")
@@ -15,6 +15,7 @@ export const orderItemSchema = z
     shirtFabric: z.string().optional(),
     mousepadSize: z.string().optional(),
     puzzlePieces: z.string().optional(),
+    mugType: z.string().optional(),
     customProductDetails: z.string().optional(),
     description: z
       .string()
@@ -39,7 +40,7 @@ export const orderItemSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["shirtCut"],
-          message: "Selecciona el corte (unisex, dama u oversize)",
+          message: "Selecciona el corte (Caballero o Dama)",
         });
       }
       if (!data.shirtColor || data.shirtColor.trim() === "") {
@@ -63,6 +64,14 @@ export const orderItemSchema = z
           code: z.ZodIssueCode.custom,
           path: ["puzzlePieces"],
           message: "Selecciona el formato del rompecabezas",
+        });
+      }
+    } else if (data.product === "taza") {
+      if (!data.mugType || data.mugType.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["mugType"],
+          message: "Selecciona el modelo de taza",
         });
       }
     } else if (data.product === "otro") {
