@@ -26,15 +26,15 @@ export const LANDING_HERO = {
     "En AlquimiaTex fusionamos confección de alto nivel, tecnología de sublimación indeleble de máxima viveza. Creamos franelas, tazas mágicas y accesorios únicos para marcas, empresas y personas.",
   // FOTOS DEL HERO: Reemplaza estas URLs con las fotos reales de tus productos cuando las tengas
   photos: {
-    // Foto principal: Franela o prenda con estampado de alta densidad
+    // Foto principal: Franela con diseño colgada en gancho
     mainProduct:
-      "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&w=800&q=80",
     mainProductTitle: "ART_01: MICRODURAZNO BLANCA",
     mainProductBadge: "HASTA XL",
     mainProductPrice: "$5 c/u x Docena",
-    // Foto secundaria superpuesta: Taza mágica revelándose con calor
+    // Foto secundaria superpuesta: Taza mágica negra
     secondaryProduct:
-      "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1570784332176-fdd73da66f03?auto=format&fit=crop&w=400&q=80",
     secondaryProductTitle: "Taza Mágica",
     secondaryProductTag: "EFECTO CALOR 11OZ",
   },

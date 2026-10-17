@@ -102,11 +102,6 @@ export function LandingHero() {
 
             {/* TARJETA PRINCIPAL EN ÁNGULO (MICRODURAZNO) */}
             <div className="relative bg-white border-3 border-black p-4 shadow-[8px_8px_0px_#0A0A0A] -rotate-1 transition-transform hover:rotate-0 duration-300">
-              {/* STICKER DE PRECIO AMARILLO */}
-              <div className="absolute -top-3.5 -right-3.5 bg-[#FACC15] text-black font-oswald font-black text-sm px-3.5 py-1 border-2 border-black shadow-[2px_2px_0px_#0A0A0A] uppercase rotate-2 z-10">
-                {photos.mainProductPrice}
-              </div>
-
               {/* FOTOGRAFÍA PRINCIPAL */}
               <div className="aspect-[4/3] bg-slate-900 border-2 border-black overflow-hidden relative group">
                 <Image
@@ -126,9 +121,8 @@ export function LandingHero() {
                 </div>
               </div>
 
-              <div className="mt-3 flex items-center justify-between text-xs font-mono font-bold">
+              <div className="mt-3 text-xs font-mono font-bold">
                 <span>TELAS: 180G POLIÉSTER</span>
-                <span className="text-[#F43F5E]">2 ESTAMPADOS INC.</span>
               </div>
             </div>
 
