@@ -1,9 +1,19 @@
-import type { OrderItem, Step3ContactFormData } from "@/lib/schemas";
+import type {
+  OrderItem,
+  Step3ContactFormData,
+  DebtFormSchema,
+  DebtPaymentFormSchema,
+} from "@/lib/schemas";
 import type { PRODUCT_TYPES } from "@/lib/constants";
 
 export type ProductTypeId = (typeof PRODUCT_TYPES)[number]["id"];
 
-export type { OrderItem, Step3ContactFormData };
+export type {
+  OrderItem,
+  Step3ContactFormData,
+  DebtFormSchema,
+  DebtPaymentFormSchema,
+};
 
 export interface OrderDraftState {
   items: OrderItem[];
@@ -251,3 +261,6 @@ export interface CostsKpiData {
   mostProfitableTemplate?: { name: string; margin: number } | null;
   lowMarginAlertsCount: number;
 }
+
+export * from "./debts";
+

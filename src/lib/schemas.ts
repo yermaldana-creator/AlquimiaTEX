@@ -104,3 +104,34 @@ export const step3ContactSchema = z.object({
 });
 
 export type Step3ContactFormData = z.infer<typeof step3ContactSchema>;
+
+/**
+ * Sub-módulo 5: Gestión de Deudas y Cuentas
+ */
+export const debtFormSchema = z.object({
+  type: z.enum(["por_cobrar", "por_pagar"]),
+  entity_name: z
+    .string()
+    .min(2, "El nombre de la persona o negocio debe tener al menos 2 caracteres")
+    .max(150, "Nombre demasiado largo"),
+  description: z.string().max(500, "Descripción demasiado larga").optional().nullable(),
+  currency: z.enum(["USD", "BS"]),
+  amount_original: z
+    .number()
+    .min(0, "El monto no puede ser negativo"),
+  due_date: z.string().optional().nullable(),
+  notes: z.string().max(500, "Notas demasiado largas").optional().nullable(),
+});
+
+export type DebtFormSchema = z.infer<typeof debtFormSchema>;
+
+export const debtPaymentFormSchema = z.object({
+  amount: z
+    .number()
+    .positive("El abono debe ser mayor a 0"),
+  payment_method: z.string().min(2, "Indica el método de pago"),
+  date: z.string().min(1, "Selecciona la fecha del pago"),
+  notes: z.string().max(500, "Notas demasiado largas").optional().nullable(),
+});
+
+export type DebtPaymentFormSchema = z.infer<typeof debtPaymentFormSchema>;

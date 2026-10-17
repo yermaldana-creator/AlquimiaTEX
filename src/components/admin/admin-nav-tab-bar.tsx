@@ -7,6 +7,7 @@ import {
   ShoppingBag,
   Boxes,
   Calculator,
+  HandCoins,
 } from "lucide-react";
 
 export function AdminNavTabBar() {
@@ -41,6 +42,12 @@ export function AdminNavTabBar() {
       label: "Costos y Precios",
       icon: Calculator,
       isActive: pathname.startsWith("/admin/costos"),
+    },
+    {
+      href: "/admin/deudas",
+      label: "Deudas",
+      icon: HandCoins,
+      isActive: pathname.startsWith("/admin/deudas"),
     },
   ];
 
