@@ -71,9 +71,6 @@ export function LandingHero() {
               <span className="bg-[#06B6D4] text-black border-2 border-black px-3 py-1 shadow-[2px_2px_0px_#0A0A0A]">
                 🎨 MOCKUP DIGITAL GRATIS
               </span>
-              <span className="bg-[#FACC15] text-black border-2 border-black px-3 py-1 shadow-[2px_2px_0px_#0A0A0A]">
-                ⚡ HASTA 2 ESTAMPADOS
-              </span>
             </div>
 
             {/* BOTONES DE LLAMADO A LA ACCIÓN */}
@@ -95,14 +92,6 @@ export function LandingHero() {
                 <MessageCircle className="h-5 w-5 text-emerald-600" />
                 <span>Hablar con el Taller</span>
               </a>
-            </div>
-
-            {/* NOTA DE CONFIANZA */}
-            <div className="text-[11px] font-mono text-slate-600 flex items-center gap-2 pt-1">
-              <span className="inline-block w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              <span>
-                Precios al detal (100% anticipado) y docena ($60, $84, $120 con 50% abono).
-              </span>
             </div>
           </div>
 

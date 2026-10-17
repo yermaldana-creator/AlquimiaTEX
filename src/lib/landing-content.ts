@@ -21,7 +21,7 @@ export const LANDING_HERO = {
   badge: "Sublimación & Confección Artesanal • Petare, Caracas",
   slogan: "La alquimia perfecta entre calidad textil y estampado digital",
   tagline:
-    "En AlquimiaTex fusionamos confección de alto nivel, tecnología de sublimación indeleble de máxima viveza y asistencia de diseño con IA. Creamos franelas, tazas mágicas, puzzles y accesorios únicos para marcas, empresas y personas.",
+    "En AlquimiaTex fusionamos confección de alto nivel, tecnología de sublimación indeleble de máxima viveza. Creamos franelas, tazas mágicas y accesorios únicos para marcas, empresas y personas.",
   // FOTOS DEL HERO: Reemplaza estas URLs con las fotos reales de tus productos cuando las tengas
   photos: {
     // Foto principal: Franela o prenda con estampado de alta densidad
@@ -39,7 +39,6 @@ export const LANDING_HERO = {
   badges: [
     { label: "4 a 7 días hábiles", icon: "clock" },
     { label: "Mockup digital gratis", icon: "palette" },
-    { label: "Hasta 2 estampados por pieza", icon: "layers" },
   ],
 };
 

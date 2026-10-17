@@ -29,9 +29,6 @@ export function LandingHeader() {
                 className="h-9 sm:h-10 w-auto object-contain"
               />
             </div>
-            <span className="hidden sm:inline-block bg-[#06B6D4] text-black text-[10px] font-mono font-bold px-2 py-0.5 border border-black uppercase shadow-[1.5px_1.5px_0px_#0A0A0A]">
-              TALLER PETARE
-            </span>
           </Link>
 
           {/* NAVEGACIÓN ANCLAS */}

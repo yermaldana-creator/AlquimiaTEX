@@ -32,8 +32,7 @@ export function LandingWorkGallery() {
               NUESTROS TRABAJOS COMO <span className="bg-[#FACC15] px-2">OBRAS DE ARTE</span>
             </h2>
             <p className="font-mono text-xs sm:text-sm text-slate-700 max-w-xl">
-              Cada pieza pasa por control térmico artesanal en La Dolorita.
-              Especialistas en <strong>tazas mágicas</strong>, mugs cerámicos, franelas microdurazno y puzzles.
+              Cada pieza pasa por control térmico artesanal en La Dolorita. Especialistas en <strong>tazas mágicas</strong>, mugs cerámicos y franelas microdurazno.
             </p>
           </div>
 
