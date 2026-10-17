@@ -34,9 +34,8 @@ export const LANDING_HERO = {
     mainProductTitle: "ART_01: MICRODURAZNO BLANCA",
     mainProductBadge: "HASTA XL",
     mainProductPrice: "$5 c/u x Docena",
-    // Foto secundaria superpuesta: Taza cerámica negra / magic mug
-    secondaryProduct:
-      "https://images.unsplash.com/photo-1578357078586-491adf1aa5ba?auto=format&fit=crop&w=400&q=80",
+    // Foto secundaria superpuesta: Taza mágica real personalizada
+    secondaryProduct: "/images/galeria/taza-magica-hero.png",
     secondaryProductTitle: "Taza Mágica",
     secondaryProductTag: "EFECTO CALOR 11OZ",
   },
