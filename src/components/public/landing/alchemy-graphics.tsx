@@ -83,15 +83,51 @@ export function RegistrationMark({
   return null;
 }
 
+export function SantaHatBadgeIcon({ className = "w-7 h-7" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      {/* Cuerpo rojo del gorro estilo sticker neo-brutalista */}
+      <path
+        d="M9 32C11 19 20 10 33 11C37 11.4 40 14 41 18C35 16.5 30.5 18 28.5 22C31.5 23.5 34 27 35 32H9Z"
+        fill="#E11D48"
+        stroke="#0A0A0A"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      {/* Pompón blanco */}
+      <circle cx="40.5" cy="19.5" r="4.5" fill="#FFFFFF" stroke="#0A0A0A" strokeWidth="2.8" />
+      {/* Borde inferior blanco del gorro */}
+      <rect
+        x="6.5"
+        y="30"
+        width="30"
+        height="7.5"
+        rx="3.75"
+        fill="#FFFFFF"
+        stroke="#0A0A0A"
+        strokeWidth="3"
+      />
+    </svg>
+  );
+}
+
 export function IndustrialTapeBanner() {
   return (
     <div className="bg-black text-[#FACC15] py-2 px-3 sm:px-6 font-mono text-[10px] sm:text-xs font-bold flex flex-wrap items-center justify-between gap-2 border-b-2 border-black tracking-widest overflow-hidden select-none">
       <span className="flex items-center gap-2 whitespace-nowrap">
-        <span className="h-2 w-2 rounded-full bg-[#F43F5E] animate-ping" />
+        <span className="h-2 w-2 rounded-full bg-[#E11D48] animate-ping" />
         <span>{"/// TALLER LA DOLORITA • PETARE CARACAS"}</span>
       </span>
       <span className="hidden md:inline whitespace-nowrap text-white">
+        <span className="text-[#E11D48] mr-1.5">❄</span>
         SUBLIMACIÓN INDELEBLE • TERMOFIJADO A 180°C
+        <span className="text-[#FACC15] ml-1.5">✦</span>
       </span>
       <span className="bg-[#FACC15] text-black px-2 py-0.5 font-oswald uppercase font-black text-xs border border-black shadow-[2px_2px_0px_#0A0A0A]">
         ★ MOCKUP DIGITAL GRATIS ★

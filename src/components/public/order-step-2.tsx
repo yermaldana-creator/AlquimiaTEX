@@ -301,14 +301,14 @@ export function OrderStep2({
                       aria-selected={activeTab === "upload"}
                       onClick={() => setActiveTab(item.id, "upload")}
                       className={cn(
-                        "flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] sm:text-xs font-bold transition-all",
+                        "flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition-all",
                         activeTab === "upload"
                           ? "bg-white text-[#0A0A0A] border-2 border-black shadow-[2px_2px_0px_#0A0A0A]"
                           : "text-slate-700 hover:text-black border-2 border-transparent"
                       )}
                     >
                       <UploadCloud className="h-3.5 w-3.5 shrink-0 text-[#0891B2]" />
-                      <span className="truncate">Subir mi referencia</span>
+                      <span>Subir foto</span>
                       {hasRef && (
                         <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" title="Imagen guardada" />
                       )}
@@ -320,14 +320,14 @@ export function OrderStep2({
                       aria-selected={activeTab === "ai"}
                       onClick={() => setActiveTab(item.id, "ai")}
                       className={cn(
-                        "flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[11px] sm:text-xs font-bold transition-all",
+                        "flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition-all",
                         activeTab === "ai"
                           ? "bg-[#FACC15] text-[#0A0A0A] border-2 border-black shadow-[2px_2px_0px_#0A0A0A]"
                           : "text-slate-700 hover:text-black border-2 border-transparent"
                       )}
                     >
                       <Sparkles className="h-3.5 w-3.5 shrink-0 text-[#9333EA]" />
-                      <span className="truncate">Crear concepto IA</span>
+                      <span>Crear con IA</span>
                       {hasAi && (
                         <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" title="Concepto IA guardado" />
                       )}
@@ -436,12 +436,12 @@ export function OrderStep2({
                           {isGeneratingThis ? (
                             <>
                               <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                              <span>Creando concepto con IA (15-30 seg)...</span>
+                              <span>Creando con IA (15-30 seg)...</span>
                             </>
                           ) : (
                             <>
                               <Sparkles className="h-4 w-4 shrink-0" />
-                              <span>Generar concepto visual desde texto</span>
+                              <span>Generar con IA</span>
                             </>
                           )}
                         </Button>

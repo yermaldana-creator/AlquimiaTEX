@@ -4,6 +4,7 @@ import { ArrowRight, MessageCircle } from "lucide-react";
 import {
   StampSeal,
   AlchemistFlask,
+  SantaHatBadgeIcon,
 } from "./alchemy-graphics";
 import { LANDING_HERO, SOCIAL_INFO } from "@/lib/landing-content";
 
@@ -32,10 +33,12 @@ export function LandingHero() {
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* COLUMNA IZQUIERDA: TIPOGRAFÍA DE GRAN IMPACTO */}
           <div className="lg:col-span-7 space-y-6 text-left">
-            {/* STICKER INFORMATIVO */}
-            <div className="inline-flex items-center gap-2 bg-black text-white px-3.5 py-1 font-mono text-xs font-bold border border-black shadow-[3px_3px_0px_#FACC15]">
-              <span className="text-[#F43F5E]">✦</span>
+            {/* STICKER INFORMATIVO CON TOQUE NAVIDEÑO SUTIL */}
+            <div className="relative inline-flex items-center gap-2 bg-black text-white px-3.5 py-1.5 font-mono text-xs font-bold border border-black shadow-[3px_3px_0px_#FACC15] mt-2">
+              <SantaHatBadgeIcon className="absolute -top-4 -left-3.5 w-7 h-7 -rotate-12 pointer-events-none drop-shadow-[1px_1px_0px_#0A0A0A]" />
+              <span className="text-[#E11D48] pl-1">❄</span>
               <span>CATÁLOGO OFICIAL • LA DOLORITA, PETARE</span>
+              <span className="text-[#FACC15]">✦</span>
             </div>
 
             {/* TITULAR ASIMÉTRICO */}
@@ -57,7 +60,7 @@ export function LandingHero() {
               <p className="font-mono text-xs sm:text-sm font-bold text-black uppercase tracking-wide">
                 &ldquo;{LANDING_HERO.slogan}&rdquo;
               </p>
-              <p className="font-sans text-xs sm:text-sm text-slate-700 leading-relaxed max-w-xl">
+              <p className="font-sans text-xs sm:text-sm text-slate-700 leading-relaxed max-w-xl text-justify">
                 {LANDING_HERO.tagline}
               </p>
             </div>

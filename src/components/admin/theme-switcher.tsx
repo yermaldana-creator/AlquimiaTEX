@@ -64,9 +64,9 @@ export function ThemeSwitcher() {
         <span className="text-[9px] font-mono select-none text-slate-500 dark:text-zinc-400">▼</span>
       </button>
 
-      {/* MENÚ DESPLEGABLE */}
+      {/* MENÚ DESPLEGABLE (ALINEADO LIMPIAMENTE EN MÓVIL SIN CORTARSE POR LA IZQUIERDA) */}
       {isOpen && (
-        <div className="absolute right-0 mt-1.5 w-56 bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[4px_4px_0px_#0A0A0A] dark:shadow-[4px_4px_0px_#000000] z-50 p-1.5 font-mono text-xs animate-in fade-in zoom-in-95">
+        <div className="fixed right-3 top-14 sm:absolute sm:right-0 sm:top-auto sm:mt-1.5 w-56 max-w-[calc(100vw-1.5rem)] bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[4px_4px_0px_#0A0A0A] dark:shadow-[4px_4px_0px_#000000] z-50 p-1.5 font-mono text-xs animate-in fade-in zoom-in-95">
           <div className="px-2 py-1 text-[10px] font-bold uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-zinc-800 mb-1">
             Modo de Pantalla
           </div>

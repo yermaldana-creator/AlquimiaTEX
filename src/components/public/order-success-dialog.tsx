@@ -92,10 +92,10 @@ export function OrderSuccessDialog({
             type="button"
             size="lg"
             onClick={handleOpenWhatsApp}
-            className="w-full bg-[#25D366] hover:bg-[#20ba59] text-white font-black text-base border-2 border-black shadow-[4px_4px_0px_#0A0A0A] py-6 rounded-xl flex items-center justify-center gap-2.5"
+            className="w-full h-auto min-h-12 bg-[#25D366] hover:bg-[#20ba59] text-white font-black text-sm sm:text-base border-2 border-black shadow-[4px_4px_0px_#0A0A0A] py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 whitespace-normal leading-snug text-center"
           >
             <MessageCircle className="h-5 w-5 fill-current shrink-0" />
-            <span>Abrir WhatsApp y Enviar Comprobante</span>
+            <span>Enviar Comprobante por WhatsApp</span>
             <ExternalLink className="h-4 w-4 opacity-90 shrink-0" />
           </Button>
 

@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { findBestInventoryMatch } from "@/lib/inventory-matcher";
+import { MUG_TYPES } from "@/lib/constants";
 import {
   reserveOrderInventoryAction,
   releaseOrderInventoryAction,
@@ -281,8 +282,8 @@ export function OrderInventoryPanel({
             >
               {/* FILA 1: NOMBRE DEL ÍTEM DEL PEDIDO + ATRIBUTOS */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/20 dark:border-zinc-700 pb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] font-black bg-black dark:bg-zinc-900 text-[#FACC15] px-2 py-0.5 border border-black dark:border-zinc-700">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
+                  <span className="font-mono text-[10px] font-black bg-black dark:bg-zinc-900 text-[#FACC15] px-2 py-0.5 border border-black dark:border-zinc-700 shrink-0">
                     ITEM #{idx + 1}
                   </span>
                   <span className="font-oswald text-base font-black uppercase text-black dark:text-white">
@@ -292,31 +293,67 @@ export function OrderInventoryPanel({
                       ? "Mousepad"
                       : orderItem.product === "rompecabezas"
                       ? "Rompecabezas"
+                      : orderItem.product === "taza"
+                      ? "Taza / Mug"
                       : "Producto Especial"}
                   </span>
-                  {orderItem.shirtFabric && (
+
+                  {/* Atributos exclusivos de Camisa / Prenda */}
+                  {orderItem.product === "camisa" && (
+                    <>
+                      {orderItem.shirtFabric && (
+                        <span className="font-mono text-[11px] bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-200 px-1.5 py-0.5 border border-black/40">
+                          Tela: {orderItem.shirtFabric}
+                        </span>
+                      )}
+                      {orderItem.shirtSize && (
+                        <span className="font-mono text-[11px] bg-[#FACC15] text-black px-1.5 py-0.5 border border-black font-bold">
+                          Talla {orderItem.shirtSize}
+                        </span>
+                      )}
+                      {orderItem.shirtCut && (
+                        <span className="font-mono text-[11px] bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-200 px-1.5 py-0.5 border border-black/40 uppercase">
+                          {orderItem.shirtCut}
+                        </span>
+                      )}
+                      {orderItem.shirtColor && (
+                        <span className="font-mono text-[11px] bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-200 px-1.5 py-0.5 border border-black/40">
+                          Color: {orderItem.shirtColor}
+                        </span>
+                      )}
+                    </>
+                  )}
+
+                  {/* Atributos exclusivos de Taza */}
+                  {orderItem.product === "taza" && orderItem.mugType && (
+                    <span className="font-mono text-[11px] bg-[#DCFCE7] text-emerald-950 px-1.5 py-0.5 border border-black font-bold">
+                      {MUG_TYPES.find((m) => m.value === orderItem.mugType)?.label || orderItem.mugType}
+                    </span>
+                  )}
+
+                  {/* Atributos exclusivos de Mousepad */}
+                  {orderItem.product === "mousepad" && orderItem.mousepadSize && (
+                    <span className="font-mono text-[11px] bg-[#FFEDD5] text-orange-950 px-1.5 py-0.5 border border-black font-bold uppercase">
+                      Medida: {orderItem.mousepadSize}
+                    </span>
+                  )}
+
+                  {/* Atributos exclusivos de Rompecabezas */}
+                  {orderItem.product === "rompecabezas" && orderItem.puzzlePieces && (
+                    <span className="font-mono text-[11px] bg-[#F3E8FF] text-purple-950 px-1.5 py-0.5 border border-black font-bold uppercase">
+                      Formato: {orderItem.puzzlePieces}
+                    </span>
+                  )}
+
+                  {/* Atributos exclusivos de Producto Especial */}
+                  {orderItem.product === "otro" && orderItem.customProductDetails && (
                     <span className="font-mono text-[11px] bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-200 px-1.5 py-0.5 border border-black/40">
-                      Tela: {orderItem.shirtFabric}
-                    </span>
-                  )}
-                  {orderItem.shirtSize && (
-                    <span className="font-mono text-[11px] bg-[#FACC15] text-black px-1.5 py-0.5 border border-black font-bold">
-                      Talla {orderItem.shirtSize}
-                    </span>
-                  )}
-                  {orderItem.shirtCut && (
-                    <span className="font-mono text-[11px] bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-200 px-1.5 py-0.5 border border-black/40 uppercase">
-                      {orderItem.shirtCut}
-                    </span>
-                  )}
-                  {orderItem.shirtColor && (
-                    <span className="font-mono text-[11px] bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-200 px-1.5 py-0.5 border border-black/40">
-                      Color: {orderItem.shirtColor}
+                      {orderItem.customProductDetails}
                     </span>
                   )}
                 </div>
 
-                <div className="font-mono text-xs font-black text-black dark:text-white bg-slate-100 dark:bg-zinc-700 px-2.5 py-1 border border-black">
+                <div className="font-mono text-xs font-black text-black dark:text-white bg-slate-100 dark:bg-zinc-700 px-2.5 py-1 border border-black shrink-0">
                   Solicitado: {requestedQty} {requestedQty > 1 ? "unidades" : "unidad"}
                 </div>
               </div>

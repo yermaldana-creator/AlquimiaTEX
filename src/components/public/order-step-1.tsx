@@ -192,9 +192,21 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
 
   // Agregar o actualizar un producto en el carrito
   const onAddOrUpdateProduct = (data: OrderItem) => {
+    const sanitizedData: OrderItem = {
+      ...data,
+      shirtSize: data.product === "camisa" ? data.shirtSize : "",
+      shirtCut: data.product === "camisa" ? data.shirtCut : "",
+      shirtColor: data.product === "camisa" ? data.shirtColor : "",
+      shirtFabric: data.product === "camisa" ? data.shirtFabric : "",
+      mousepadSize: data.product === "mousepad" ? data.mousepadSize : "",
+      puzzlePieces: data.product === "rompecabezas" ? data.puzzlePieces : "",
+      mugType: data.product === "taza" ? data.mugType : "",
+      customProductDetails: data.product === "otro" ? data.customProductDetails : "",
+    };
+
     if (editingItemId) {
       // Actualizar artículo existente
-      const updated = items.map((it) => (it.id === editingItemId ? { ...it, ...data, id: editingItemId } : it));
+      const updated = items.map((it) => (it.id === editingItemId ? { ...it, ...sanitizedData, id: editingItemId } : it));
       onItemsChange(updated);
       setEditingItemId(null);
     } else {
@@ -204,7 +216,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
         return;
       }
       const newItem: OrderItem = {
-        ...data,
+        ...sanitizedData,
         id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       };
       onItemsChange([...items, newItem]);

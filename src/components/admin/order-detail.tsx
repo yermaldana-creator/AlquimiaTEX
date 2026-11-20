@@ -17,8 +17,10 @@ import {
   User,
   Clock,
   Loader2,
+  Eye,
+  X,
 } from "lucide-react";
-import { normalizeOrderStatus } from "@/lib/constants";
+import { normalizeOrderStatus, MUG_TYPES } from "@/lib/constants";
 import { OrderStatusBadge } from "./order-status-badge";
 import { OrderStatusSelect } from "./order-status-select";
 import { OrderInventoryPanel } from "./order-inventory-panel";
@@ -79,6 +81,11 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
   );
   const [isZipping, setIsZipping] = useState(false);
   const [downloadingImageIdx, setDownloadingImageIdx] = useState<number | null>(null);
+  const [previewImage, setPreviewImage] = useState<{
+    url: string;
+    filename: string;
+    label: string;
+  } | null>(null);
 
   const deliveryBadge = getDeliveryBadge(order.delivery_date);
   const waNumber = cleanPhoneForWhatsApp(order.customer_phone);
@@ -119,33 +126,44 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
     }
   });
 
-  // Descargar una imagen individual
+  // Descargar una imagen individual (compatible con Base64 y Supabase Storage en móviles)
   const handleDownloadSingleImage = async (url: string, filename: string, imgKey: number) => {
     setDownloadingImageIdx(imgKey);
     try {
+      let blob: Blob;
       if (url.startsWith("data:")) {
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Convertir data URL a Blob real para garantizar descarga directa en navegadores móviles
+        const parts = url.split(",");
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : "image/png";
+        const binary = atob(parts[1] || "");
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        blob = new Blob([bytes], { type: mime });
       } else {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
+        const response = await fetch(url, { mode: "cors" });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        blob = await response.blob();
       }
+
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      // Liberación diferida para que Chrome/Safari móvil alcance a iniciar la descarga
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1500);
     } catch (err) {
       console.error("Error al descargar imagen:", err);
       // Fallback: abrir en nueva ventana
-      window.open(url, "_blank");
+      window.open(url, "_blank", "noopener,noreferrer");
     } finally {
       setDownloadingImageIdx(null);
     }
@@ -443,40 +461,38 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
 
                   {/* ESPECIFICACIONES TÉCNICAS */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 font-mono text-xs">
-                    {/* TALLA */}
-                    {item.shirtSize && (
-                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
-                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Talla:</span>
-                        <strong className="text-black dark:text-zinc-100">{item.shirtSize}</strong>
-                      </div>
-                    )}
-
-                    {/* CORTE */}
-                    {item.shirtCut && (
-                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
-                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Corte:</span>
-                        <strong className="text-black dark:text-zinc-100 uppercase">{item.shirtCut}</strong>
-                      </div>
-                    )}
-
-                    {/* TELA */}
-                    {item.shirtFabric && (
-                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
-                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Tela:</span>
-                        <strong className="text-black dark:text-zinc-100">{item.shirtFabric}</strong>
-                      </div>
-                    )}
-
-                    {/* COLOR */}
-                    {item.shirtColor && (
-                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
-                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Color:</span>
-                        <strong className="text-black dark:text-zinc-100 uppercase">{item.shirtColor}</strong>
-                      </div>
+                    {/* ATRIBUTOS EXCLUSIVOS DE CAMISA / PRENDA */}
+                    {item.product === "camisa" && (
+                      <>
+                        {item.shirtSize && (
+                          <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                            <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Talla:</span>
+                            <strong className="text-black dark:text-zinc-100">{item.shirtSize}</strong>
+                          </div>
+                        )}
+                        {item.shirtCut && (
+                          <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                            <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Corte:</span>
+                            <strong className="text-black dark:text-zinc-100 uppercase">{item.shirtCut}</strong>
+                          </div>
+                        )}
+                        {item.shirtFabric && (
+                          <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                            <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Tela:</span>
+                            <strong className="text-black dark:text-zinc-100">{item.shirtFabric}</strong>
+                          </div>
+                        )}
+                        {item.shirtColor && (
+                          <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                            <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Color:</span>
+                            <strong className="text-black dark:text-zinc-100 uppercase">{item.shirtColor}</strong>
+                          </div>
+                        )}
+                      </>
                     )}
 
                     {/* MEDIDAS MOUSEPAD */}
-                    {item.mousepadSize && (
+                    {item.product === "mousepad" && item.mousepadSize && (
                       <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
                         <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Medida:</span>
                         <strong className="text-black dark:text-zinc-100">{item.mousepadSize}</strong>
@@ -484,18 +500,28 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                     )}
 
                     {/* PIEZAS ROMPECABEZAS */}
-                    {item.puzzlePieces && (
+                    {item.product === "rompecabezas" && item.puzzlePieces && (
                       <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
-                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Piezas:</span>
-                        <strong className="text-black dark:text-zinc-100">{item.puzzlePieces} piezas</strong>
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Formato:</span>
+                        <strong className="text-black dark:text-zinc-100 uppercase">{item.puzzlePieces}</strong>
                       </div>
                     )}
 
                     {/* MODELO TAZA */}
-                    {item.mugType && (
-                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                    {item.product === "taza" && item.mugType && (
+                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700 sm:col-span-2">
                         <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Modelo Taza:</span>
-                        <strong className="text-black dark:text-zinc-100">{item.mugType}</strong>
+                        <strong className="text-black dark:text-zinc-100">
+                          {MUG_TYPES.find((m) => m.value === item.mugType)?.label || item.mugType}
+                        </strong>
+                      </div>
+                    )}
+
+                    {/* DETALLE OTRO */}
+                    {item.product === "otro" && item.customProductDetails && (
+                      <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700 sm:col-span-2">
+                        <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Detalle:</span>
+                        <strong className="text-black dark:text-zinc-100">{item.customProductDetails}</strong>
                       </div>
                     )}
                   </div>
@@ -517,78 +543,140 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                         Arte & Referencias Visuales:
                       </span>
 
-                      <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex flex-wrap items-start gap-4">
                         {/* IMAGEN DE REFERENCIA */}
                         {(item.referenceImageUrl || item.referenceImage) && (
-                          <div className="flex flex-col gap-1.5">
-                            <div className="relative h-32 w-32 bg-white dark:bg-zinc-800 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={item.referenceImageUrl || item.referenceImage}
-                                alt={`Referencia item ${index + 1}`}
-                                className="h-full w-full object-contain p-1"
-                              />
-                            </div>
-
+                          <div className="flex flex-col gap-1.5 w-36">
                             <button
                               type="button"
                               onClick={() => {
                                 const url = item.referenceImageUrl || item.referenceImage || "";
                                 const rawCode = (order.order_code || "pedido").replace(/#/g, "");
-                                handleDownloadSingleImage(
+                                setPreviewImage({
                                   url,
-                                  `${rawCode}-item${index + 1}-referencia.jpg`,
-                                  index * 2
-                                );
+                                  filename: `${rawCode}-item${index + 1}-referencia.jpg`,
+                                  label: `Referencia — Item #${index + 1}`,
+                                });
                               }}
-                              disabled={downloadingImageIdx === index * 2}
-                              className="inline-flex items-center justify-center gap-1 font-mono text-[11px] font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border border-black dark:border-zinc-700 px-2 py-1 shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-50"
+                              className="relative h-32 w-36 bg-white dark:bg-zinc-800 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group cursor-zoom-in"
+                              title="Toca para ampliar imagen"
                             >
-                              {downloadingImageIdx === index * 2 ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Download className="h-3 w-3 text-black dark:text-white" />
-                              )}
-                              <span>Descargar</span>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={item.referenceImageUrl || item.referenceImage}
+                                alt={`Referencia item ${index + 1}`}
+                                className="h-full w-full object-contain p-1 transition-transform group-hover:scale-105"
+                              />
                             </button>
+
+                            <div className="grid grid-cols-2 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const url = item.referenceImageUrl || item.referenceImage || "";
+                                  const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                  setPreviewImage({
+                                    url,
+                                    filename: `${rawCode}-item${index + 1}-referencia.jpg`,
+                                    label: `Referencia — Item #${index + 1}`,
+                                  });
+                                }}
+                                className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-[#FACC15] text-black border border-black px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:bg-[#EAB308] transition-all"
+                              >
+                                <Eye className="h-3 w-3 shrink-0" />
+                                <span>Ver</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const url = item.referenceImageUrl || item.referenceImage || "";
+                                  const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                  handleDownloadSingleImage(
+                                    url,
+                                    `${rawCode}-item${index + 1}-referencia.jpg`,
+                                    index * 2
+                                  );
+                                }}
+                                disabled={downloadingImageIdx === index * 2}
+                                className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border border-black dark:border-zinc-700 px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all disabled:opacity-50"
+                              >
+                                {downloadingImageIdx === index * 2 ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Download className="h-3 w-3 shrink-0" />
+                                )}
+                                <span>Bajar</span>
+                              </button>
+                            </div>
                           </div>
                         )}
 
                         {/* ARTE GENERADO POR IA */}
                         {item.aiGeneratedImage && (
-                          <div className="flex flex-col gap-1.5">
-                            <div className="relative h-32 w-32 bg-[#FAF5FF] dark:bg-purple-950/40 border-2 border-[#581C87] dark:border-purple-600 shadow-[2px_2px_0px_#581C87] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={item.aiGeneratedImage}
-                                alt={`Arte IA item ${index + 1}`}
-                                className="h-full w-full object-contain p-1"
-                              />
-                              <span className="absolute top-1 left-1 bg-[#581C87] text-[#FACC15] text-[9px] font-mono font-bold px-1 border border-black">
-                                IA
-                              </span>
-                            </div>
-
+                          <div className="flex flex-col gap-1.5 w-36">
                             <button
                               type="button"
                               onClick={() => {
                                 const rawCode = (order.order_code || "pedido").replace(/#/g, "");
-                                handleDownloadSingleImage(
-                                  item.aiGeneratedImage!,
-                                  `${rawCode}-item${index + 1}-arte-ia.png`,
-                                  index * 2 + 1
-                                );
+                                setPreviewImage({
+                                  url: item.aiGeneratedImage!,
+                                  filename: `${rawCode}-item${index + 1}-arte-ia.png`,
+                                  label: `Arte IA — Item #${index + 1}`,
+                                });
                               }}
-                              disabled={downloadingImageIdx === index * 2 + 1}
-                              className="inline-flex items-center justify-center gap-1 font-mono text-[11px] font-bold uppercase bg-[#581C87] text-[#FACC15] border border-black px-2 py-1 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:opacity-95 transition-all hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-50"
+                              className="relative h-32 w-36 bg-[#FAF5FF] dark:bg-purple-950/40 border-2 border-[#581C87] dark:border-purple-600 shadow-[2px_2px_0px_#581C87] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group cursor-zoom-in"
+                              title="Toca para ampliar arte IA"
                             >
-                              {downloadingImageIdx === index * 2 + 1 ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <Download className="h-3 w-3" />
-                              )}
-                              <span>Descargar Arte IA</span>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={item.aiGeneratedImage}
+                                alt={`Arte IA item ${index + 1}`}
+                                className="h-full w-full object-contain p-1 transition-transform group-hover:scale-105"
+                              />
+                              <span className="absolute top-1 left-1 bg-[#581C87] text-[#FACC15] text-[9px] font-mono font-bold px-1 border border-black">
+                                IA
+                              </span>
                             </button>
+
+                            <div className="grid grid-cols-2 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                  setPreviewImage({
+                                    url: item.aiGeneratedImage!,
+                                    filename: `${rawCode}-item${index + 1}-arte-ia.png`,
+                                    label: `Arte IA — Item #${index + 1}`,
+                                  });
+                                }}
+                                className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-[#FACC15] text-black border border-black px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:bg-[#EAB308] transition-all"
+                              >
+                                <Eye className="h-3 w-3 shrink-0" />
+                                <span>Ver</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                  handleDownloadSingleImage(
+                                    item.aiGeneratedImage!,
+                                    `${rawCode}-item${index + 1}-arte-ia.png`,
+                                    index * 2 + 1
+                                  );
+                                }}
+                                disabled={downloadingImageIdx === index * 2 + 1}
+                                className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-[#581C87] text-[#FACC15] border border-black px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:opacity-95 transition-all disabled:opacity-50"
+                              >
+                                {downloadingImageIdx === index * 2 + 1 ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Download className="h-3 w-3 shrink-0" />
+                                )}
+                                <span>Bajar</span>
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -604,6 +692,63 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
           </p>
         )}
       </div>
+
+      {/* LIGHTBOX PARA VER Y DESCARGAR IMAGEN EN MÓVIL */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-3 sm:p-6 animate-in fade-in duration-150"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="w-full max-w-2xl bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[6px_6px_0px_#0A0A0A] overflow-hidden flex flex-col max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-2 px-4 py-3 border-b-2 border-black dark:border-zinc-700 bg-[#F8F5EE] dark:bg-zinc-900">
+              <span className="font-mono text-xs font-black uppercase text-black dark:text-white truncate">
+                {previewImage.label}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPreviewImage(null)}
+                className="inline-flex h-8 w-8 items-center justify-center border-2 border-black bg-white text-black hover:bg-[#FACC15]"
+                aria-label="Cerrar vista previa"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-slate-100 dark:bg-zinc-950">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewImage.url}
+                alt={previewImage.label}
+                className="max-h-[65vh] w-auto object-contain border border-black/20 bg-white"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t-2 border-black dark:border-zinc-700 bg-[#F8F5EE] dark:bg-zinc-900">
+              <span className="font-mono text-[10px] text-slate-600 dark:text-zinc-400 truncate max-w-[200px] sm:max-w-xs">
+                {previewImage.filename}
+              </span>
+              <button
+                type="button"
+                onClick={() =>
+                  handleDownloadSingleImage(previewImage.url, previewImage.filename, -1)
+                }
+                disabled={downloadingImageIdx === -1}
+                className="inline-flex items-center gap-1.5 font-mono text-xs font-black uppercase bg-[#FACC15] text-black border-2 border-black px-4 py-2 shadow-[3px_3px_0px_#0A0A0A] hover:bg-[#EAB308] disabled:opacity-50"
+              >
+                {downloadingImageIdx === -1 ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+                <span>Descargar Imagen</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

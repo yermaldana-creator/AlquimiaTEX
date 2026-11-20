@@ -44,10 +44,10 @@ export default async function AdminDashboardPage() {
             <Link
               href="/"
               target="_blank"
-              className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-slate-800 dark:text-zinc-200 hover:text-black dark:hover:text-white px-2.5 py-1 border border-black dark:border-zinc-700 bg-white dark:bg-[#262626] shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+              className="inline-flex items-center gap-2 font-mono text-xs font-black uppercase bg-black dark:bg-[#06B6D4] text-[#FACC15] dark:text-black hover:bg-[#581C87] hover:text-white dark:hover:bg-[#22D3EE] px-3.5 py-1.5 border-2 border-black dark:border-zinc-900 shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000] transition-all hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
             >
-              <span>Tienda Pública</span>
-              <ExternalLink className="h-3 w-3" />
+              <span>Ver Tienda Pública</span>
+              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
             </Link>
           </div>
         </div>
