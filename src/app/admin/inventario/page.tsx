@@ -7,13 +7,13 @@ import { getInventory } from "@/actions/inventory.actions";
 import { InventoryKpis } from "@/components/admin/inventory-kpis";
 import { InventoryTable } from "@/components/admin/inventory-table";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Inventario del Taller | Admin AlquimiaTex",
   description: "Control de materiales, telas por metro, prendas terminadas y productos del taller AlquimiaTex.",
 };
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function AdminInventarioPage() {
   const user = await getSessionUser();

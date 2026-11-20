@@ -6,14 +6,14 @@ import {
 } from "@/actions/costs.actions";
 import { CostsView } from "@/components/admin/costs-view";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata = {
   title: "Costos y Precios de Venta | AlquimiaTex Panel Admin",
   description:
     "Gestión de costos de fabricación, insumos, fórmulas de producto, cálculo de márgenes y simulador de volumen para socios de AlquimiaTex.",
 };
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function CostosAdminPage() {
   const user = await getSessionUser();

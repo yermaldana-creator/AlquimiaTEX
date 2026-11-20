@@ -6,13 +6,13 @@ import { getSessionUser } from "@/actions/auth.actions";
 import { getOrders } from "@/actions/orders.actions";
 import { OrdersList } from "@/components/admin/orders-list";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Gestión de Pedidos | Admin AlquimiaTex",
   description: "Lista completa de pedidos, control de estados y filtros de producción.",
 };
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function AdminPedidosPage() {
   const user = await getSessionUser();
