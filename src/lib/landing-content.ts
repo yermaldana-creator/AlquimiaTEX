@@ -1,3 +1,5 @@
+import { getWhatsAppNumber, getFormattedWhatsAppNumber } from "./constants";
+
 export interface GalleryItem {
   id: string;
   title: string;
@@ -48,8 +50,8 @@ export const LANDING_HERO = {
 export const SOCIAL_INFO = {
   instagramHandle: "@alquimia_tex",
   instagramUrl: "https://instagram.com/alquimia_tex",
-  whatsappNumber: "584241589317",
-  whatsappFormatted: "+58 424-1589317",
+  whatsappNumber: getWhatsAppNumber(),
+  whatsappFormatted: getFormattedWhatsAppNumber(),
   workshopLocation: "Taller La Dolorita, Petare, Caracas, Venezuela",
   businessHours: "Lunes a Viernes 8:00 AM – 5:00 PM",
   googleMapsNote: "Entregas en taller previa cita y envíos a toda Caracas",

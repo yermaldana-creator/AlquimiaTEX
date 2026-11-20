@@ -1,4 +1,4 @@
-import { DEFAULT_WHATSAPP_NUMBER, SHIRT_FABRICS, SHIRT_CUT_LABELS, MUG_TYPES } from "./constants";
+import { getWhatsAppNumber, SHIRT_FABRICS, SHIRT_CUT_LABELS, MUG_TYPES } from "./constants";
 import type { OrderItem } from "./schemas";
 
 export function cleanPhoneNumber(phone: string): string {
@@ -23,9 +23,7 @@ const PAYMENT_LABELS: Record<string, string> = {
 };
 
 export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
-  const businessNumber = cleanPhoneNumber(
-    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || DEFAULT_WHATSAPP_NUMBER
-  );
+  const businessNumber = getWhatsAppNumber();
 
   const isDocena = params.orderPricingType === "docena";
   const paymentConditionText = isDocena
@@ -73,6 +71,9 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
 
     if (item.referenceImage) {
       message += `   • [Foto de referencia adjunta en web]\n`;
+    }
+    if (item.aiGeneratedImage) {
+      message += `   • [Concepto IA generado adjunto en web]\n`;
     }
   });
 

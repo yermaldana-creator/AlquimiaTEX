@@ -123,7 +123,28 @@ export const MUG_TYPES = [
   },
 ] as const;
 
-export const DEFAULT_WHATSAPP_NUMBER = "584241589317";
+export function getWhatsAppNumber(): string {
+  return (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "").replace(/\D/g, "");
+}
+
+export function getFormattedWhatsAppNumber(): string {
+  const digits = getWhatsAppNumber();
+  if (!digits) return "WhatsApp Oficial";
+  if (digits.startsWith("58") && digits.length === 12) {
+    return `+58 ${digits.slice(2, 5)}-${digits.slice(5)}`;
+  }
+  return `+${digits}`;
+}
+
+export function getLocalPagoMovilPhone(): string {
+  const customPhone = process.env.NEXT_PUBLIC_PAGO_MOVIL_PHONE?.trim();
+  if (customPhone) return customPhone;
+  const digits = getWhatsAppNumber();
+  if (digits.startsWith("58") && digits.length === 12) {
+    return `0${digits.slice(2, 5)}-${digits.slice(5)}`;
+  }
+  return digits || "";
+}
 
 export const MAX_ORDER_ITEMS = 10;
 
@@ -200,13 +221,13 @@ export const CATALOG_POLICIES = {
 // Instrucciones de pago manuales
 export const PAYMENT_INFO = {
   pagoMovil: {
-    bank: "Banesco (0134) / Banco de Venezuela (0102)",
-    phone: "0424-1589317",
-    idNumber: "V-00.000.000",
-    beneficiary: "AlquimiaTex",
+    bank: process.env.NEXT_PUBLIC_PAGO_MOVIL_BANK || "Banesco (0134) / Banco de Venezuela (0102)",
+    phone: getLocalPagoMovilPhone(),
+    idNumber: process.env.NEXT_PUBLIC_PAGO_MOVIL_ID || "",
+    beneficiary: process.env.NEXT_PUBLIC_PAGO_MOVIL_BENEFICIARY || "AlquimiaTex",
   },
   binance: {
-    payId: "000000000",
+    payId: process.env.NEXT_PUBLIC_BINANCE_PAY_ID || "",
     network: "USDT (Red BEP-20 / TRC-20)",
   },
   cash: {

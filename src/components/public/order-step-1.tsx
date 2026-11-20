@@ -36,7 +36,6 @@ import {
 import { orderItemSchema, type OrderItem } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -48,6 +47,47 @@ const PRODUCT_ICONS = {
   rompecabezas: Puzzle,
   taza: Coffee,
   otro: Sparkles,
+};
+
+const PRODUCT_THEMES: Record<
+  string,
+  {
+    selectedBg: string;
+    iconBg: string;
+    iconColor: string;
+    badgeBg: string;
+  }
+> = {
+  camisa: {
+    selectedBg: "bg-[#CFFAFE]",
+    iconBg: "bg-[#CFFAFE]",
+    iconColor: "text-[#0891B2]",
+    badgeBg: "bg-[#06B6D4] text-white",
+  },
+  mousepad: {
+    selectedBg: "bg-[#FFEDD5]",
+    iconBg: "bg-[#FFEDD5]",
+    iconColor: "text-[#EA580C]",
+    badgeBg: "bg-[#F97316] text-white",
+  },
+  rompecabezas: {
+    selectedBg: "bg-[#F3E8FF]",
+    iconBg: "bg-[#F3E8FF]",
+    iconColor: "text-[#9333EA]",
+    badgeBg: "bg-[#A855F7] text-white",
+  },
+  taza: {
+    selectedBg: "bg-[#DCFCE7]",
+    iconBg: "bg-[#DCFCE7]",
+    iconColor: "text-[#059669]",
+    badgeBg: "bg-[#10B981] text-white",
+  },
+  otro: {
+    selectedBg: "bg-[#FFE4E6]",
+    iconBg: "bg-[#FFE4E6]",
+    iconColor: "text-[#E11D48]",
+    badgeBg: "bg-[#F43F5E] text-white",
+  },
 };
 
 interface OrderStep1Props {
@@ -269,29 +309,38 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
     <div className="space-y-8" ref={formRef}>
       {/* 1. FORMULARIO CONFIGURADOR DEL PRODUCTO */}
       <form onSubmit={handleSubmit(onAddOrUpdateProduct)} className="space-y-6">
-        <div className="flex items-center justify-between border-b border-border/60 pb-3">
+        <div className="flex items-center justify-between border-b-2 border-black/15 pb-3">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-primary" />
-            <h3 className="font-bold text-foreground text-sm sm:text-base">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md border border-black bg-[#FACC15] text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]">
+              <ShoppingBag className="h-4 w-4" />
+            </span>
+            <h3 className="font-oswald font-black uppercase tracking-wide text-[#0A0A0A] text-sm sm:text-base">
               {editingItemId ? "✏️ Editando producto seleccionado" : "Configura un producto para tu pedido"}
             </h3>
           </div>
           {editingItemId && (
-            <Button type="button" variant="ghost" size="sm" onClick={handleCancelEdit} className="text-xs">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleCancelEdit}
+              className="text-xs font-bold text-rose-700 hover:bg-rose-100 hover:text-rose-900"
+            >
               Cancelar edición
             </Button>
           )}
         </div>
 
-        {/* SELECTOR DE TIPO DE PRODUCTO */}
+        {/* SELECTOR DE TIPO DE PRODUCTO CON PALETA ARTESANAL */}
         <div className="space-y-3">
-          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Tipo de producto <span className="text-destructive">*</span>
+          <Label className="font-mono text-xs font-black text-slate-800 uppercase tracking-wider">
+            Tipo de producto <span className="text-rose-600">*</span>
           </Label>
 
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
             {PRODUCT_TYPES.map((prod) => {
               const Icon = PRODUCT_ICONS[prod.id as keyof typeof PRODUCT_ICONS];
+              const theme = PRODUCT_THEMES[prod.id] || PRODUCT_THEMES.otro;
               const isSelected = selectedProduct === prod.id;
 
               return (
@@ -300,17 +349,29 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                   type="button"
                   onClick={() => handleProductChange(prod.id)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all",
+                    "relative flex flex-col items-center justify-center p-3 rounded-xl border-2 text-center transition-all",
                     isSelected
-                      ? "border-2 border-primary bg-primary/10 text-foreground ring-2 ring-primary/20 shadow-sm"
-                      : "border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
+                      ? cn(
+                          "border-black text-[#0A0A0A] shadow-[3px_3px_0px_#0A0A0A] -translate-y-0.5",
+                          theme.selectedBg
+                        )
+                      : "border-black/25 bg-white text-slate-800 hover:border-black hover:shadow-[2px_2px_0px_#0A0A0A]"
                   )}
                 >
-                  <Icon className={cn("h-6 w-6 mb-1.5", isSelected ? "text-primary" : "text-muted-foreground")} />
-                  <span className="text-xs font-bold leading-tight">{prod.name.split("/")[0]}</span>
+                  <div
+                    className={cn(
+                      "flex h-10 w-10 items-center justify-center rounded-lg border border-black/20 mb-2 transition-transform",
+                      isSelected ? "bg-white border-black shadow-[1px_1px_0px_#0A0A0A]" : theme.iconBg
+                    )}
+                  >
+                    <Icon className={cn("h-5 w-5", theme.iconColor)} />
+                  </div>
+                  <span className="font-oswald text-xs sm:text-sm font-black uppercase tracking-wide leading-tight text-[#0A0A0A]">
+                    {prod.name.split("/")[0]}
+                  </span>
                   {isSelected && (
-                    <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                      <Check className="h-2.5 w-2.5" />
+                    <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[#FACC15]">
+                      <Check className="h-2.5 w-2.5 stroke-[3]" />
                     </span>
                   )}
                 </button>
@@ -320,17 +381,17 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
         </div>
 
         {/* VARIANTES DEL PRODUCTO */}
-        <div className="rounded-xl border border-border/80 bg-muted/20 p-4 sm:p-5 space-y-5">
+        <div className="rounded-xl border-2 border-black bg-white p-4 sm:p-5 space-y-5 shadow-[3px_3px_0px_#0A0A0A]">
           {/* CAMISA */}
           {selectedProduct === "camisa" && (
             <div className="space-y-5 animate-in fade-in-50 duration-200">
               {/* Talla */}
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-foreground">
-                  Talla <span className="text-destructive">*</span>
+                <Label className="text-xs font-bold text-[#0A0A0A]">
+                  Talla <span className="text-rose-600">*</span>
                 </Label>
                 <div>
-                  <p className="text-[11px] text-muted-foreground mb-1">Adultos:</p>
+                  <p className="font-mono text-[11px] font-semibold text-slate-600 mb-1.5">Adultos:</p>
                   <div className="flex flex-wrap gap-1.5">
                     {SHIRT_SIZES.filter((s) => !s.label.includes("Niño")).map((size) => (
                       <button
@@ -338,10 +399,10 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                         type="button"
                         onClick={() => setValue("shirtSize", size.value, { shouldValidate: true })}
                         className={cn(
-                          "h-8 min-w-9 px-2.5 rounded-lg border text-xs font-bold transition-all",
+                          "h-8 min-w-9 px-2.5 rounded-lg border-2 text-xs font-bold transition-all",
                           selectedShirtSize === size.value
-                            ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                            : "border-border bg-background text-foreground hover:bg-muted"
+                            ? "border-black bg-black text-[#FACC15] shadow-[2px_2px_0px_#06B6D4]"
+                            : "border-black/25 bg-[#FAF7F0] text-[#0A0A0A] hover:border-black hover:bg-[#FACC15]/30"
                         )}
                       >
                         {size.value}
@@ -351,7 +412,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                 </div>
 
                 <div className="pt-1">
-                  <p className="text-[11px] text-muted-foreground mb-1">Niños (4 al 16):</p>
+                  <p className="font-mono text-[11px] font-semibold text-slate-600 mb-1.5">Niños (4 al 16):</p>
                   <div className="flex flex-wrap gap-1.5">
                     {SHIRT_SIZES.filter((s) => s.label.includes("Niño")).map((size) => (
                       <button
@@ -359,10 +420,10 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                         type="button"
                         onClick={() => setValue("shirtSize", size.value, { shouldValidate: true })}
                         className={cn(
-                          "h-7 px-2.5 rounded-lg border text-[11px] font-semibold transition-all",
+                          "h-7 px-2.5 rounded-lg border-2 text-[11px] font-bold transition-all",
                           selectedShirtSize === size.value
-                            ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                            : "border-border bg-background text-foreground hover:bg-muted"
+                            ? "border-black bg-black text-[#FACC15] shadow-[2px_2px_0px_#06B6D4]"
+                            : "border-black/25 bg-[#FAF7F0] text-[#0A0A0A] hover:border-black hover:bg-[#FACC15]/30"
                         )}
                       >
                         {size.label.replace(" (Niño)", "")}
@@ -371,7 +432,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                   </div>
                 </div>
                 {errors.shirtSize && (
-                  <p className="text-xs text-destructive flex items-center gap-1 font-medium mt-1">
+                  <p className="text-xs text-rose-600 flex items-center gap-1 font-semibold mt-1">
                     <AlertCircle className="h-3.5 w-3.5" />
                     {errors.shirtSize.message}
                   </p>
@@ -380,8 +441,8 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
 
               {/* Corte */}
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-foreground">
-                  Corte <span className="text-destructive">*</span>
+                <Label className="text-xs font-bold text-[#0A0A0A]">
+                  Corte <span className="text-rose-600">*</span>
                 </Label>
                 <div className="grid grid-cols-2 gap-2">
                   {SHIRT_CUTS.map((cut) => (
@@ -390,14 +451,14 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                       type="button"
                       onClick={() => setValue("shirtCut", cut.value, { shouldValidate: true })}
                       className={cn(
-                        "p-2.5 rounded-lg border text-left transition-all",
+                        "p-2.5 rounded-lg border-2 text-left transition-all",
                         selectedShirtCut === cut.value
-                          ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary"
-                          : "border-border bg-background text-muted-foreground hover:text-foreground"
+                          ? "border-black bg-[#CFFAFE] text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]"
+                          : "border-black/20 bg-[#FAF7F0] text-slate-700 hover:border-black"
                       )}
                     >
-                      <p className="text-xs font-bold text-foreground">{cut.label.split(" ")[0]}</p>
-                      <p className="text-[10px] text-muted-foreground">{cut.label}</p>
+                      <p className="text-xs font-bold text-[#0A0A0A]">{cut.label.split(" ")[0]}</p>
+                      <p className="text-[10px] text-slate-600">{cut.label}</p>
                     </button>
                   ))}
                 </div>
@@ -405,8 +466,8 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
 
               {/* Color */}
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-foreground">
-                  Color Base <span className="text-destructive">*</span>
+                <Label className="text-xs font-bold text-[#0A0A0A]">
+                  Color Base <span className="text-rose-600">*</span>
                 </Label>
                 <div className="grid grid-cols-2 gap-2">
                   {SHIRT_COLORS.map((col) => (
@@ -415,17 +476,17 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                       type="button"
                       onClick={() => setValue("shirtColor", col.value, { shouldValidate: true })}
                       className={cn(
-                        "flex items-center gap-2 p-2.5 rounded-lg border text-left transition-all",
+                        "flex items-center gap-2 p-2.5 rounded-lg border-2 text-left transition-all",
                         selectedShirtColor === col.value
-                          ? "border-primary bg-primary/10 ring-1 ring-primary"
-                          : "border-border bg-background hover:bg-muted"
+                          ? "border-black bg-[#CFFAFE] shadow-[2px_2px_0px_#0A0A0A]"
+                          : "border-black/20 bg-[#FAF7F0] hover:border-black"
                       )}
                     >
                       <span
-                        className="h-5 w-5 rounded-full border border-gray-400 shrink-0"
+                        className="h-5 w-5 rounded-full border-2 border-black/40 shrink-0"
                         style={{ backgroundColor: col.hex }}
                       />
-                      <span className="text-xs font-medium text-foreground">{col.label.split("(")[0]}</span>
+                      <span className="text-xs font-bold text-[#0A0A0A]">{col.label.split("(")[0]}</span>
                     </button>
                   ))}
                 </div>
@@ -433,11 +494,11 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
 
               {/* Tipo de Tela */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs font-semibold text-foreground">
+                <div className="flex items-center justify-between flex-wrap gap-1">
+                  <Label className="text-xs font-bold text-[#0A0A0A]">
                     Tipo de Tela
                   </Label>
-                  <span className="text-[10px] text-muted-foreground font-mono">
+                  <span className="text-[10px] text-slate-600 font-mono font-semibold">
                     (Recomendado: Microdurazno)
                   </span>
                 </div>
@@ -448,19 +509,19 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                       type="button"
                       onClick={() => setValue("shirtFabric", fab.value, { shouldValidate: true })}
                       className={cn(
-                        "p-2.5 rounded-lg border text-left transition-all",
+                        "p-2.5 rounded-lg border-2 text-left transition-all",
                         selectedShirtFabric === fab.value
-                          ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary shadow-sm"
-                          : "border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                          ? "border-black bg-[#CFFAFE] text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]"
+                          : "border-black/20 bg-[#FAF7F0] text-slate-700 hover:border-black"
                       )}
                     >
                       <div className="flex items-center justify-between">
-                        <p className="text-xs font-bold text-foreground">{fab.label}</p>
+                        <p className="text-xs font-bold text-[#0A0A0A]">{fab.label}</p>
                         {selectedShirtFabric === fab.value && (
-                          <Check className="h-3.5 w-3.5 text-primary" />
+                          <Check className="h-3.5 w-3.5 text-[#0891B2] stroke-[3]" />
                         )}
                       </div>
-                      <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                      <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
                         {fab.description}
                       </p>
                     </button>
@@ -473,8 +534,8 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
           {/* MOUSEPAD */}
           {selectedProduct === "mousepad" && (
             <div className="space-y-2 animate-in fade-in-50 duration-200">
-              <Label className="text-xs font-semibold text-foreground">
-                Dimensiones <span className="text-destructive">*</span>
+              <Label className="text-xs font-bold text-[#0A0A0A]">
+                Dimensiones <span className="text-rose-600">*</span>
               </Label>
               <div className="space-y-1.5">
                 {MOUSEPAD_SIZES.map((size) => (
@@ -483,19 +544,19 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                     type="button"
                     onClick={() => setValue("mousepadSize", size.value, { shouldValidate: true })}
                     className={cn(
-                      "w-full p-2.5 rounded-lg border text-left transition-all flex items-center justify-between text-xs",
+                      "w-full p-2.5 rounded-lg border-2 text-left transition-all flex items-center justify-between text-xs",
                       selectedMousepadSize === size.value
-                        ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary"
-                        : "border-border bg-background text-muted-foreground hover:bg-muted"
+                        ? "border-black bg-[#FFEDD5] text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]"
+                        : "border-black/20 bg-[#FAF7F0] text-slate-700 hover:border-black"
                     )}
                   >
-                    <span className="font-semibold text-foreground">{size.label}</span>
-                    {selectedMousepadSize === size.value && <Check className="h-3.5 w-3.5 text-primary" />}
+                    <span className="font-bold text-[#0A0A0A]">{size.label}</span>
+                    {selectedMousepadSize === size.value && <Check className="h-3.5 w-3.5 text-[#EA580C] stroke-[3]" />}
                   </button>
                 ))}
               </div>
               {errors.mousepadSize && (
-                <p className="text-xs text-destructive flex items-center gap-1 font-medium">
+                <p className="text-xs text-rose-600 flex items-center gap-1 font-semibold">
                   <AlertCircle className="h-3.5 w-3.5" />
                   {errors.mousepadSize.message}
                 </p>
@@ -506,8 +567,8 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
           {/* ROMPECABEZAS */}
           {selectedProduct === "rompecabezas" && (
             <div className="space-y-2 animate-in fade-in-50 duration-200">
-              <Label className="text-xs font-semibold text-foreground">
-                Formato <span className="text-destructive">*</span>
+              <Label className="text-xs font-bold text-[#0A0A0A]">
+                Formato <span className="text-rose-600">*</span>
               </Label>
               <div className="space-y-1.5">
                 {PUZZLE_FORMATS.map((puz) => (
@@ -516,19 +577,19 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                     type="button"
                     onClick={() => setValue("puzzlePieces", puz.value, { shouldValidate: true })}
                     className={cn(
-                      "w-full p-2.5 rounded-lg border text-left transition-all flex items-center justify-between text-xs",
+                      "w-full p-2.5 rounded-lg border-2 text-left transition-all flex items-center justify-between text-xs",
                       selectedPuzzlePieces === puz.value
-                        ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary"
-                        : "border-border bg-background text-muted-foreground hover:bg-muted"
+                        ? "border-black bg-[#F3E8FF] text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]"
+                        : "border-black/20 bg-[#FAF7F0] text-slate-700 hover:border-black"
                     )}
                   >
-                    <span className="font-semibold text-foreground">{puz.label}</span>
-                    {selectedPuzzlePieces === puz.value && <Check className="h-3.5 w-3.5 text-primary" />}
+                    <span className="font-bold text-[#0A0A0A]">{puz.label}</span>
+                    {selectedPuzzlePieces === puz.value && <Check className="h-3.5 w-3.5 text-[#9333EA] stroke-[3]" />}
                   </button>
                 ))}
               </div>
               {errors.puzzlePieces && (
-                <p className="text-xs text-destructive flex items-center gap-1 font-medium">
+                <p className="text-xs text-rose-600 flex items-center gap-1 font-semibold">
                   <AlertCircle className="h-3.5 w-3.5" />
                   {errors.puzzlePieces.message}
                 </p>
@@ -539,8 +600,8 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
           {/* TAZAS */}
           {selectedProduct === "taza" && (
             <div className="space-y-2 animate-in fade-in-50 duration-200">
-              <Label className="text-xs font-semibold text-foreground">
-                Modelo de Taza <span className="text-destructive">*</span>
+              <Label className="text-xs font-bold text-[#0A0A0A]">
+                Modelo de Taza <span className="text-rose-600">*</span>
               </Label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {MUG_TYPES.map((mug) => (
@@ -549,26 +610,26 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                     type="button"
                     onClick={() => setValue("mugType", mug.value, { shouldValidate: true })}
                     className={cn(
-                      "p-3 rounded-lg border text-left transition-all",
+                      "p-3 rounded-lg border-2 text-left transition-all",
                       selectedMugType === mug.value
-                        ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary shadow-sm"
-                        : "border-border bg-background text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        ? "border-black bg-[#DCFCE7] text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]"
+                        : "border-black/20 bg-[#FAF7F0] text-slate-700 hover:border-black"
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-bold text-foreground">{mug.label}</p>
+                      <p className="text-xs font-bold text-[#0A0A0A]">{mug.label}</p>
                       {selectedMugType === mug.value && (
-                        <Check className="h-3.5 w-3.5 text-primary" />
+                        <Check className="h-3.5 w-3.5 text-[#059669] stroke-[3]" />
                       )}
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                    <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
                       {mug.description}
                     </p>
                   </button>
                 ))}
               </div>
               {errors.mugType && (
-                <p className="text-xs text-destructive flex items-center gap-1 font-medium">
+                <p className="text-xs text-rose-600 flex items-center gap-1 font-semibold">
                   <AlertCircle className="h-3.5 w-3.5" />
                   {errors.mugType.message}
                 </p>
@@ -579,18 +640,18 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
           {/* OTRO */}
           {selectedProduct === "otro" && (
             <div className="space-y-2 animate-in fade-in-50 duration-200">
-              <Label htmlFor="customDetails" className="text-xs font-semibold text-foreground">
-                ¿Qué artículo personalizado necesitas? <span className="text-destructive">*</span>
+              <Label htmlFor="customDetails" className="text-xs font-bold text-[#0A0A0A]">
+                ¿Qué artículo personalizado necesitas? <span className="text-rose-600">*</span>
               </Label>
               <Input
                 id="customDetails"
                 placeholder="Ej: Gorra bordada/estampada, llavero acrílico, bolso tote..."
                 value={customDetails || ""}
                 onChange={(e) => setValue("customProductDetails", e.target.value, { shouldValidate: true })}
-                className="bg-background text-xs"
+                className="bg-white text-[#0A0A0A] placeholder:text-slate-400 border-2 border-black/30 focus-visible:border-black text-xs"
               />
               {errors.customProductDetails && (
-                <p className="text-xs text-destructive flex items-center gap-1 font-medium">
+                <p className="text-xs text-rose-600 flex items-center gap-1 font-semibold">
                   <AlertCircle className="h-3.5 w-3.5" />
                   {errors.customProductDetails.message}
                 </p>
@@ -599,8 +660,8 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
           )}
 
           {/* CANTIDAD */}
-          <div className="flex items-center justify-between pt-2 border-t border-border/40">
-            <Label className="text-xs font-semibold text-foreground">Cantidad de unidades:</Label>
+          <div className="flex items-center justify-between pt-3 border-t-2 border-black/10">
+            <Label className="text-xs font-bold text-[#0A0A0A]">Cantidad de unidades:</Label>
             <div className="flex items-center gap-2">
               <Button
                 type="button"
@@ -608,18 +669,18 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                 size="icon"
                 onClick={() => handleQuantityDelta(-1)}
                 disabled={quantity <= 1}
-                className="h-8 w-8 rounded-lg"
+                className="h-8 w-8 rounded-lg border-2 border-black bg-white text-[#0A0A0A] hover:bg-[#FACC15] disabled:opacity-40"
               >
                 <Minus className="h-3.5 w-3.5" />
               </Button>
-              <span className="font-bold text-sm w-8 text-center">{quantity}</span>
+              <span className="font-mono font-black text-sm w-8 text-center text-[#0A0A0A]">{quantity}</span>
               <Button
                 type="button"
                 variant="outline"
                 size="icon"
                 onClick={() => handleQuantityDelta(1)}
                 disabled={quantity >= 500}
-                className="h-8 w-8 rounded-lg"
+                className="h-8 w-8 rounded-lg border-2 border-black bg-white text-[#0A0A0A] hover:bg-[#FACC15] disabled:opacity-40"
               >
                 <Plus className="h-3.5 w-3.5" />
               </Button>
@@ -629,12 +690,12 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
 
         {/* MENSAJE DE ÉXITO / AYUDA MULTIVARIANTE */}
         {addedToast && (
-          <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3.5 text-xs text-emerald-900 dark:text-emerald-200 flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="rounded-xl border-2 border-black bg-[#DCFCE7] p-3.5 text-xs text-emerald-950 shadow-[3px_3px_0px_#0A0A0A] flex items-start justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex items-start gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-xs">Producto agregado ✓</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="font-bold text-xs text-emerald-950">Producto agregado ✓</p>
+                <p className="text-[11px] text-emerald-900 mt-0.5">
                   ¿Necesitas otra talla o color? Puedes agregarlo de nuevo con las variantes que quieras.
                 </p>
               </div>
@@ -642,7 +703,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
             <button
               type="button"
               onClick={() => setAddedToast(false)}
-              className="text-muted-foreground hover:text-foreground text-[11px] font-bold px-1"
+              className="text-emerald-900 hover:text-black text-[11px] font-black px-1"
             >
               ✕
             </button>
@@ -653,19 +714,18 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <Button
             type="submit"
-            variant={editingItemId ? "default" : "outline"}
             disabled={items.length >= MAX_ORDER_ITEMS && !editingItemId}
-            className="flex-1 h-11 text-xs sm:text-sm font-semibold gap-2 border-primary/50 text-foreground hover:bg-primary/10 shadow-sm"
+            className="flex-1 h-11 text-xs sm:text-sm font-bold gap-2 rounded-xl border-2 border-black bg-[#FACC15] text-[#0A0A0A] hover:bg-[#fde047] shadow-[3px_3px_0px_#0A0A0A] active:translate-x-0.5 active:translate-y-0.5 transition-all"
           >
             {editingItemId ? (
               <>
-                <Check className="h-4 w-4 text-emerald-500" />
+                <Check className="h-4 w-4 text-emerald-800 stroke-[3]" />
                 <span>Guardar cambios en este producto</span>
               </>
             ) : (
               <>
-                <Plus className="h-4 w-4 text-primary" />
-                <span>+ Agregar este producto al pedido</span>
+                <Plus className="h-4 w-4 stroke-[3]" />
+                <span>Agregar este producto al pedido</span>
               </>
             )}
           </Button>
@@ -673,49 +733,53 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
           {!editingItemId && (
             <Button
               type="button"
-              variant="secondary"
               onClick={handleAddAnotherVariant}
               disabled={items.length >= MAX_ORDER_ITEMS}
-              className="flex-1 sm:flex-none h-11 text-xs sm:text-sm font-semibold gap-2 border border-border bg-secondary/80 hover:bg-secondary text-secondary-foreground shadow-sm px-4 whitespace-normal text-center"
+              className="flex-1 sm:flex-none h-11 text-xs sm:text-sm font-bold gap-1.5 rounded-xl border-2 border-black bg-white text-[#0A0A0A] hover:bg-[#CFFAFE] shadow-[3px_3px_0px_#0A0A0A] active:translate-x-0.5 active:translate-y-0.5 px-4 whitespace-normal text-center transition-all"
               title="Guarda este artículo y prepara el formulario para elegir otra talla o color"
             >
-              <Plus className="h-3.5 w-3.5 text-primary shrink-0" />
-              <span>+ Otra variante del mismo producto</span>
+              <Plus className="h-3.5 w-3.5 shrink-0 stroke-[3]" />
+              <span>Otra variante igual</span>
             </Button>
           )}
         </div>
       </form>
 
       {/* 2. LISTA TIPO CARRITO DE PRODUCTOS AGREGADOS */}
-      <div className="space-y-4 pt-4 border-t border-border/80">
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+      <div className="space-y-4 pt-5 border-t-2 border-black/15">
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h4 className="font-oswald font-black uppercase tracking-wide text-sm sm:text-base text-[#0A0A0A] flex items-center gap-2">
               <span>🛒 Productos en tu pedido</span>
-              <Badge variant="secondary" className="text-xs">
-                {items.length} de {MAX_ORDER_ITEMS}
-              </Badge>
             </h4>
-            <p className="text-[11px] text-muted-foreground">
-              Cada fila es un producto independiente con su propia talla, corte o color.
-            </p>
+            <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px]">
+              <span className="rounded-md border border-black bg-black px-2 py-0.5 font-bold text-[#FACC15] shadow-[1px_1px_0px_#0A0A0A]">
+                {items.length} de {MAX_ORDER_ITEMS}
+              </span>
+              {items.length > 0 && (
+                <span className="rounded-md border border-black bg-white px-2 py-0.5 font-bold text-[#0A0A0A] shadow-[1px_1px_0px_#0A0A0A]">
+                  {totalQuantity} {totalQuantity === 1 ? "unid." : "unid."} en total
+                </span>
+              )}
+            </div>
           </div>
-          {items.length > 0 && (
-            <span className="text-xs text-muted-foreground font-semibold">{totalQuantity} unid. en total</span>
-          )}
+          <p className="text-[11px] text-slate-600 leading-relaxed">
+            Cada fila es un producto independiente con su propia talla, corte o color.
+          </p>
         </div>
 
         {items.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border/80 p-6 text-center text-muted-foreground text-xs bg-muted/10">
+          <div className="rounded-xl border-2 border-dashed border-black/30 bg-white/80 p-6 text-center text-slate-600 text-xs">
             <p>Aún no has agregado ningún producto a tu pedido.</p>
-            <p className="mt-1 font-medium text-foreground">
-              Configura arriba tu primer producto y presiona <strong>&quot;+ Agregar este producto al pedido&quot;</strong>.
+            <p className="mt-1 font-semibold text-[#0A0A0A]">
+              Configura arriba tu primer producto y presiona <strong>&quot;Agregar este producto al pedido&quot;</strong>.
             </p>
           </div>
         ) : (
           <div className="space-y-2.5">
             {items.map((item, index) => {
               const Icon = PRODUCT_ICONS[item.product as keyof typeof PRODUCT_ICONS] || Sparkles;
+              const theme = PRODUCT_THEMES[item.product] || PRODUCT_THEMES.otro;
               const isBeingEdited = editingItemId === item.id;
 
               let variantSummary = "";
@@ -741,25 +805,33 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                 <Card
                   key={item.id}
                   className={cn(
-                    "p-3.5 flex items-center justify-between gap-3 transition-all",
-                    isBeingEdited ? "border-2 border-primary bg-primary/5" : "border-border bg-card shadow-sm"
+                    "p-3.5 flex items-center justify-between gap-3 transition-all rounded-xl border-2",
+                    isBeingEdited
+                      ? "border-black bg-[#FACC15]/25 shadow-[3px_3px_0px_#0A0A0A]"
+                      : "border-black bg-white shadow-[2px_2px_0px_#0A0A0A]"
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
+                    <div
+                      className={cn(
+                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-black",
+                        theme.iconBg,
+                        theme.iconColor
+                      )}
+                    >
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 space-y-0.5">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-xs sm:text-sm font-bold text-foreground">
-                          #{index + 1} • {item.product === "camisa" ? "Camisa" : item.product.toUpperCase()}
+                        <p className="font-oswald text-xs sm:text-sm font-black uppercase text-[#0A0A0A]">
+                          #{index + 1} • {item.product === "camisa" ? "Camisa" : item.product}
                         </p>
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-mono font-semibold bg-muted/40">
-                          x{item.quantity} {item.quantity === 1 ? "unidad" : "unidades"}
-                        </Badge>
+                        <span className="rounded border border-black bg-[#FAF7F0] px-1.5 py-0 font-mono text-[10px] font-bold text-[#0A0A0A]">
+                          x{item.quantity} {item.quantity === 1 ? "unid." : "unids."}
+                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground font-medium truncate sm:whitespace-normal">
-                        • {variantSummary}
+                      <p className="text-xs text-slate-700 font-medium break-words">
+                        {variantSummary}
                       </p>
                     </div>
                   </div>
@@ -770,7 +842,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleEditItem(item)}
-                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      className="h-8 w-8 text-slate-700 hover:bg-[#FACC15] hover:text-black"
                       title="Editar este producto"
                     >
                       <Pencil className="h-4 w-4" />
@@ -780,7 +852,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleRemoveItem(item.id)}
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      className="h-8 w-8 text-slate-700 hover:bg-rose-100 hover:text-rose-700"
                       title="Quitar del pedido"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -793,7 +865,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
         )}
 
         {items.length >= MAX_ORDER_ITEMS && (
-          <div className="rounded-lg bg-amber-500/10 p-3 text-amber-800 dark:text-amber-300 text-xs flex items-center gap-2">
+          <div className="rounded-lg border-2 border-black bg-[#FEF3C7] p-3 text-amber-950 text-xs flex items-center gap-2">
             <Info className="h-4 w-4 shrink-0" />
             <span>
               Has alcanzado el límite de {MAX_ORDER_ITEMS} productos por pedido. Para pedidos mayoristas contáctanos al WhatsApp.
@@ -802,20 +874,20 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
         )}
       </div>
 
-      {/* 3. BOTÓN CONTINUAR AL PASO 2 */}
-      <div className="pt-2 border-t border-border/80">
+      {/* 3. BOTÓN CONTINUAR AL PASO 2 (MOBILE-SAFE, SIN DESBORDE) */}
+      <div className="pt-3 border-t-2 border-black/15">
         <Button
           type="button"
           onClick={onNext}
           disabled={items.length === 0}
-          className="w-full h-12 text-sm sm:text-base font-semibold gap-2 shadow-md hover:shadow-lg transition-all"
+          className="w-full h-12 px-4 rounded-xl border-2 border-black bg-black text-white hover:bg-[#FACC15] hover:text-[#0A0A0A] disabled:bg-slate-300 disabled:text-slate-600 disabled:border-slate-400 font-oswald text-base sm:text-lg font-black uppercase tracking-wide gap-2 shadow-[4px_4px_0px_#0A0A0A] active:translate-x-0.5 active:translate-y-0.5 transition-all"
         >
-          <span>
+          <span className="truncate">
             {items.length === 0
-              ? "Agrega al menos un producto para continuar"
-              : `Continuar al Paso 2: Personalizar Diseños (${items.length} producto${items.length > 1 ? "s" : ""})`}
+              ? "Agrega un producto para continuar"
+              : "Continuar al Paso 2"}
           </span>
-          <ArrowRight className="h-5 w-5" />
+          <ArrowRight className="h-5 w-5 shrink-0" />
         </Button>
       </div>
     </div>

@@ -25,7 +25,6 @@ import { step3ContactSchema, type Step3ContactFormData, type OrderItem } from "@
 import { submitOrderAction, type SubmitOrderResponse } from "@/actions/orders.actions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -117,77 +116,77 @@ export function OrderStep3({
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 text-[#0A0A0A]">
       {/* 1. RESUMEN DEL PEDIDO */}
-      <Card className="overflow-hidden border-border/80 bg-muted/20">
-        <div className="border-b border-border/60 bg-muted/40 p-4">
-          <div className="flex items-center justify-between">
+      <Card className="overflow-hidden rounded-xl border-2 border-black bg-white text-[#0A0A0A] shadow-[3px_3px_0px_#0A0A0A]">
+        <div className="border-b-2 border-black/15 bg-[#F3EFE6] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5 text-primary" />
-              <h3 className="font-bold text-foreground text-sm sm:text-base">
-                Resumen de tu pedido ({items.length} {items.length === 1 ? "artículo" : "artículos"} • {totalUnits} {totalUnits === 1 ? "unidad" : "unidades"})
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-black bg-[#FACC15] text-[#0A0A0A]">
+                <ShoppingBag className="h-4 w-4" />
+              </span>
+              <h3 className="font-oswald font-black uppercase tracking-wide text-[#0A0A0A] text-sm sm:text-base">
+                Resumen de tu pedido ({items.length} {items.length === 1 ? "artículo" : "artículos"} • {totalUnits} {totalUnits === 1 ? "unid." : "unids."})
               </h3>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={onGoToStep1}
-                className="text-xs font-semibold text-primary hover:underline"
-              >
-                Modificar artículos
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={onGoToStep1}
+              className="rounded-md border border-black bg-white px-2.5 py-1 font-mono text-[11px] font-bold text-[#0A0A0A] shadow-[1px_1px_0px_#0A0A0A] hover:bg-[#FACC15] transition-colors"
+            >
+              Modificar artículos
+            </button>
           </div>
         </div>
 
-        <div className="divide-y divide-border/40 p-4 space-y-4">
+        <div className="divide-y divide-black/10 p-4 space-y-4">
           {items.map((item, idx) => (
             <div key={item.id} className="pt-3 first:pt-0">
               <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
+                <div className="space-y-1.5 min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-black bg-black text-[#FACC15] font-mono text-[10px] font-black">
                       {idx + 1}
                     </span>
-                    <span className="font-bold text-sm capitalize text-foreground">
+                    <span className="font-oswald font-black uppercase text-sm text-[#0A0A0A]">
                       {item.product === "camisa" && "Camisa / Franela"}
                       {item.product === "mousepad" && "Mousepad Personalizado"}
                       {item.product === "rompecabezas" && "Rompecabezas Sublimado"}
                       {item.product === "taza" && "Taza Sublimada"}
                       {item.product === "otro" && (item.customProductDetails || "Producto a cotizar")}
                     </span>
-                    <Badge variant="outline" className="text-xs">
-                      {item.quantity} {item.quantity === 1 ? "unidad" : "unidades"}
-                    </Badge>
+                    <span className="rounded border border-black bg-[#FAF7F0] px-1.5 py-0 font-mono text-[10px] font-bold text-[#0A0A0A]">
+                      x{item.quantity} {item.quantity === 1 ? "unid." : "unids."}
+                    </span>
                   </div>
 
                   {/* Variantes */}
-                  <div className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 pl-7">
+                  <div className="text-xs text-slate-700 flex flex-wrap gap-x-2.5 gap-y-1 pl-7">
                     {item.product === "camisa" && (
                       <>
-                        <span>Talla: <strong>{item.shirtSize}</strong></span>
+                        <span>Talla: <strong className="text-[#0A0A0A]">{item.shirtSize}</strong></span>
                         <span>•</span>
-                        <span>Corte: <strong>{SHIRT_CUT_LABELS[item.shirtCut || "unisex"] || item.shirtCut}</strong></span>
+                        <span>Corte: <strong className="text-[#0A0A0A]">{SHIRT_CUT_LABELS[item.shirtCut || "unisex"] || item.shirtCut}</strong></span>
                         <span>•</span>
-                        <span>Color: <strong>{item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado" : "Blanco"}</strong></span>
+                        <span>Color: <strong className="text-[#0A0A0A]">{item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado" : "Blanco"}</strong></span>
                         <span>•</span>
-                        <span>Tela: <strong>{SHIRT_FABRICS.find(f => f.value === item.shirtFabric)?.label || item.shirtFabric || "Microdurazno"}</strong></span>
+                        <span>Tela: <strong className="text-[#0A0A0A]">{SHIRT_FABRICS.find((f) => f.value === item.shirtFabric)?.label || item.shirtFabric || "Microdurazno"}</strong></span>
                       </>
                     )}
                     {item.product === "mousepad" && (
-                      <span>Medida: <strong className="capitalize">{item.mousepadSize}</strong></span>
+                      <span>Medida: <strong className="capitalize text-[#0A0A0A]">{item.mousepadSize}</strong></span>
                     )}
                     {item.product === "rompecabezas" && (
-                      <span>Formato: <strong className="uppercase">{item.puzzlePieces}</strong></span>
+                      <span>Formato: <strong className="uppercase text-[#0A0A0A]">{item.puzzlePieces}</strong></span>
                     )}
                     {item.product === "taza" && (
-                      <span>Modelo: <strong>{MUG_TYPES.find(m => m.value === item.mugType)?.label || item.mugType || "Taza"}</strong></span>
+                      <span>Modelo: <strong className="text-[#0A0A0A]">{MUG_TYPES.find((m) => m.value === item.mugType)?.label || item.mugType || "Taza"}</strong></span>
                     )}
                   </div>
 
                   {/* Descripción de diseño */}
                   {item.description && (
-                    <p className="text-xs text-foreground/80 pl-7 italic line-clamp-2">
+                    <p className="text-xs text-slate-800 pl-7 italic leading-relaxed text-justify sm:text-left">
                       &ldquo;{item.description}&rdquo;
                     </p>
                   )}
@@ -196,7 +195,7 @@ export function OrderStep3({
                 {/* Miniaturas de imágenes si existen */}
                 <div className="flex items-center gap-1.5 shrink-0">
                   {item.referenceImage && (
-                    <div className="relative h-11 w-11 rounded-md overflow-hidden border bg-muted shadow-xs" title="Imagen de referencia adjunta">
+                    <div className="relative h-12 w-12 rounded-lg overflow-hidden border-2 border-black bg-slate-100 shadow-[1px_1px_0px_#0A0A0A]" title="Imagen de referencia adjunta">
                       <Image
                         src={item.referenceImage}
                         alt="Referencia"
@@ -207,7 +206,7 @@ export function OrderStep3({
                     </div>
                   )}
                   {item.aiGeneratedImage && (
-                    <div className="relative h-11 w-11 rounded-md overflow-hidden border border-primary/40 bg-primary/5 shadow-xs" title="Concepto visual generado por IA">
+                    <div className="relative h-12 w-12 rounded-lg overflow-hidden border-2 border-black bg-[#FFFBEB] shadow-[1px_1px_0px_#0A0A0A]" title="Concepto visual generado por IA">
                       <Image
                         src={item.aiGeneratedImage}
                         alt="Concepto IA"
@@ -223,12 +222,14 @@ export function OrderStep3({
           ))}
         </div>
 
-        <div className="border-t border-border/60 bg-muted/10 p-3 px-4 flex items-center justify-between text-xs text-muted-foreground">
-          <span>* Los precios finales y descuentos por volumen se confirmarán en la cotización de WhatsApp.</span>
+        <div className="border-t-2 border-black/10 bg-[#FAF7F0] p-3.5 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-700">
+          <span className="leading-relaxed text-justify sm:text-left">
+            * Los precios finales y descuentos por volumen se confirmarán directamente en la cotización de WhatsApp.
+          </span>
           <button
             type="button"
             onClick={onGoToStep2}
-            className="font-semibold text-primary hover:underline shrink-0"
+            className="self-start sm:self-auto font-mono font-bold text-[#0A0A0A] underline hover:text-[#0891B2] shrink-0"
           >
             Revisar diseños
           </button>
@@ -237,33 +238,33 @@ export function OrderStep3({
 
       {/* 2. DATOS DE CONTACTO Y FECHA DE ENTREGA */}
       <div className="space-y-4">
-        <div className="border-b border-border/60 pb-2">
-          <h3 className="font-bold text-foreground text-sm sm:text-base flex items-center gap-2">
-            <User className="h-4 w-4 text-primary" />
+        <div className="border-b-2 border-black/15 pb-2 space-y-1">
+          <h3 className="font-oswald font-black uppercase tracking-wide text-[#0A0A0A] text-sm sm:text-base flex items-center gap-2">
+            <User className="h-4 w-4 text-[#0891B2]" />
             Datos de contacto y entrega
           </h3>
-          <p className="text-xs text-muted-foreground">
-            Necesitamos estos datos para identificar tu orden y coordinar la entrega en Caracas.
+          <p className="text-xs text-slate-700 leading-relaxed text-justify sm:text-left">
+            Necesitamos estos datos para identificar tu orden en nuestro taller y coordinar la entrega o envío en Caracas.
           </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Nombre y apellido */}
           <div className="space-y-1.5">
-            <Label htmlFor="customerName" className="text-xs font-semibold">
-              Nombre y apellido <span className="text-destructive">*</span>
+            <Label htmlFor="customerName" className="text-xs font-bold text-[#0A0A0A]">
+              Nombre y apellido <span className="text-rose-600">*</span>
             </Label>
             <div className="relative">
-              <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
               <Input
                 id="customerName"
                 placeholder="Ej. Carlos Mendoza"
-                className="pl-9"
+                className="pl-9 bg-white text-[#0A0A0A] placeholder:text-slate-400 border-2 border-black/30 focus-visible:border-black"
                 {...form.register("customerName")}
               />
             </div>
             {form.formState.errors.customerName && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-rose-600 font-semibold">
                 {form.formState.errors.customerName.message}
               </p>
             )}
@@ -271,21 +272,21 @@ export function OrderStep3({
 
           {/* Teléfono / WhatsApp */}
           <div className="space-y-1.5">
-            <Label htmlFor="customerPhone" className="text-xs font-semibold">
-              Teléfono / WhatsApp <span className="text-destructive">*</span>
+            <Label htmlFor="customerPhone" className="text-xs font-bold text-[#0A0A0A]">
+              Teléfono / WhatsApp <span className="text-rose-600">*</span>
             </Label>
             <div className="relative">
-              <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
               <Input
                 id="customerPhone"
                 type="tel"
                 placeholder="Ej. 0412-1234567 o +58 412..."
-                className="pl-9"
+                className="pl-9 bg-white text-[#0A0A0A] placeholder:text-slate-400 border-2 border-black/30 focus-visible:border-black"
                 {...form.register("customerPhone")}
               />
             </div>
             {form.formState.errors.customerPhone && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-rose-600 font-semibold">
                 {form.formState.errors.customerPhone.message}
               </p>
             )}
@@ -293,14 +294,14 @@ export function OrderStep3({
         </div>
 
         {/* Selector de fecha de entrega */}
-        <div className="space-y-2 rounded-xl border border-border/80 bg-background p-4 shadow-2xs">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-              <Label htmlFor="deliveryDate" className="text-xs font-bold flex items-center gap-1.5">
-                <Calendar className="h-4 w-4 text-primary" />
-                Fecha estimada de entrega <span className="text-destructive">*</span>
+        <div className="space-y-2.5 rounded-xl border-2 border-black bg-white p-4 shadow-[2px_2px_0px_#0A0A0A]">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="deliveryDate" className="text-xs font-bold text-[#0A0A0A] flex items-center gap-1.5">
+                <Calendar className="h-4 w-4 text-[#0891B2]" />
+                Fecha estimada de entrega <span className="text-rose-600">*</span>
               </Label>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">
+              <p className="text-xs text-emerald-800 font-semibold">
                 ⏳ Tiempo estimado: 4 a 7 días hábiles desde la confirmación del abono
               </p>
             </div>
@@ -311,31 +312,31 @@ export function OrderStep3({
                 type="date"
                 min={minDeliveryDate}
                 max={maxDeliveryDate}
-                className="w-full sm:w-44 text-sm"
+                className="w-full sm:w-44 text-sm bg-[#FAF7F0] text-[#0A0A0A] border-2 border-black/30 focus-visible:border-black font-mono"
                 {...form.register("deliveryDate")}
               />
             </div>
           </div>
           {form.formState.errors.deliveryDate && (
-            <p className="text-xs text-destructive">
+            <p className="text-xs text-rose-600 font-semibold">
               {form.formState.errors.deliveryDate.message}
             </p>
           )}
-          <p className="text-[11px] text-muted-foreground">
-            Días hábiles de lunes a viernes en nuestro taller de La Dolorita. Pedidos urgentes especiales se coordinan vía WhatsApp.
+          <p className="text-[11px] text-slate-600 leading-relaxed text-justify sm:text-left">
+            Días hábiles de lunes a viernes en nuestro taller de La Dolorita. Pedidos urgentes especiales se coordinan directamente vía WhatsApp.
           </p>
         </div>
       </div>
 
       {/* 3. MODALIDAD DE PEDIDO (UNIDAD O DOCENA) */}
       <div className="space-y-4">
-        <div className="border-b border-border/60 pb-2">
-          <h3 className="font-bold text-foreground text-sm sm:text-base flex items-center gap-2">
-            <ShoppingBag className="h-4 w-4 text-primary" />
+        <div className="border-b-2 border-black/15 pb-2 space-y-1">
+          <h3 className="font-oswald font-black uppercase tracking-wide text-[#0A0A0A] text-sm sm:text-base flex items-center gap-2">
+            <ShoppingBag className="h-4 w-4 text-[#0891B2]" />
             ¿Tu pedido es por unidad o por docena?
           </h3>
-          <p className="text-xs text-muted-foreground">
-            Selecciona la modalidad para aplicar las condiciones de pago oficiales de AlquimiaTex.
+          <p className="text-xs text-slate-700 leading-relaxed text-justify sm:text-left">
+            Selecciona la modalidad correspondiente a tu cantidad para aplicar las condiciones de pago oficiales de AlquimiaTex.
           </p>
         </div>
 
@@ -343,16 +344,18 @@ export function OrderStep3({
           {/* Opción Unidad */}
           <label
             className={cn(
-              "flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3.5 transition-all bg-card",
+              "flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3.5 transition-all",
               selectedPricingType === "unidad"
-                ? "border-primary bg-primary/10 shadow-xs"
-                : "border-border/70 hover:border-primary/40"
+                ? "border-black bg-[#CFFAFE] shadow-[3px_3px_0px_#0A0A0A]"
+                : "border-black/25 bg-white hover:border-black"
             )}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-xs text-foreground">Por Unidad (Al detal)</span>
-                <Badge variant="outline" className="text-[10px]">1 a 11 unidades</Badge>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-bold text-xs text-[#0A0A0A]">Por Unidad (Al detal)</span>
+                <span className="rounded border border-black bg-white px-1.5 py-0 font-mono text-[10px] font-bold text-[#0A0A0A]">
+                  1 a 11 unids.
+                </span>
               </div>
               <input
                 type="radio"
@@ -360,19 +363,21 @@ export function OrderStep3({
                 className="sr-only"
                 {...form.register("orderPricingType")}
               />
-              <span className={cn(
-                "h-4 w-4 rounded-full border flex items-center justify-center",
-                selectedPricingType === "unidad" ? "border-primary bg-primary" : "border-muted-foreground"
-              )}>
-                {selectedPricingType === "unidad" && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+              <span
+                className={cn(
+                  "h-4 w-4 shrink-0 rounded-full border-2 border-black flex items-center justify-center",
+                  selectedPricingType === "unidad" ? "bg-black" : "bg-white"
+                )}
+              >
+                {selectedPricingType === "unidad" && <span className="h-1.5 w-1.5 rounded-full bg-[#FACC15]" />}
               </span>
             </div>
-            <div className="mt-2.5 rounded-md bg-background/80 p-2.5 border border-border/60">
-              <p className="text-xs font-bold text-primary">
+            <div className="mt-3 rounded-lg bg-white p-2.5 border border-black/20 space-y-1">
+              <p className="text-xs font-bold text-[#0A0A0A]">
                 Pago del 100% por anticipado de forma obligatoria
               </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Al ser confección personalizada al detal, la producción inicia tras confirmar el pago total.
+              <p className="text-[11px] text-slate-700 leading-relaxed text-justify">
+                Al ser confección personalizada al detal, la producción inicia inmediatamente tras confirmar el pago total.
               </p>
             </div>
           </label>
@@ -380,16 +385,18 @@ export function OrderStep3({
           {/* Opción Docena */}
           <label
             className={cn(
-              "flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3.5 transition-all bg-card",
+              "flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3.5 transition-all",
               selectedPricingType === "docena"
-                ? "border-primary bg-primary/10 shadow-xs"
-                : "border-border/70 hover:border-primary/40"
+                ? "border-black bg-[#DCFCE7] shadow-[3px_3px_0px_#0A0A0A]"
+                : "border-black/25 bg-white hover:border-black"
             )}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-xs text-foreground">Por Docena (Al mayor)</span>
-                <Badge variant="accent" className="text-[10px]">12+ unidades</Badge>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="font-bold text-xs text-[#0A0A0A]">Por Docena (Al mayor)</span>
+                <span className="rounded border border-black bg-[#FACC15] px-1.5 py-0 font-mono text-[10px] font-black text-[#0A0A0A]">
+                  12+ unids.
+                </span>
               </div>
               <input
                 type="radio"
@@ -397,19 +404,21 @@ export function OrderStep3({
                 className="sr-only"
                 {...form.register("orderPricingType")}
               />
-              <span className={cn(
-                "h-4 w-4 rounded-full border flex items-center justify-center",
-                selectedPricingType === "docena" ? "border-primary bg-primary" : "border-muted-foreground"
-              )}>
-                {selectedPricingType === "docena" && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+              <span
+                className={cn(
+                  "h-4 w-4 shrink-0 rounded-full border-2 border-black flex items-center justify-center",
+                  selectedPricingType === "docena" ? "bg-black" : "bg-white"
+                )}
+              >
+                {selectedPricingType === "docena" && <span className="h-1.5 w-1.5 rounded-full bg-[#FACC15]" />}
               </span>
             </div>
-            <div className="mt-2.5 rounded-md bg-background/80 p-2.5 border border-border/60">
-              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+            <div className="mt-3 rounded-lg bg-white p-2.5 border border-black/20 space-y-1">
+              <p className="text-xs font-bold text-emerald-800">
                 Abono del 50% por anticipado, 50% contra entrega
               </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                50% para compra de telas e insumos, y el 50% restante al retirar en taller o entrega.
+              <p className="text-[11px] text-slate-700 leading-relaxed text-justify">
+                50% inicial para compra de telas e insumos, y el 50% restante al retirar en taller o al momento de la entrega.
               </p>
             </div>
           </label>
@@ -418,15 +427,15 @@ export function OrderStep3({
 
       {/* 4. INSTRUCCIONES DE PAGO MANUALES */}
       <div className="space-y-4">
-        <div className="border-b border-border/60 pb-2">
-          <h3 className="font-bold text-foreground text-sm sm:text-base flex items-center gap-2">
-            <Wallet className="h-4 w-4 text-primary" />
+        <div className="border-b-2 border-black/15 pb-2 space-y-1">
+          <h3 className="font-oswald font-black uppercase tracking-wide text-[#0A0A0A] text-sm sm:text-base flex items-center gap-2">
+            <Wallet className="h-4 w-4 text-[#0891B2]" />
             Método de pago preferido
           </h3>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-slate-700 leading-relaxed text-justify sm:text-left">
             {selectedPricingType === "docena"
-              ? "Abono del 50% por anticipado, 50% contra entrega. Envíanos tu captura por WhatsApp."
-              : "Pago del 100% por anticipado de forma obligatoria. Envíanos tu captura por WhatsApp."}
+              ? "Abono del 50% por anticipado, 50% contra entrega. Envíanos tu captura de comprobante por WhatsApp."
+              : "Pago del 100% por anticipado de forma obligatoria. Envíanos tu captura de comprobante por WhatsApp."}
           </p>
         </div>
 
@@ -436,26 +445,28 @@ export function OrderStep3({
             className={cn(
               "flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3.5 transition-all",
               selectedPaymentMethod === "pago_movil"
-                ? "border-primary bg-primary/5 shadow-xs"
-                : "border-border/70 hover:border-primary/40 bg-card"
+                ? "border-black bg-[#FACC15]/40 shadow-[3px_3px_0px_#0A0A0A]"
+                : "border-black/25 bg-white hover:border-black"
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs">Pago Móvil</span>
+              <span className="font-bold text-xs text-[#0A0A0A]">Pago Móvil</span>
               <input
                 type="radio"
                 value="pago_movil"
                 className="sr-only"
                 {...form.register("paymentMethod")}
               />
-              <span className={cn(
-                "h-4 w-4 rounded-full border flex items-center justify-center",
-                selectedPaymentMethod === "pago_movil" ? "border-primary bg-primary" : "border-muted-foreground"
-              )}>
-                {selectedPaymentMethod === "pago_movil" && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+              <span
+                className={cn(
+                  "h-4 w-4 rounded-full border-2 border-black flex items-center justify-center",
+                  selectedPaymentMethod === "pago_movil" ? "bg-black" : "bg-white"
+                )}
+              >
+                {selectedPaymentMethod === "pago_movil" && <span className="h-1.5 w-1.5 rounded-full bg-[#FACC15]" />}
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-2">
+            <p className="text-[11px] text-slate-700 mt-2 leading-snug">
               Banesco o Venezuela en Bs al cambio oficial BCV.
             </p>
           </label>
@@ -464,26 +475,28 @@ export function OrderStep3({
             className={cn(
               "flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3.5 transition-all",
               selectedPaymentMethod === "binance"
-                ? "border-primary bg-primary/5 shadow-xs"
-                : "border-border/70 hover:border-primary/40 bg-card"
+                ? "border-black bg-[#FACC15]/40 shadow-[3px_3px_0px_#0A0A0A]"
+                : "border-black/25 bg-white hover:border-black"
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs">Binance USDT</span>
+              <span className="font-bold text-xs text-[#0A0A0A]">Binance USDT</span>
               <input
                 type="radio"
                 value="binance"
                 className="sr-only"
                 {...form.register("paymentMethod")}
               />
-              <span className={cn(
-                "h-4 w-4 rounded-full border flex items-center justify-center",
-                selectedPaymentMethod === "binance" ? "border-primary bg-primary" : "border-muted-foreground"
-              )}>
-                {selectedPaymentMethod === "binance" && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+              <span
+                className={cn(
+                  "h-4 w-4 rounded-full border-2 border-black flex items-center justify-center",
+                  selectedPaymentMethod === "binance" ? "bg-black" : "bg-white"
+                )}
+              >
+                {selectedPaymentMethod === "binance" && <span className="h-1.5 w-1.5 rounded-full bg-[#FACC15]" />}
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-2">
+            <p className="text-[11px] text-slate-700 mt-2 leading-snug">
               Binance Pay ID o transferencia USDT directa.
             </p>
           </label>
@@ -492,90 +505,106 @@ export function OrderStep3({
             className={cn(
               "flex cursor-pointer flex-col justify-between rounded-xl border-2 p-3.5 transition-all",
               selectedPaymentMethod === "efectivo"
-                ? "border-primary bg-primary/5 shadow-xs"
-                : "border-border/70 hover:border-primary/40 bg-card"
+                ? "border-black bg-[#FACC15]/40 shadow-[3px_3px_0px_#0A0A0A]"
+                : "border-black/25 bg-white hover:border-black"
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs">Efectivo en Taller</span>
+              <span className="font-bold text-xs text-[#0A0A0A]">Efectivo en Taller</span>
               <input
                 type="radio"
                 value="efectivo"
                 className="sr-only"
                 {...form.register("paymentMethod")}
               />
-              <span className={cn(
-                "h-4 w-4 rounded-full border flex items-center justify-center",
-                selectedPaymentMethod === "efectivo" ? "border-primary bg-primary" : "border-muted-foreground"
-              )}>
-                {selectedPaymentMethod === "efectivo" && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+              <span
+                className={cn(
+                  "h-4 w-4 rounded-full border-2 border-black flex items-center justify-center",
+                  selectedPaymentMethod === "efectivo" ? "bg-black" : "bg-white"
+                )}
+              >
+                {selectedPaymentMethod === "efectivo" && <span className="h-1.5 w-1.5 rounded-full bg-[#FACC15]" />}
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-2">
+            <p className="text-[11px] text-slate-700 mt-2 leading-snug">
               Dólares o bolívares directamente en La Dolorita.
             </p>
           </label>
         </div>
 
         {/* Caja de detalles de la cuenta seleccionada */}
-        <Card className="border-primary/20 bg-primary/5 p-4 space-y-3">
-          <div className="flex items-center justify-between border-b border-primary/10 pb-2">
-            <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-              <CreditCard className="h-4 w-4 text-primary" />
-              {selectedPricingType === "docena"
-                ? "Datos para realizar tu abono del 50% (50% contra entrega):"
-                : "Datos para realizar tu pago del 100% por anticipado:"}
+        <Card className="rounded-xl border-2 border-black bg-[#F3EFE6] text-[#0A0A0A] p-4 space-y-3 shadow-[3px_3px_0px_#0A0A0A]">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-black/10 pb-2">
+            <span className="text-xs font-bold text-[#0A0A0A] flex items-center gap-1.5">
+              <CreditCard className="h-4 w-4 text-[#0891B2] shrink-0" />
+              <span>
+                {selectedPricingType === "docena"
+                  ? "Datos para realizar tu abono del 50% (50% contra entrega):"
+                  : "Datos para realizar tu pago del 100% por anticipado:"}
+              </span>
             </span>
-            <Badge variant="accent" className="text-[10px]">
+            <span className="rounded border border-black bg-black px-2 py-0.5 font-mono text-[10px] font-black text-[#FACC15]">
               Taller La Dolorita
-            </Badge>
+            </span>
           </div>
 
           {selectedPaymentMethod === "pago_movil" && (
             <div className="grid gap-2 text-xs sm:grid-cols-2">
-              <div className="flex items-center justify-between rounded-lg bg-background p-2.5 border">
+              <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border-2 border-black/20">
                 <div>
-                  <span className="text-muted-foreground block text-[10px]">Banco:</span>
-                  <span className="font-semibold text-foreground">{PAYMENT_INFO.pagoMovil.bank}</span>
+                  <span className="text-slate-600 block text-[10px] font-mono uppercase">Banco:</span>
+                  <span className="font-bold text-[#0A0A0A]">{PAYMENT_INFO.pagoMovil.bank}</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-lg bg-background p-2.5 border">
+              <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border-2 border-black/20">
                 <div>
-                  <span className="text-muted-foreground block text-[10px]">Teléfono Pago Móvil:</span>
-                  <span className="font-semibold text-foreground">{PAYMENT_INFO.pagoMovil.phone}</span>
+                  <span className="text-slate-600 block text-[10px] font-mono uppercase">Teléfono Pago Móvil:</span>
+                  <span className="font-bold text-[#0A0A0A]">
+                    {PAYMENT_INFO.pagoMovil.phone || "Se envía al confirmar por WhatsApp"}
+                  </span>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => copyToClipboard(PAYMENT_INFO.pagoMovil.phone, "pm_phone")}
-                >
-                  {copiedField === "pm_phone" ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
-                </Button>
+                {PAYMENT_INFO.pagoMovil.phone && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-slate-700 hover:bg-[#FACC15] hover:text-black"
+                    onClick={() => copyToClipboard(PAYMENT_INFO.pagoMovil.phone, "pm_phone")}
+                  >
+                    {copiedField === "pm_phone" ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Copy className="h-3.5 w-3.5" />}
+                  </Button>
+                )}
               </div>
 
-              <div className="flex items-center justify-between rounded-lg bg-background p-2.5 border">
+              <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border-2 border-black/20">
                 <div>
-                  <span className="text-muted-foreground block text-[10px]">Cédula / RIF:</span>
-                  <span className="font-semibold text-foreground">{PAYMENT_INFO.pagoMovil.idNumber}</span>
+                  <span className="text-slate-600 block text-[10px] font-mono uppercase">Cédula / RIF:</span>
+                  {PAYMENT_INFO.pagoMovil.idNumber ? (
+                    <span className="font-bold text-[#0A0A0A]">{PAYMENT_INFO.pagoMovil.idNumber}</span>
+                  ) : (
+                    <span className="font-semibold text-slate-700 text-[11px]">
+                      Se confirma por WhatsApp al validar tu orden
+                    </span>
+                  )}
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => copyToClipboard(PAYMENT_INFO.pagoMovil.idNumber, "pm_id")}
-                >
-                  {copiedField === "pm_id" ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
-                </Button>
+                {PAYMENT_INFO.pagoMovil.idNumber && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-slate-700 hover:bg-[#FACC15] hover:text-black"
+                    onClick={() => copyToClipboard(PAYMENT_INFO.pagoMovil.idNumber, "pm_id")}
+                  >
+                    {copiedField === "pm_id" ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Copy className="h-3.5 w-3.5" />}
+                  </Button>
+                )}
               </div>
 
-              <div className="flex items-center justify-between rounded-lg bg-background p-2.5 border">
+              <div className="flex items-center justify-between rounded-lg bg-white p-2.5 border-2 border-black/20">
                 <div>
-                  <span className="text-muted-foreground block text-[10px]">Titular:</span>
-                  <span className="font-semibold text-foreground">{PAYMENT_INFO.pagoMovil.beneficiary}</span>
+                  <span className="text-slate-600 block text-[10px] font-mono uppercase">Titular:</span>
+                  <span className="font-bold text-[#0A0A0A]">{PAYMENT_INFO.pagoMovil.beneficiary}</span>
                 </div>
               </div>
             </div>
@@ -583,42 +612,50 @@ export function OrderStep3({
 
           {selectedPaymentMethod === "binance" && (
             <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between rounded-lg bg-background p-3 border">
+              <div className="flex items-center justify-between rounded-lg bg-white p-3 border-2 border-black/20">
                 <div>
-                  <span className="text-muted-foreground block text-[10px]">Binance Pay ID:</span>
-                  <span className="font-bold text-foreground text-sm tracking-wide">{PAYMENT_INFO.binance.payId}</span>
+                  <span className="text-slate-600 block text-[10px] font-mono uppercase">Binance Pay ID:</span>
+                  {PAYMENT_INFO.binance.payId ? (
+                    <span className="font-bold text-[#0A0A0A] text-sm tracking-wide">{PAYMENT_INFO.binance.payId}</span>
+                  ) : (
+                    <span className="font-semibold text-slate-700 text-xs">
+                      Te enviamos nuestro Binance Pay ID y código QR por WhatsApp al confirmar
+                    </span>
+                  )}
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => copyToClipboard(PAYMENT_INFO.binance.payId, "binance_id")}
-                >
-                  {copiedField === "binance_id" ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-                </Button>
+                {PAYMENT_INFO.binance.payId && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-slate-700 hover:bg-[#FACC15] hover:text-black"
+                    onClick={() => copyToClipboard(PAYMENT_INFO.binance.payId, "binance_id")}
+                  >
+                    {copiedField === "binance_id" ? <Check className="h-4 w-4 text-emerald-700" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                )}
               </div>
-              <p className="text-[11px] text-muted-foreground">
-                Red: <strong>{PAYMENT_INFO.binance.network}</strong>. Puedes pagar escaneando el código QR que te enviaremos por WhatsApp o directamente con el Pay ID.
+              <p className="text-[11px] text-slate-700 leading-relaxed text-justify sm:text-left">
+                Red: <strong className="text-[#0A0A0A]">{PAYMENT_INFO.binance.network}</strong>. Puedes pagar escaneando el código QR que te enviaremos por WhatsApp o directamente con el Pay ID.
               </p>
             </div>
           )}
 
           {selectedPaymentMethod === "efectivo" && (
-            <div className="rounded-lg bg-background p-3 border text-xs space-y-1.5">
-              <p className="font-semibold text-foreground">
+            <div className="rounded-lg bg-white p-3 border-2 border-black/20 text-xs space-y-1.5">
+              <p className="font-bold text-[#0A0A0A]">
                 📍 {PAYMENT_INFO.cash.location}
               </p>
-              <p className="text-muted-foreground text-[11px]">
+              <p className="text-slate-700 text-[11px] leading-relaxed text-justify sm:text-left">
                 {PAYMENT_INFO.cash.currency}. {selectedPricingType === "docena" ? "Se entrega recibo físico en mano al dejar el 50% de abono inicial." : "Se entrega recibo físico en mano al realizar el pago del 100%."}
               </p>
             </div>
           )}
 
-          <div className="flex items-start gap-2 pt-1 text-[11px] text-muted-foreground">
-            <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 pt-1 text-[11px] text-slate-700 leading-relaxed text-justify sm:text-left">
+            <Info className="h-4 w-4 text-[#0891B2] shrink-0 mt-0.5" />
             <span>
-              <strong>Paso final:</strong> Al pulsar el botón de abajo, tu pedido quedará registrado con su código único y serás redirigido a WhatsApp para enviar el comprobante de pago a los socios del taller.
+              <strong className="text-[#0A0A0A]">Paso final:</strong> Al pulsar el botón de abajo, tu pedido quedará registrado con su código único y serás redirigido a WhatsApp para coordinar tu cotización y comprobante con los socios del taller.
             </span>
           </div>
         </Card>
@@ -626,32 +663,32 @@ export function OrderStep3({
 
       {/* 5. ACEPTACIÓN DE TÉRMINOS Y GARANTÍA */}
       <div className="space-y-3">
-        <label className="flex items-start gap-3 cursor-pointer rounded-xl border border-border/80 bg-card p-3.5 hover:bg-muted/30 transition-colors">
+        <label className="flex items-start gap-3 cursor-pointer rounded-xl border-2 border-black bg-white p-4 shadow-[2px_2px_0px_#0A0A0A] hover:bg-[#FAF7F0] transition-colors">
           <input
             type="checkbox"
-            className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+            className="mt-1 h-4 w-4 rounded border-2 border-black accent-black shrink-0"
             {...form.register("acceptTerms")}
           />
-          <div className="text-xs text-foreground/90 space-y-1">
-            <span className="font-semibold block">
-              Acepto las condiciones de confección y pago de AlquimiaTex <span className="text-destructive">*</span>
+          <div className="text-xs text-[#0A0A0A] space-y-1.5">
+            <span className="font-bold block">
+              Acepto las condiciones de confección y pago de AlquimiaTex <span className="text-rose-600">*</span>
             </span>
-            <p className="text-muted-foreground text-[11px]">
+            <p className="text-slate-700 text-[11px] leading-relaxed text-justify">
               {selectedPricingType === "docena"
                 ? "Entiendo que el estampado y confección inician tras confirmar el 50% de abono inicial, liquidando el 50% restante contra entrega en un plazo estimado de 4 a 7 días hábiles."
                 : "Entiendo que el estampado y confección inician tras confirmar el pago del 100% por anticipado, en un plazo estimado de 4 a 7 días hábiles."}
             </p>
-            <p className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+            <p className="text-[11px] font-bold text-amber-800">
               🛡️ Garantía oficial: No se realizan cambios por errores en la elección de tallas.
             </p>
-            <p className="text-[11px] text-muted-foreground pt-0.5">
+            <p className="text-[11px] text-slate-700 pt-0.5 leading-relaxed">
               He leído y acepto los{" "}
               <Link
                 href="/terminos"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="font-bold underline text-foreground hover:text-primary"
+                className="font-bold underline text-[#0A0A0A] hover:text-[#0891B2]"
               >
                 Términos y Condiciones
               </Link>{" "}
@@ -661,7 +698,7 @@ export function OrderStep3({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="font-bold underline text-foreground hover:text-primary"
+                className="font-bold underline text-[#0A0A0A] hover:text-[#0891B2]"
               >
                 Política de Privacidad
               </Link>
@@ -670,7 +707,7 @@ export function OrderStep3({
           </div>
         </label>
         {form.formState.errors.acceptTerms && (
-          <p className="text-xs text-destructive">
+          <p className="text-xs text-rose-600 font-semibold">
             {form.formState.errors.acceptTerms.message}
           </p>
         )}
@@ -678,39 +715,38 @@ export function OrderStep3({
 
       {/* MENSAJE DE ERROR GLOBAL */}
       {submitError && (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3.5 text-xs text-destructive flex items-center gap-2">
+        <div className="rounded-xl border-2 border-rose-600 bg-rose-50 p-3.5 text-xs text-rose-800 font-semibold flex items-center gap-2">
           <Info className="h-4 w-4 shrink-0" />
           <span>{submitError}</span>
         </div>
       )}
 
       {/* BOTONES DE NAVEGACIÓN */}
-      <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col-reverse gap-3 pt-4 border-t-2 border-black/15 sm:flex-row sm:items-center sm:justify-between">
         <Button
           type="button"
-          variant="outline"
           onClick={onBack}
           disabled={isSubmitting}
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto h-11 px-4 rounded-xl border-2 border-black bg-white text-[#0A0A0A] hover:bg-[#FAF7F0] font-bold text-xs sm:text-sm gap-2 shadow-[2px_2px_0px_#0A0A0A]"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver a Diseños
+          <ArrowLeft className="h-4 w-4 shrink-0" />
+          <span>Volver a Diseños</span>
         </Button>
 
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full sm:w-auto min-w-[240px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+          className="w-full sm:w-auto min-w-[240px] h-12 px-6 rounded-xl border-2 border-black bg-emerald-600 hover:bg-emerald-700 text-white font-oswald text-base sm:text-lg font-black uppercase tracking-wide gap-2 shadow-[4px_4px_0px_#0A0A0A] active:translate-x-0.5 active:translate-y-0.5 transition-all"
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Guardando y abriendo WhatsApp...
+              <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+              <span>Guardando y abriendo WhatsApp...</span>
             </>
           ) : (
             <>
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              Confirmar y Enviar Pedido
+              <CheckCircle2 className="h-5 w-5 shrink-0" />
+              <span>Confirmar y Enviar Pedido</span>
             </>
           )}
         </Button>

@@ -23,21 +23,38 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
   return { allowed: true, remaining: MAX_ATTEMPTS - entry.count };
 }
 
+// Especificaciones físicas y de proporción por producto para sublimación
+const PRODUCT_SPECIFICATIONS: Record<string, string> = {
+  camisa:
+    "Centered vertical chest/back apparel graphic print (portrait ~3:4 aspect ratio), clean isolated graphic on plain background, no t-shirt mockup, ready for DTF or textile sublimation.",
+  mousepad:
+    "Standard rectangular mousepad 22x18 cm (horizontal landscape ~1.22:1 aspect ratio), full-bleed edge-to-edge desk mat illustration, sharp details and vivid colors.",
+  rompecabezas:
+    "A4 rectangular jigsaw puzzle format 20x29 cm (vertical portrait ~1:1.45 aspect ratio), intricate full-bleed detailed composition suitable for 120-piece puzzle sublimation.",
+  taza:
+    "Panoramic wrap-around 11oz mug strip 20x9 cm (wide horizontal banner ~2.2:1 aspect ratio), continuous seamless horizontal composition designed to wrap around a ceramic mug.",
+  otro:
+    "Centered high-resolution graphic artwork for custom sublimation printing, vibrant colors, crisp edges, clean isolated background.",
+};
+
 // Optimizar el prompt del usuario en español a un prompt conciso en inglés para FLUX.1 usando Gemini
 async function optimizePromptWithGemini(
   description: string,
   product: string,
   apiKey?: string
 ): Promise<string> {
+  const productKey = (product || "otro").toLowerCase();
+  const productSpec = PRODUCT_SPECIFICATIONS[productKey] || PRODUCT_SPECIFICATIONS.otro;
+
   if (!apiKey) {
-    return `High-resolution graphic design for a textile sublimation ${product || "item"}: ${description.slice(0, 300)}. Vibrant colors, clean isolated background, sharp details, apparel print ready.`;
+    return `High-resolution sublimation artwork (${productSpec}): ${description.slice(0, 260)}. Vibrant colors, sharp details, print ready.`;
   }
 
   try {
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: "gemini-3.5-flash-lite",
-      contents: `You are an expert prompt engineer for FLUX.1 image generation for textile sublimation. Transform the following user description into a single concise English prompt (under 250 characters), centered graphic, vibrant colors, clean isolated background. Output ONLY the raw prompt text without quotes or markdown explanations.\n\nProduct: ${product || "item"}\nDescription: ${description}`,
+      contents: `You are an expert prompt engineer for FLUX.1 image generation for textile and merchandise sublimation. Transform the following user description into a single concise English prompt (under 300 characters) that strictly respects the physical dimensions, aspect ratio, and framing of the target product. Output ONLY the raw prompt text without quotes or markdown explanations.\n\nProduct: ${productKey}\nPhysical Format & Framing: ${productSpec}\nUser Description: ${description}`,
     });
 
     const optimized = response.text?.trim().replace(/^["']|["']$/g, "");
@@ -48,7 +65,7 @@ async function optimizePromptWithGemini(
     console.warn("Aviso en optimización con Gemini (usando plantilla estructurada):", err instanceof Error ? err.message : err);
   }
 
-  return `High-resolution graphic design for a textile sublimation ${product || "item"}: ${description.slice(0, 300)}. Vibrant colors, clean isolated background, sharp details, apparel print ready.`;
+  return `High-resolution sublimation artwork (${productSpec}): ${description.slice(0, 260)}. Vibrant colors, sharp details, print ready.`;
 }
 
 export async function POST(req: NextRequest) {
