@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Informe Maestro de Transferencia de Contexto — AlquimiaTex</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 14mm 14mm 16mm 14mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Header Superior */
+    .doc-header {
+      border: 3px solid #000;
+      background-color: #F8F5EE;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      box-shadow: 4px 4px 0px #000;
+    }
+
+    .doc-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .brand-badge {
+      display: inline-block;
+      background-color: #FACC15;
+      color: #000;
+      font-weight: 900;
+      font-size: 10pt;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0px #000;
+    }
+
+    .version-badge {
+      font-family: Consolas, monospace;
+      font-size: 9pt;
+      font-weight: bold;
+      color: #4b5563;
+    }
+
+    .doc-title {
+      font-size: 18pt;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #000;
+      margin: 6px 0 4px 0;
+      letter-spacing: 0.5px;
+    }
+
+    .doc-subtitle {
+      font-size: 10pt;
+      color: #4b5563;
+      margin: 0;
+      font-style: italic;
+    }
+
+    /* Tipografía y Títulos */
+    h1 {
+      display: none; /* Ya está en el header */
+    }
+
+    h2 {
+      font-size: 13.5pt;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #000;
+      border-bottom: 2.5px solid #000;
+      padding-bottom: 5px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 11.5pt;
+      font-weight: 800;
+      color: #111827;
+      margin-top: 16px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+    }
+
+    p {
+      margin: 0 0 10px 0;
+    }
+
+    /* Listas */
+    ul, ol {
+      margin: 0 0 12px 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    /* Tablas */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px 0;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0px #000;
+    }
+
+    th {
+      background-color: #FACC15;
+      color: #000;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 8px 10px;
+      border: 1.5px solid #000;
+      text-align: left;
+    }
+
+    td {
+      padding: 6px 10px;
+      border: 1px solid #d1d5db;
+      background-color: #fff;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f9fafb;
+    }
+
+    /* Bloques de Código */
+    pre {
+      background-color: #1E1E1E;
+      color: #E5E7EB;
+      padding: 12px 14px;
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0px #000;
+      border-radius: 0px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 9pt;
+      line-height: 1.4;
+      overflow-x: auto;
+      margin: 10px 0 14px 0;
+      page-break-inside: avoid;
+    }
+
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 9pt;
+      background-color: #F3F4F6;
+      color: #B91C1C;
+      padding: 1px 4px;
+      border: 1px solid #E5E7EB;
+    }
+
+    pre code {
+      background-color: transparent;
+      color: #FACC15;
+      padding: 0;
+      border: none;
+    }
+
+    /* Callouts */
+    .callout {
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0px #000;
+      padding: 12px 14px;
+      margin: 14px 0;
+      page-break-inside: avoid;
+    }
+
+    .callout-important {
+      background-color: #FEF08A;
+      border-color: #854D0E;
+    }
+
+    .callout-label {
+      font-weight: 900;
+      font-size: 9.5pt;
+      color: #713F12;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .callout-body {
+      font-size: 9.5pt;
+      color: #1f2937;
+    }
+
+    /* Diagram Box */
+    .diagram-box {
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0px #000;
+      background-color: #F8F5EE;
+      padding: 14px;
+      margin: 14px 0;
+      page-break-inside: avoid;
+    }
+
+    .diagram-title {
+      font-weight: 900;
+      font-size: 10pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #000;
+    }
+
+    .diagram-grid {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .diagram-card {
+      flex: 1;
+      background-color: #fff;
+      border: 1.5px solid #000;
+      padding: 8px 10px;
+      box-shadow: 2px 2px 0px #000;
+      font-size: 8.5pt;
+    }
+
+    .diagram-card strong {
+      display: block;
+      color: #000;
+      margin-bottom: 3px;
+      font-size: 9pt;
+    }
+
+    .diagram-card p {
+      margin: 0;
+      color: #4b5563;
+      font-family: Consolas, monospace;
+      font-size: 7.5pt;
+      line-height: 1.25;
+    }
+
+    .diagram-arrow {
+      font-weight: 900;
+      font-size: 12pt;
+      color: #000;
+    }
+
+    /* Links */
+    a {
+      color: #1D4ED8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Separadores */
+    hr {
+      border: none;
+      border-top: 2px solid #E5E7EB;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="doc-header">
+    <div class="doc-header-top">
+      <div class="brand-badge">ALQUIMIATEX — TALLER TEXTIL</div>
+      <div class="version-badge">v1.5.0 (PRODUCCIÓN) | 20 NOV 2026</div>
+    </div>
+    <div class="doc-title">INFORME MAESTRO DE TRANSFERENCIA DE CONTEXTO</div>
+    <div class="doc-subtitle">Documento Oficial de Continuidad Técnica, Arquitectura del Sistema y Operación del Negocio</div>
+  </div>
+
+  <h1>📜 INFORME MAESTRO DE TRANSFERENCIA DE CONTEXTO — ALQUIMIATEX</h1>
+<blockquote>
+<p><strong>Documento Oficial de Continuidad Técnica, Arquitectura y Operación del Negocio</strong><br><strong>Última Actualización:</strong> 20 de Noviembre de 2026<br><strong>Versión del Sistema:</strong> v1.5.0 (Producción)</p>
+</blockquote>
+<hr>
+<h2>1. Resumen del Negocio y Stack Tecnológico</h2>
+<h3>¿Qué es AlquimiaTex?</h3>
+<p><strong>AlquimiaTex</strong> es un taller artesanal de sublimación textil y personalización de artículos ubicado en <strong>La Dolorita, Petare, Caracas, Venezuela</strong>.
+El taller es operado conjuntamente por <strong>3 socios con roles equitativos</strong>:</p>
+<ul>
+<li><strong>Socio 1:</strong> Diseño gráfico y conceptos visuales.</li>
+<li><strong>Socio 2:</strong> Sublimado en plancha térmica y confección.</li>
+<li><strong>Socio 3:</strong> Ventas, compras de insumos y logística de despachos.</li>
+</ul>
+<h3>Catálogo de Productos Oficial</h3>
+<ol>
+<li><strong>Camisas / Franelas:</strong><ul>
+<li>Telas: Microdurazno (blanca y negra), Jersey/Poliéster 50-50, Algodón Peinado, Oversize.</li>
+<li>Cortes: Caballero, Dama.</li>
+<li>Tallas: Adulto (S, M, L, XL, XXL) y Niños (2 a 16).</li>
+</ul>
+</li>
+<li><strong>Tazas:</strong> Normal Blanca, Taza Mágica (revela con calor), Set Apilable.</li>
+<li><strong>Mousepads:</strong> Estándar (22 x 18 cm).</li>
+<li><strong>Rompecabezas:</strong> Formato A4 (aprox. 120 piezas).</li>
+<li><strong>Artículos Varios:</strong> Cojines, gorras, tulas y artículos promocionales bajo pedido.</li>
+</ol>
+<h3>Reglas de Negocio Clave</h3>
+<ul>
+<li><strong>Tiempos de Entrega:</strong> 4 a 7 días hábiles a partir de la confirmación del pago/abono.</li>
+<li><strong>Política de Pagos:</strong><ul>
+<li><strong>Pedidos al Detal (Unidad):</strong> 100% anticipado obligatorio.</li>
+<li><strong>Pedidos al Mayor (Docena - 12+ unidades):</strong> 50% abono inicial + 50% contra entrega.</li>
+</ul>
+</li>
+<li><strong>Métodos de Pago:</strong> Pago Móvil (Banesco/BDV), Binance Pay USDT y Efectivo en Taller (USD y Bs.).</li>
+<li><strong>Diseño Gráfico:</strong> Mockup digital gratuito previo al planchado. Máximo 2 estampados por prenda (pecho y espalda).</li>
+<li><strong>Límites de Pedido Web:</strong> Hasta 10 artículos por orden y 3 intentos de generación con IA por cliente.</li>
+</ul>
+<hr>
+<h3>Stack Tecnológico</h3>
+<table>
+<thead>
+<tr>
+<th align="left">Capa</th>
+<th align="left">Tecnología</th>
+<th align="left">Versión</th>
+<th align="left">Propósito</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>Framework</strong></td>
+<td align="left"><strong>Next.js</strong></td>
+<td align="left"><code>14.2.35</code></td>
+<td align="left">React App Router, Server Actions, Server Components y Route Handlers</td>
+</tr>
+<tr>
+<td align="left"><strong>Lenguaje</strong></td>
+<td align="left"><strong>TypeScript</strong></td>
+<td align="left"><code>^5.0.0</code></td>
+<td align="left">Tipado estricto en cliente, esquemas y servidor</td>
+</tr>
+<tr>
+<td align="left"><strong>Estilos</strong></td>
+<td align="left"><strong>Tailwind CSS</strong></td>
+<td align="left"><code>^3.4.1</code></td>
+<td align="left">Diseño responsivo estilo &quot;Taller Experimental / Neo-Brutalist&quot;</td>
+</tr>
+<tr>
+<td align="left"><strong>Componentes UI</strong></td>
+<td align="left"><strong>shadcn/ui</strong></td>
+<td align="left"><code>^4.21.4</code></td>
+<td align="left">Componentes accesibles, diálogos, selectores y formularios</td>
+</tr>
+<tr>
+<td align="left"><strong>Iconografía</strong></td>
+<td align="left"><strong>Lucide React</strong></td>
+<td align="left"><code>^1.56.0</code></td>
+<td align="left">Iconos del sistema y panel de control</td>
+</tr>
+<tr>
+<td align="left"><strong>Formularios &amp; Zod</strong></td>
+<td align="left"><strong>react-hook-form + Zod</strong></td>
+<td align="left"><code>^7.90.0</code> / <code>^4.6.7</code></td>
+<td align="left">Validación robusta de formularios en cliente y servidor</td>
+</tr>
+<tr>
+<td align="left"><strong>Base de Datos &amp; Auth</strong></td>
+<td align="left"><strong>Supabase</strong></td>
+<td align="left"><code>^2.117.3</code> / <code>^0.12.7</code></td>
+<td align="left">PostgreSQL, Storage Buckets, Autenticación SSR con Cookies</td>
+</tr>
+<tr>
+<td align="left"><strong>Inteligencia Artificial</strong></td>
+<td align="left"><strong>Google Gemini + Abacus.AI</strong></td>
+<td align="left">API v1</td>
+<td align="left">Optimización de prompts con Gemini Flash y renderizado con FLUX.1 Kontext</td>
+</tr>
+<tr>
+<td align="left"><strong>Hospedaje &amp; Deploy</strong></td>
+<td align="left"><strong>Vercel</strong></td>
+<td align="left">Hobby Plan</td>
+<td align="left">Despliegue CI/CD continuo conectado a GitHub</td>
+</tr>
+<tr>
+<td align="left"><strong>Control de Versiones</strong></td>
+<td align="left"><strong>Git &amp; GitHub</strong></td>
+<td align="left">—</td>
+<td align="left">Repositorio centralizado</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. URLs Clave del Ecosistema</h2>
+<ul>
+<li><strong>Producción Oficial:</strong> <a href="https://alquimia-tex.vercel.app">https://alquimia-tex.vercel.app</a></li>
+<li><strong>Panel Administrativo:</strong> <a href="https://alquimia-tex.vercel.app/admin">https://alquimia-tex.vercel.app/admin</a></li>
+<li><strong>Asistente de Pedidos Público:</strong> <a href="https://alquimia-tex.vercel.app/pedido">https://alquimia-tex.vercel.app/pedido</a></li>
+<li><strong>Repositorio GitHub:</strong> <a href="https://github.com/yermaldana-creator/AlquimiaTEX">https://github.com/yermaldana-creator/AlquimiaTEX</a></li>
+<li><strong>Dashboard de Supabase:</strong> <code>https://supabase.com/dashboard/project/ihbaunncxkskesiqsgap</code></li>
+<li><strong>Servidor Local de Desarrollo:</strong> <code>http://localhost:3000</code> (o <code>http://localhost:3001</code>)</li>
+<li><strong>Canal Oficial WhatsApp:</strong> <a href="https://wa.me/584241589317">+58 424 1589317</a></li>
+<li><strong>Instagram Oficial:</strong> <a href="https://instagram.com/alquimia_tex">@alquimia_tex</a></li>
+</ul>
+<hr>
+<h2>3. Cuentas y Correos Electrónicos del Proyecto</h2>
+<p><em>(Por estrictas razones de seguridad cibernética, no se incluyen contraseñas en este documento).</em></p>
+<ol>
+<li><strong>GitHub:</strong><ul>
+<li>Usuario / Organización: <code>yermaldana-creator</code></li>
+<li>Repositorio: <code>yermaldana-creator/AlquimiaTEX</code></li>
+<li>Configuración Git Local: <code>AlquimiaTex &lt;dev@alquimiatex.local&gt;</code></li>
+</ul>
+</li>
+<li><strong>Vercel:</strong><ul>
+<li>Proyecto: <code>alquimia-tex</code></li>
+<li>Dominio de producción: <code>alquimia-tex.vercel.app</code></li>
+<li>Vinculado a la cuenta de GitHub <code>yermaldana-creator</code>.</li>
+</ul>
+</li>
+<li><strong>Supabase:</strong><ul>
+<li>Organización: <code>yermaldana-creator&#39;s Org</code></li>
+<li>Proyecto: <code>alquimiatex</code></li>
+<li>Project ID / Reference: <code>ihbaunncxkskesiqsgap</code></li>
+<li>Región: <code>us-east-1</code> (N. Virginia)</li>
+</ul>
+</li>
+<li><strong>Acceso de Socios al Panel Admin (<code>/admin/login</code>):</strong><ul>
+<li>Autenticación gestionada mediante <strong>Supabase Auth</strong>.</li>
+<li>Los correos registrados corresponden a los correos personales/laborales de los socios de AlquimiaTex autorizados con rol activo en la base de datos.</li>
+</ul>
+</li>
+<li><strong>Abacus.AI / RouteLLM:</strong><ul>
+<li>Suscripción activa para generación de imágenes (FLUX.1 Kontext).</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>4. Estructura de la Base de Datos en Supabase</h2>
+<p>El sistema cuenta con <strong>6 tablas principales y 1 bucket de almacenamiento</strong>, con políticas de seguridad <strong>Row Level Security (RLS)</strong> activas:</p>
+<div class="diagram-box">
+  <div class="diagram-title">🗄️ MAPA RELACIONAL DE BASE DE DATOS (SUPABASE)</div>
+  <div class="diagram-grid">
+    <div class="diagram-card">
+      <strong>ORDERS (Pedidos)</strong>
+      <p>id, order_code, customer_name, status, delivery_date, items, inventory_reserved</p>
+    </div>
+    <div class="diagram-arrow">➔</div>
+    <div class="diagram-card">
+      <strong>INVENTORY_ITEMS (Almacén)</strong>
+      <p>id, category, name, variant, quantity, unit, cost_per_unit, min_stock_alert</p>
+    </div>
+    <div class="diagram-arrow">➔</div>
+    <div class="diagram-card">
+      <strong>INVENTORY_PURCHASES</strong>
+      <p>id, purchase_date, item_name, quantity, cost_usd, cost_bs, supplier</p>
+    </div>
+  </div>
+  <div class="diagram-grid" style="margin-top: 10px;">
+    <div class="diagram-card">
+      <strong>PRODUCT_COST_TEMPLATES</strong>
+      <p>id, product_name, margin_type, margin_value, components (fórmulas de costeo)</p>
+    </div>
+    <div class="diagram-arrow">➔</div>
+    <div class="diagram-card">
+      <strong>COST_COMPONENTS</strong>
+      <p>id, name, category, cost_per_unit, unit (insumos base de costeo)</p>
+    </div>
+    <div class="diagram-arrow">➔</div>
+    <div class="diagram-card">
+      <strong>DEBTS (Deudas y Cuentas)</strong>
+      <p>id, type, entity_name, amount_original, amount_paid, currency, status, payments</p>
+    </div>
+  </div>
+</div><h3>Detalle de las Tablas:</h3>
+<ol>
+<li><strong><code>orders</code> (Pedidos de Clientes):</strong><ul>
+<li>Registra todos los pedidos generados desde la web.</li>
+<li>Estados oficiales (6): <code>pendiente_contacto</code>, <code>abono_verificado</code>, <code>en_produccion</code>, <code>listo_para_entrega</code>, <code>entregado</code>, <code>cancelado</code>.</li>
+<li>Controla si el pedido ya reservó material en el taller (<code>inventory_reserved = true</code>).</li>
+</ul>
+</li>
+<li><strong><code>inventory_items</code> (Almacén e Inventario Activo):</strong><ul>
+<li>65+ insumos y prendas base migradas directamente del Excel del taller.</li>
+<li>Categorías: <code>material</code>, <code>tela</code>, <code>prenda</code>, <code>otro</code>.</li>
+<li>Cuenta con soporte de soft-delete (<code>archived_at</code>).</li>
+</ul>
+</li>
+<li><strong><code>inventory_purchases</code> (Histórico de Compras):</strong><ul>
+<li>195 compras históricas registradas con montos en USD y en Bs., cantidades y proveedores.</li>
+</ul>
+</li>
+<li><strong><code>cost_components</code> (Insumos Base de Costeo):</strong><ul>
+<li>11 componentes de fabricación (hojas de sublimación, tintas, empaques, mano de obra, prendas lisas).</li>
+</ul>
+</li>
+<li><strong><code>product_cost_templates</code> (Fórmulas de Costos y Precios):</strong><ul>
+<li>Recetas para calcular el costo exacto y precio sugerido según el tipo de margen (<code>fixed</code>, <code>percentage</code>, <code>target_price</code>).</li>
+</ul>
+</li>
+<li><strong><code>debts</code> (Gestión de Cuentas y Deudas):</strong><ul>
+<li>200 cuentas migradas del Excel:<ul>
+<li><strong>187 Cuentas por Cobrar (Clientes):</strong> Total $2,180.80 USD y Bs. 49,300.00.</li>
+<li><strong>13 Cuentas por Pagar (Proveedores / Taller):</strong> Total $8.50 USD y Bs. 7,114.93.</li>
+</ul>
+</li>
+<li>Estados: <code>pendiente</code>, <code>parcial</code>, <code>pagada</code>, <code>vencida</code>.</li>
+<li>Soporte bimonetario (<code>USD</code> y <code>BS</code>).</li>
+<li>Bitácora de abonos parciales almacenada en el campo <code>payments</code> (JSONB).</li>
+</ul>
+</li>
+<li><strong>Storage Bucket <code>order-references</code>:</strong><ul>
+<li>Bucket público donde se almacenan las fotos de referencia subidas por los clientes en el asistente web.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>5. Variables de Entorno Requeridas</h2>
+<p>Para el correcto funcionamiento en local (<code>.env.local</code>) y en Vercel (<strong>Project Settings &gt; Environment Variables</strong>), se requieren las siguientes claves:</p>
+<pre><code class="language-env"># Conexión con Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_SECRET_KEY=
+
+# Canal de Comunicación
+NEXT_PUBLIC_WHATSAPP_NUMBER=
+
+# Pipeline de Inteligencia Artificial
+GEMINI_API_KEY=
+ABACUS_API_KEY=
+ABACUS_BASE_URL=
+</code></pre>
+<div class="callout callout-important"><div class="callout-label">⚠️ IMPORTANTE</div><div class="callout-body">En Vercel, es indispensable que <code>SUPABASE_SERVICE_ROLE_KEY</code> esté configurada en las Environment Variables del proyecto. Esto permite que las Server Actions administrativas consulten la base de datos sin bloqueos de RLS.</div></div>
+<hr>
+<h2>6. Estado Actual del Proyecto: ¿Qué está terminado y qué falta?</h2>
+<h3>✅ Módulos Terminados (100% Operativos):</h3>
+<ol>
+<li><strong>Experiencia Pública:</strong><ul>
+<li>Landing page oficial con estética &quot;Taller Experimental / Streetwear&quot;.</li>
+<li>Asistente de pedidos <code>/pedido</code> de 3 pasos con carrito interactivo.</li>
+<li>Pipeline de IA para generación de conceptos gráficos preliminares.</li>
+<li>Generación de código amigable (<code>#ALQ-XXXX</code>) y despacho directo a WhatsApp.</li>
+<li>Encuesta de satisfacción y feedback beta <code>/feedback</code>.</li>
+</ul>
+</li>
+<li><strong>Sub-módulo 1 — Autenticación y Seguridad:</strong><ul>
+<li>Sistema de login seguro <code>/admin/login</code> con cookies HTTP-only vía <code>@supabase/ssr</code>.</li>
+<li>Rate limiting por IP (máximo 5 intentos por minuto para prevenir ataques de fuerza bruta).</li>
+<li>Middleware de protección perimetral para todas las rutas <code>/admin/*</code>.</li>
+</ul>
+</li>
+<li><strong>Sub-módulo 2A — Gestión de Pedidos:</strong><ul>
+<li>Tabla interactiva con búsqueda en vivo, filtros por estado, paginación y vista de detalle <code>/admin/pedidos/[id]</code>.</li>
+<li>Cambio de estados operativos en un clic.</li>
+</ul>
+</li>
+<li><strong>Sub-módulo 2B — Inventario del Taller:</strong><ul>
+<li>Control de existencias, cálculo del capital estimado en almacén, alertas visuales de stock bajo.</li>
+</ul>
+</li>
+<li><strong>Sub-módulo 3 — Costos y Precios:</strong><ul>
+<li>Catálogo de insumos base, fórmulas de costeo dinámico, análisis de rentabilidad y simulador de pedidos por volumen.</li>
+</ul>
+</li>
+<li><strong>Sub-módulo 4 — Conexión Pedidos ➔ Inventario:</strong><ul>
+<li>Deducción y reserva automática de materiales en almacén al pasar un pedido a producción.</li>
+</ul>
+</li>
+<li><strong>Sub-módulo 5 — Gestión de Deudas y Cuentas:</strong><ul>
+<li>Monitoreo bimonetario ($ / Bs.), registro de abonos parciales, saldo restante visual con barra de progreso, liquidación rápida en 1 clic y auditoría de pagos.</li>
+</ul>
+</li>
+<li><strong>Estrategia de Caché Dinámica:</strong><ul>
+<li>Páginas del admin configuradas con <code>force-dynamic</code> y <code>revalidate = 0</code> para garantizar lectura en tiempo real en producción.</li>
+</ul>
+</li>
+</ol>
+<h3>📋 Trabajo Futuro / Mejoras Opcionales:</h3>
+<ul>
+<li>Generación de reportes PDF descargables para balances mensuales y cierres de caja.</li>
+<li>Webhook o bot de WhatsApp para notificar automáticamente al cliente cuando su pedido pase a estado <em>&quot;Listo para entrega&quot;</em>.</li>
+<li>Pasarela de cobro automatizada (Binance Pay API o Pago Móvil automático) cuando el taller formalice su registro mercantil.</li>
+</ul>
+<hr>
+<h2>7. Instrucciones para Levantar el Proyecto Localmente</h2>
+<h3>Requisitos Previos:</h3>
+<ul>
+<li>Node.js versión 18.18 o superior (recomendado Node 20 LTS).</li>
+<li>Gestor de paquetes <code>npm</code>.</li>
+<li>Git instalado.</li>
+</ul>
+<h3>Paso a Paso:</h3>
+<ol>
+<li><p><strong>Clonar el repositorio:</strong></p>
+<pre><code class="language-bash">git clone https://github.com/yermaldana-creator/AlquimiaTEX.git
+cd AlquimiaTEX
+</code></pre>
+</li>
+<li><p><strong>Instalar dependencias:</strong></p>
+<pre><code class="language-bash">npm install
+</code></pre>
+</li>
+<li><p><strong>Configurar el archivo de entorno:</strong>
+Crear un archivo <code>.env.local</code> en la raíz del proyecto y pegar las variables de entorno con sus valores correspondientes.</p>
+</li>
+<li><p><strong>Ejecutar el servidor local de desarrollo:</strong></p>
+<pre><code class="language-bash">npm run dev
+</code></pre>
+<p>Abrir en el navegador: <a href="http://localhost:3000">http://localhost:3000</a></p>
+</li>
+<li><p><strong>Comandos Útiles:</strong></p>
+<ul>
+<li><code>npm run lint</code> — Verifica reglas de tipado y estilo de código.</li>
+<li><code>npm run build</code> — Compila el proyecto en modo producción para validar errores de compilación.</li>
+<li><code>npx tsx scripts/migrate-excel.ts</code> — Script para migrar inventario, compras y costos desde el archivo Excel <code>data/Libro11.xlsx</code>.</li>
+<li><code>npx tsx scripts/migrate-debts.ts</code> — Script para migrar las cuentas por cobrar y por pagar.</li>
+</ul>
+</li>
+</ol>
+
+
+</body>
+</html>
