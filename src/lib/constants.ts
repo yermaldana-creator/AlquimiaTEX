@@ -58,9 +58,94 @@ export const SHIRT_CUTS = [
 ] as const;
 
 export const SHIRT_COLORS = [
-  { value: "blanco", label: "Blanco (Máxima fidelidad y viveza de colores)", hex: "#FFFFFF" },
-  { value: "gris_jaspeado", label: "Gris Jaspeado Claro", hex: "#D6D6D6" },
+  // Neutros (5)
+  { value: "blanco", label: "Blanco", hex: "#FFFFFF", group: "Neutros" },
+  { value: "negro", label: "Negro", hex: "#111111", group: "Neutros" },
+  { value: "crudo", label: "Crudo", hex: "#F3EAD8", group: "Neutros" },
+  { value: "gris_melange", label: "Gris Melange", hex: "#B8BCC0", group: "Neutros" },
+  { value: "gris_raton", label: "Gris Ratón", hex: "#6E7378", group: "Neutros" },
+
+  // Rojos y Rosados (8)
+  { value: "rojo", label: "Rojo", hex: "#DC2626", group: "Rojos y Rosados" },
+  { value: "vinotinto", label: "Vinotinto", hex: "#6B1426", group: "Rojos y Rosados" },
+  { value: "coral", label: "Coral", hex: "#FF6B5B", group: "Rojos y Rosados" },
+  { value: "salmon", label: "Salmón", hex: "#FA8072", group: "Rojos y Rosados" },
+  { value: "terracota", label: "Terracota", hex: "#C45C3E", group: "Rojos y Rosados" },
+  { value: "fucsia", label: "Fucsia", hex: "#E6007E", group: "Rojos y Rosados" },
+  { value: "rosa_bebe", label: "Rosa Bebé", hex: "#F9C6D3", group: "Rojos y Rosados" },
+  { value: "rosa_vieja", label: "Rosa Vieja", hex: "#C08081", group: "Rojos y Rosados" },
+
+  // Morados (2)
+  { value: "lila", label: "Lila", hex: "#C8A2C8", group: "Morados" },
+  { value: "morado", label: "Morado", hex: "#6B21A8", group: "Morados" },
+
+  // Naranjas y Amarillos (7)
+  { value: "naranja", label: "Naranja", hex: "#F97316", group: "Naranjas y Amarillos" },
+  { value: "naranja_neon", label: "Naranja Neón", hex: "#FF5F1F", group: "Naranjas y Amarillos" },
+  { value: "amarillo_bandera", label: "Amarillo Bandera", hex: "#FACC15", group: "Naranjas y Amarillos" },
+  { value: "amarillo_caterpillar", label: "Amarillo Caterpillar", hex: "#F59E0B", group: "Naranjas y Amarillos" },
+  { value: "amarillo_pollito", label: "Amarillo Pollito", hex: "#FDE047", group: "Naranjas y Amarillos" },
+  { value: "amarillo_mantequilla", label: "Amarillo Mantequilla", hex: "#FEF08A", group: "Naranjas y Amarillos" },
+  { value: "mostaza", label: "Mostaza", hex: "#CA8A04", group: "Naranjas y Amarillos" },
+
+  // Marrones (2)
+  { value: "marron_claro", label: "Marrón Claro", hex: "#A67B5B", group: "Marrones" },
+  { value: "marron_chocolate", label: "Marrón Chocolate", hex: "#4E342E", group: "Marrones" },
+
+  // Verdes (7)
+  { value: "verde_manzana", label: "Verde Manzana", hex: "#84CC16", group: "Verdes" },
+  { value: "verde_brasil", label: "Verde Brasil", hex: "#16A34A", group: "Verdes" },
+  { value: "verde_agua", label: "Verde Agua", hex: "#6EE7B7", group: "Verdes" },
+  { value: "jade", label: "Jade", hex: "#00A86B", group: "Verdes" },
+  { value: "verde_musgo", label: "Verde Musgo", hex: "#4D7C0F", group: "Verdes" },
+  { value: "verde_militar", label: "Verde Militar", hex: "#4B5320", group: "Verdes" },
+  { value: "verde_botella", label: "Verde Botella", hex: "#064E3B", group: "Verdes" },
+
+  // Azules (8)
+  { value: "turquesa", label: "Turquesa", hex: "#06B6D4", group: "Azules" },
+  { value: "azul_celeste", label: "Azul Celeste", hex: "#7DD3FC", group: "Azules" },
+  { value: "azul_piscina", label: "Azul Piscina", hex: "#0EA5E9", group: "Azules" },
+  { value: "azul_belmont", label: "Azul Belmont", hex: "#2563EB", group: "Azules" },
+  { value: "azul_rey", label: "Azul Rey", hex: "#1D4ED8", group: "Azules" },
+  { value: "azul_royal", label: "Azul Royal", hex: "#1E40AF", group: "Azules" },
+  { value: "azul_marino", label: "Azul Marino", hex: "#172554", group: "Azules" },
+  { value: "azul_agua_profunda", label: "Azul Agua Profunda", hex: "#0F4C5C", group: "Azules" },
 ] as const;
+
+export const POPULAR_SHIRT_COLOR_VALUES = [
+  "blanco",
+  "negro",
+  "gris_melange",
+  "rojo",
+  "azul_marino",
+  "azul_rey",
+] as const;
+
+export const SHIRT_COLOR_GROUPS = [
+  "Neutros",
+  "Rojos y Rosados",
+  "Morados",
+  "Naranjas y Amarillos",
+  "Marrones",
+  "Verdes",
+  "Azules",
+] as const;
+
+export function getShirtColorLabel(value?: string): string {
+  if (!value) return "Blanco";
+  const found = SHIRT_COLORS.find((c) => c.value === value);
+  if (found) return found.label;
+  if (value === "gris_jaspeado") return "Gris Jaspeado Claro";
+  return value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+export function getShirtColorHex(value?: string): string {
+  if (!value) return "#FFFFFF";
+  const found = SHIRT_COLORS.find((c) => c.value === value);
+  if (found) return found.hex;
+  if (value === "gris_jaspeado") return "#D6D6D6";
+  return "#E5E7EB";
+}
 
 export const SHIRT_CUT_LABELS: Record<string, string> = {
   unisex: "Caballero / Unisex",
@@ -85,16 +170,20 @@ export const SHIRT_FABRICS = [
     description: "Calidad premium superior, ultra suave y máxima transpirabilidad.",
   },
   {
-    value: "poliester_deportivo",
-    label: "Poliéster Deportivo",
-    description: "Secado rápido, fresca y ligera. Ideal para entrenamiento y uniformes.",
-  },
-  {
     value: "oversize",
     label: "Oversize",
     description: "Corte amplio y holgado con tela gruesa de estilo urbano.",
   },
 ] as const;
+
+export function getShirtFabricLabel(value?: string): string {
+  if (!value) return "Microdurazno";
+  const found = SHIRT_FABRICS.find((f) => f.value === value);
+  if (found) return found.label;
+  // Tolerancia retrocompatible para pedidos históricos en /admin/pedidos
+  if (value === "poliester_deportivo") return "Poliéster Deportivo";
+  return value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+}
 
 export const MOUSEPAD_SIZES = [
   { value: "estandar", label: "Estándar (22 x 18 cm) — Ideal para trabajo diario" },

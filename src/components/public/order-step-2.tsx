@@ -97,6 +97,13 @@ export function OrderStep2({
         referenceImage: base64,
         referenceImageName: file.name,
       });
+      // Al subir imagen, limpiar error de descripción si existía
+      setDescErrors((prev) => {
+        if (!prev[id]) return prev;
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
     };
     reader.readAsDataURL(file);
   };
@@ -154,6 +161,12 @@ export function OrderStep2({
       if (data.imageUrl) {
         updateItem(item.id, { aiGeneratedImage: data.imageUrl });
         onUseAiAttempt();
+        setDescErrors((prev) => {
+          if (!prev[item.id]) return prev;
+          const copy = { ...prev };
+          delete copy[item.id];
+          return copy;
+        });
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error al conectar con el motor de IA.";
@@ -170,16 +183,19 @@ export function OrderStep2({
   const validateAndProceed = () => {
     const errors: Record<string, string> = {};
     items.forEach((item, idx) => {
-      if (!item.description || item.description.trim().length < 10) {
-        errors[item.id] = `Por favor describe la idea de diseño para este producto (${idx + 1})`;
-      } else if (item.description.length > 500) {
+      const hasVisualDesign = Boolean(item.referenceImage || item.aiGeneratedImage);
+      const descLen = (item.description || "").trim().length;
+
+      if (item.description && item.description.length > 500) {
         errors[item.id] = `La descripción no puede superar los 500 caracteres (${item.description.length}/500)`;
+      } else if (!hasVisualDesign && descLen < 10) {
+        errors[item.id] = `Producto #${idx + 1}: describe tu idea (mín. 10 caracteres) o adjunta una foto / concepto IA.`;
       }
     });
 
     if (Object.keys(errors).length > 0) {
       setDescErrors(errors);
-      alert("Por favor escribe la descripción de diseño para cada producto antes de continuar.");
+      alert("Para cada producto, adjunta una imagen (o crea un concepto con IA) o escribe una descripción de tu idea.");
       return;
     }
 
@@ -254,9 +270,14 @@ export function OrderStep2({
 
               {/* 1. DESCRIPCIÓN */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <Label htmlFor={`desc-${item.id}`} className="text-xs font-bold text-[#0A0A0A]">
-                    Descripción del estampado / idea <span className="text-rose-600">*</span>
+                    Descripción del estampado / idea{" "}
+                    {hasRef || hasAi ? (
+                      <span className="font-normal text-emerald-700">(Opcional — diseño adjunto)</span>
+                    ) : (
+                      <span className="text-rose-600">*</span>
+                    )}
                   </Label>
                   <span className="font-mono text-[11px] font-semibold text-slate-600">
                     {(item.description || "").length}/500

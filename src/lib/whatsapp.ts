@@ -1,4 +1,10 @@
-import { getWhatsAppNumber, SHIRT_FABRICS, SHIRT_CUT_LABELS, MUG_TYPES } from "./constants";
+import {
+  getWhatsAppNumber,
+  getShirtColorLabel,
+  getShirtFabricLabel,
+  SHIRT_CUT_LABELS,
+  MUG_TYPES,
+} from "./constants";
 import type { OrderItem } from "./schemas";
 
 export function cleanPhoneNumber(phone: string): string {
@@ -46,9 +52,8 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
 
     if (item.product === "camisa") {
       const cutLabel = (item.shirtCut && SHIRT_CUT_LABELS[item.shirtCut]) || item.shirtCut || "Caballero / Unisex";
-      const colorLabel = item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado Claro" : "Blanco";
-      const fabricObj = SHIRT_FABRICS.find((f) => f.value === item.shirtFabric);
-      const fabricLabel = fabricObj ? fabricObj.label : (item.shirtFabric || "Microdurazno");
+      const colorLabel = getShirtColorLabel(item.shirtColor);
+      const fabricLabel = getShirtFabricLabel(item.shirtFabric);
 
       message += `   • Talla: ${item.shirtSize || "Por definir"}\n`;
       message += `   • Corte: ${cutLabel}\n`;

@@ -20,7 +20,13 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PAYMENT_INFO, SHIRT_CUT_LABELS, SHIRT_FABRICS, MUG_TYPES } from "@/lib/constants";
+import {
+  PAYMENT_INFO,
+  SHIRT_CUT_LABELS,
+  getShirtColorLabel,
+  getShirtFabricLabel,
+  MUG_TYPES,
+} from "@/lib/constants";
 import { step3ContactSchema, type Step3ContactFormData, type OrderItem } from "@/lib/schemas";
 import { submitOrderAction, type SubmitOrderResponse } from "@/actions/orders.actions";
 import { Button } from "@/components/ui/button";
@@ -168,9 +174,9 @@ export function OrderStep3({
                         <span>•</span>
                         <span>Corte: <strong className="text-[#0A0A0A]">{SHIRT_CUT_LABELS[item.shirtCut || "unisex"] || item.shirtCut}</strong></span>
                         <span>•</span>
-                        <span>Color: <strong className="text-[#0A0A0A]">{item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado" : "Blanco"}</strong></span>
+                        <span>Color: <strong className="text-[#0A0A0A]">{getShirtColorLabel(item.shirtColor)}</strong></span>
                         <span>•</span>
-                        <span>Tela: <strong className="text-[#0A0A0A]">{SHIRT_FABRICS.find((f) => f.value === item.shirtFabric)?.label || item.shirtFabric || "Microdurazno"}</strong></span>
+                        <span>Tela: <strong className="text-[#0A0A0A]">{getShirtFabricLabel(item.shirtFabric)}</strong></span>
                       </>
                     )}
                     {item.product === "mousepad" && (

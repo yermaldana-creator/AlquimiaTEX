@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { SHIRT_FABRICS } from "./constants";
+
+const ALLOWED_SHIRT_FABRIC_VALUES = SHIRT_FABRICS.map((f) => f.value) as string[];
 
 export const orderItemSchema = z
   .object({
@@ -48,6 +51,13 @@ export const orderItemSchema = z
           code: z.ZodIssueCode.custom,
           path: ["shirtColor"],
           message: "Selecciona el color de la camisa",
+        });
+      }
+      if (data.shirtFabric && !ALLOWED_SHIRT_FABRIC_VALUES.includes(data.shirtFabric)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["shirtFabric"],
+          message: "Selecciona un tipo de tela válido",
         });
       }
     } else if (data.product === "mousepad") {

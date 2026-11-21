@@ -19,6 +19,9 @@ import {
   Trash2,
   ShoppingBag,
   CheckCircle2,
+  ChevronDown,
+  Search,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -27,6 +30,11 @@ import {
   SHIRT_CUTS,
   SHIRT_CUT_LABELS,
   SHIRT_COLORS,
+  POPULAR_SHIRT_COLOR_VALUES,
+  SHIRT_COLOR_GROUPS,
+  getShirtColorLabel,
+  getShirtColorHex,
+  getShirtFabricLabel,
   SHIRT_FABRICS,
   MOUSEPAD_SIZES,
   PUZZLE_FORMATS,
@@ -100,7 +108,41 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
   const [editingItemId, setEditingItemId] = React.useState<string | null>(null);
   const [addedToast, setAddedToast] = React.useState<boolean>(false);
   const [mounted, setMounted] = React.useState(false);
+  const [isColorPaletteOpen, setIsColorPaletteOpen] = React.useState(false);
+  const [colorSearch, setColorSearch] = React.useState("");
   const formRef = React.useRef<HTMLDivElement>(null);
+
+  const popularColors = React.useMemo(
+    () =>
+      POPULAR_SHIRT_COLOR_VALUES.map((val) =>
+        SHIRT_COLORS.find((c) => c.value === val)
+      ).filter((c): c is (typeof SHIRT_COLORS)[number] => Boolean(c)),
+    []
+  );
+
+  const filteredColorGroups = React.useMemo(() => {
+    const q = colorSearch
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    return SHIRT_COLOR_GROUPS.map((group) => {
+      const colors = SHIRT_COLORS.filter((c) => {
+        if (c.group !== group) return false;
+        if (!q) return true;
+        const normLabel = c.label
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        const normGroup = group
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        return normLabel.includes(q) || normGroup.includes(q);
+      });
+      return { group, colors };
+    }).filter((g) => g.colors.length > 0);
+  }, [colorSearch]);
 
   // Auto-ocultar toast después de 8 segundos
   React.useEffect(() => {
@@ -476,32 +518,144 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                 </div>
               </div>
 
-              {/* Color */}
-              <div className="space-y-2">
-                <Label className="text-xs font-bold text-[#0A0A0A]">
-                  Color Base <span className="text-rose-600">*</span>
-                </Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {SHIRT_COLORS.map((col) => (
-                    <button
-                      key={col.value}
-                      type="button"
-                      onClick={() => setValue("shirtColor", col.value, { shouldValidate: true })}
-                      className={cn(
-                        "flex items-center gap-2 p-2.5 rounded-lg border-2 text-left transition-all",
-                        selectedShirtColor === col.value
-                          ? "border-black bg-[#CFFAFE] shadow-[2px_2px_0px_#0A0A0A]"
-                          : "border-black/20 bg-[#FAF7F0] hover:border-black"
-                      )}
-                    >
-                      <span
-                        className="h-5 w-5 rounded-full border-2 border-black/40 shrink-0"
-                        style={{ backgroundColor: col.hex }}
-                      />
-                      <span className="text-xs font-bold text-[#0A0A0A]">{col.label.split("(")[0]}</span>
-                    </button>
-                  ))}
+              {/* Color Base — Paleta Oficial de 39 Colores (Selector Compacto Mobile-First) */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <Label className="text-xs font-bold text-[#0A0A0A]">
+                    Color Base <span className="text-rose-600">*</span>
+                  </Label>
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-black bg-[#FAF7F0] px-2 py-0.5 font-mono text-[11px] font-bold text-[#0A0A0A]">
+                    <span
+                      className="h-3 w-3 rounded-full border border-black/50 shrink-0"
+                      style={{ backgroundColor: getShirtColorHex(selectedShirtColor) }}
+                    />
+                    <span>{getShirtColorLabel(selectedShirtColor)}</span>
+                  </span>
                 </div>
+
+                {/* 6 Colores más pedidos como chips rápidos */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                  {popularColors.map((col) => {
+                    const isSelected = selectedShirtColor === col.value;
+                    return (
+                      <button
+                        key={col.value}
+                        type="button"
+                        onClick={() => setValue("shirtColor", col.value, { shouldValidate: true })}
+                        className={cn(
+                          "flex items-center gap-2 px-2.5 py-2 rounded-lg border-2 text-left transition-all",
+                          isSelected
+                            ? "border-black bg-[#CFFAFE] shadow-[2px_2px_0px_#0A0A0A]"
+                            : "border-black/20 bg-[#FAF7F0] hover:border-black"
+                        )}
+                      >
+                        <span
+                          className="h-4 w-4 rounded-full border-2 border-black/40 shrink-0"
+                          style={{ backgroundColor: col.hex }}
+                        />
+                        <span className="text-xs font-bold text-[#0A0A0A] truncate">{col.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Botón desplegable para los 39 colores */}
+                <button
+                  type="button"
+                  onClick={() => setIsColorPaletteOpen((prev) => !prev)}
+                  className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border-2 border-black bg-white hover:bg-[#FACC15]/40 text-xs font-bold text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A] transition-all"
+                  aria-expanded={isColorPaletteOpen}
+                >
+                  <span className="flex items-center gap-2">
+                    <span
+                      className="h-4 w-4 rounded-full border border-black shrink-0"
+                      style={{ backgroundColor: getShirtColorHex(selectedShirtColor) }}
+                    />
+                    <span>
+                      {isColorPaletteOpen
+                        ? "Ocultar paleta completa"
+                        : `Ver los ${SHIRT_COLORS.length} colores oficiales`}
+                    </span>
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 shrink-0 transition-transform duration-150",
+                      isColorPaletteOpen && "rotate-180"
+                    )}
+                  />
+                </button>
+
+                {/* Panel desplegable compacto con filtro y 7 familias */}
+                {isColorPaletteOpen && (
+                  <div className="rounded-xl border-2 border-black bg-[#FAF7F0] p-3 space-y-3 shadow-[3px_3px_0px_#0A0A0A] animate-in fade-in-50 duration-150">
+                    {/* Buscador rápido */}
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-500" />
+                      <Input
+                        type="text"
+                        value={colorSearch}
+                        onChange={(e) => setColorSearch(e.target.value)}
+                        placeholder="Buscar color (ej. vinotinto, jade, azul...)"
+                        className="h-8 pl-8 pr-8 text-xs bg-white text-[#0A0A0A] placeholder:text-slate-400 border-2 border-black/30 focus-visible:border-black"
+                      />
+                      {colorSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setColorSearch("")}
+                          className="absolute right-2 top-2 text-slate-500 hover:text-black"
+                          aria-label="Limpiar búsqueda de color"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Familias cromáticas con scroll interno controlado */}
+                    <div className="max-h-60 overflow-y-auto space-y-3 pr-1">
+                      {filteredColorGroups.length === 0 ? (
+                        <p className="text-xs text-slate-600 text-center py-3">
+                          No encontramos un color con &quot;{colorSearch}&quot;.
+                        </p>
+                      ) : (
+                        filteredColorGroups.map(({ group, colors }) => (
+                          <div key={group} className="space-y-1.5">
+                            <p className="font-mono text-[10px] font-black uppercase tracking-wider text-slate-600">
+                              {group} ({colors.length})
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {colors.map((col) => {
+                                const isSelected = selectedShirtColor === col.value;
+                                return (
+                                  <button
+                                    key={col.value}
+                                    type="button"
+                                    onClick={() => {
+                                      setValue("shirtColor", col.value, { shouldValidate: true });
+                                      setIsColorPaletteOpen(false);
+                                      setColorSearch("");
+                                    }}
+                                    className={cn(
+                                      "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-bold transition-all",
+                                      isSelected
+                                        ? "border-2 border-black bg-[#FACC15] text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]"
+                                        : "border-black/25 bg-white text-[#0A0A0A] hover:border-black"
+                                    )}
+                                  >
+                                    <span
+                                      className="h-3.5 w-3.5 rounded-full border border-black/40 shrink-0"
+                                      style={{ backgroundColor: col.hex }}
+                                    />
+                                    <span>{col.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Tipo de Tela */}
@@ -797,9 +951,8 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
               let variantSummary = "";
               if (item.product === "camisa") {
                 const cutText = (item.shirtCut && SHIRT_CUT_LABELS[item.shirtCut]) || item.shirtCut || "Caballero / Unisex";
-                const colorText = item.shirtColor === "gris_jaspeado" ? "Gris Jaspeado" : "Blanca";
-                const fabricObj = SHIRT_FABRICS.find((f) => f.value === item.shirtFabric);
-                const fabricText = fabricObj ? fabricObj.label : (item.shirtFabric || "Microdurazno");
+                const colorText = getShirtColorLabel(item.shirtColor);
+                const fabricText = getShirtFabricLabel(item.shirtFabric);
                 variantSummary = `Camisa — Talla ${item.shirtSize || "?"} — ${cutText} — ${colorText} — Tela ${fabricText} — x${item.quantity}`;
               } else if (item.product === "mousepad") {
                 variantSummary = `Mousepad — Medida ${item.mousepadSize || "Estándar"} — x${item.quantity}`;

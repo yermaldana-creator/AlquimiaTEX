@@ -12,7 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { findBestInventoryMatch } from "@/lib/inventory-matcher";
-import { MUG_TYPES } from "@/lib/constants";
+import { MUG_TYPES, getShirtFabricLabel, getShirtColorLabel } from "@/lib/constants";
 import {
   reserveOrderInventoryAction,
   releaseOrderInventoryAction,
@@ -303,7 +303,7 @@ export function OrderInventoryPanel({
                     <>
                       {orderItem.shirtFabric && (
                         <span className="font-mono text-[11px] bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-200 px-1.5 py-0.5 border border-black/40">
-                          Tela: {orderItem.shirtFabric}
+                          Tela: {getShirtFabricLabel(orderItem.shirtFabric)}
                         </span>
                       )}
                       {orderItem.shirtSize && (
@@ -318,7 +318,7 @@ export function OrderInventoryPanel({
                       )}
                       {orderItem.shirtColor && (
                         <span className="font-mono text-[11px] bg-slate-100 dark:bg-zinc-700 text-slate-800 dark:text-zinc-200 px-1.5 py-0.5 border border-black/40">
-                          Color: {orderItem.shirtColor}
+                          Color: {getShirtColorLabel(orderItem.shirtColor)}
                         </span>
                       )}
                     </>

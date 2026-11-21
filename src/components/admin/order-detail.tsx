@@ -20,7 +20,12 @@ import {
   Eye,
   X,
 } from "lucide-react";
-import { normalizeOrderStatus, MUG_TYPES } from "@/lib/constants";
+import {
+  normalizeOrderStatus,
+  MUG_TYPES,
+  getShirtFabricLabel,
+  getShirtColorLabel,
+} from "@/lib/constants";
 import { OrderStatusBadge } from "./order-status-badge";
 import { OrderStatusSelect } from "./order-status-select";
 import { OrderInventoryPanel } from "./order-inventory-panel";
@@ -479,13 +484,13 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                         {item.shirtFabric && (
                           <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
                             <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Tela:</span>
-                            <strong className="text-black dark:text-zinc-100">{item.shirtFabric}</strong>
+                            <strong className="text-black dark:text-zinc-100">{getShirtFabricLabel(item.shirtFabric)}</strong>
                           </div>
                         )}
                         {item.shirtColor && (
                           <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
                             <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Color:</span>
-                            <strong className="text-black dark:text-zinc-100 uppercase">{item.shirtColor}</strong>
+                            <strong className="text-black dark:text-zinc-100">{getShirtColorLabel(item.shirtColor)}</strong>
                           </div>
                         )}
                       </>
