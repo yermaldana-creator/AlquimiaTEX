@@ -65,6 +65,7 @@ export function OrderStep2({
   const [generatingBackItemId, setGeneratingBackItemId] = React.useState<string | null>(null);
   const [aiErrors, setAiErrors] = React.useState<Record<string, string>>({});
   const [backAiErrors, setBackAiErrors] = React.useState<Record<string, string>>({});
+  const [serverLimitMessage, setServerLimitMessage] = React.useState<string | null>(null);
   const [descErrors, setDescErrors] = React.useState<Record<string, string>>({});
   const [placementErrors, setPlacementErrors] = React.useState<Record<string, string>>({});
   const [activeTabs, setActiveTabs] = React.useState<Record<string, "upload" | "ai">>({});
@@ -78,7 +79,9 @@ export function OrderStep2({
     itemsRef.current = items;
   }, [items]);
 
-  const attemptsLeft = Math.max(0, MAX_GLOBAL_AI_ATTEMPTS - globalAiAttempts);
+  const attemptsLeft = serverLimitMessage
+    ? 0
+    : Math.max(0, MAX_GLOBAL_AI_ATTEMPTS - globalAiAttempts);
 
   const getActiveTab = (item: OrderItem): "upload" | "ai" => {
     if (activeTabs[item.id]) return activeTabs[item.id];
@@ -242,6 +245,14 @@ export function OrderStep2({
       });
 
       const data = await res.json();
+      if (res.status === 429) {
+        const msg =
+          data.error ||
+          "Has alcanzado el límite de 3 diseños con IA por hoy. Puedes subir tu propia foto o describir tu idea.";
+        setServerLimitMessage(msg);
+        setBackAiErrors((prev) => ({ ...prev, [item.id]: msg }));
+        return;
+      }
       if (!res.ok) {
         throw new Error(data.error || "No se pudo generar el arte de espalda con IA.");
       }
@@ -299,6 +310,14 @@ export function OrderStep2({
       });
 
       const data = await res.json();
+      if (res.status === 429) {
+        const msg =
+          data.error ||
+          "Has alcanzado el límite de 3 diseños con IA por hoy. Puedes subir tu propia foto o describir tu idea.";
+        setServerLimitMessage(msg);
+        setAiErrors((prev) => ({ ...prev, [item.id]: msg }));
+        return;
+      }
       if (!res.ok) {
         throw new Error(data.error || "No se pudo generar la imagen con Abacus.AI.");
       }
@@ -859,11 +878,26 @@ export function OrderStep2({
                           </p>
                         )}
 
-                        {aiErrors[item.id] && (
-                          <p className="text-xs text-rose-600 flex items-center gap-1 font-semibold">
-                            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                            {aiErrors[item.id]}
-                          </p>
+                        {serverLimitMessage ? (
+                          <div className="rounded-lg border-2 border-black bg-[#CFFAFE] p-3 space-y-2 text-xs text-[#0A0A0A]">
+                            <p className="font-semibold leading-relaxed">{serverLimitMessage}</p>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => setActiveTab(item.id, "upload")}
+                              className="h-8 rounded-lg border-2 border-black bg-white text-[#0A0A0A] hover:bg-[#FACC15] text-[11px] font-bold gap-1.5 shadow-[2px_2px_0px_#0A0A0A]"
+                            >
+                              <UploadCloud className="h-3.5 w-3.5 text-[#0891B2]" />
+                              <span>Subir foto de referencia</span>
+                            </Button>
+                          </div>
+                        ) : (
+                          aiErrors[item.id] && (
+                            <p className="text-xs text-rose-600 flex items-center gap-1 font-semibold">
+                              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                              {aiErrors[item.id]}
+                            </p>
+                          )
                         )}
                       </div>
                     ) : (

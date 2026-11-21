@@ -1,26 +1,162 @@
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { getCachedSupabaseClient } from "@/lib/supabase/cached-client";
+import {
+  MAX_AI_GENERATIONS_PER_IP_24H,
+  MAX_DAILY_GLOBAL_AI_GENERATIONS,
+} from "@/lib/constants";
 
-// Rate limiting en memoria por IP (máximo 3 peticiones por IP)
-const ipAttempts = new Map<string, { count: number; resetAt: number }>();
-const MAX_ATTEMPTS = 3;
-const WINDOW_MS = 60 * 60 * 1000; // 1 hora
+// Fallback en memoria si SUPABASE_SERVICE_ROLE_KEY no está configurada en desarrollo local
+const ipAttemptsFallback = new Map<string, { count: number; resetAt: number }>();
+const WINDOW_24H_MS = 24 * 60 * 60 * 1000;
 
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
+function extractClientIp(req: NextRequest): string {
+  const forwardedFor = req.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    const firstIp = forwardedFor.split(",")[0]?.trim();
+    if (firstIp) return firstIp;
+  }
+  const realIp = req.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+  return req.ip || "127.0.0.1";
+}
+
+function hashIpAddress(ip: string): string {
+  const salt = process.env.AI_RATE_LIMIT_SALT || "alquimiatex-ai-v1";
+  return crypto.createHash("sha256").update(`${salt}:${ip}`).digest("hex");
+}
+
+function getMaxDailyGlobalLimit(): number {
+  const envVal = Number(process.env.MAX_DAILY_GLOBAL_AI_GENERATIONS);
+  if (Number.isFinite(envVal) && envVal > 0) return Math.floor(envVal);
+  return MAX_DAILY_GLOBAL_AI_GENERATIONS;
+}
+
+interface QuotaCheckResult {
+  allowed: boolean;
+  limitType?: "ip" | "global";
+  errorMessage?: string;
+  ipCount: number;
+  usedSupabase: boolean;
+}
+
+async function checkSupabaseQuota(ipHash: string): Promise<QuotaCheckResult> {
+  const hasServiceKey = Boolean(
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
+  );
+  const maxGlobal = getMaxDailyGlobalLimit();
+
+  if (hasServiceKey && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    try {
+      const supabase = getCachedSupabaseClient();
+      const since24h = new Date(Date.now() - WINDOW_24H_MS).toISOString();
+
+      const [ipRes, globalRes] = await Promise.all([
+        supabase
+          .from("ai_usage_logs")
+          .select("id", { count: "exact", head: true })
+          .eq("ip_hash", ipHash)
+          .gte("created_at", since24h),
+        supabase
+          .from("ai_usage_logs")
+          .select("id", { count: "exact", head: true })
+          .gte("created_at", since24h),
+      ]);
+
+      if (!ipRes.error && !globalRes.error) {
+        const ipCount = ipRes.count ?? 0;
+        const globalCount = globalRes.count ?? 0;
+
+        if (ipCount >= MAX_AI_GENERATIONS_PER_IP_24H) {
+          return {
+            allowed: false,
+            limitType: "ip",
+            errorMessage:
+              "Has alcanzado el límite de 3 diseños con IA por hoy. Puedes subir tu propia foto o describir tu idea y nuestro taller hará el mockup gratis por ti.",
+            ipCount,
+            usedSupabase: true,
+          };
+        }
+
+        if (globalCount >= maxGlobal) {
+          return {
+            allowed: false,
+            limitType: "global",
+            errorMessage:
+              "Nuestro generador de IA alcanzó su cupo máximo diario por hoy. Puedes subir tu propia foto o describir tu idea y nuestro taller hará el mockup gratis por ti.",
+            ipCount,
+            usedSupabase: true,
+          };
+        }
+
+        return {
+          allowed: true,
+          ipCount,
+          usedSupabase: true,
+        };
+      }
+
+      console.warn(
+        "[IA Quota] Error consultando ai_usage_logs en Supabase (usando fallback en memoria):",
+        ipRes.error?.message || globalRes.error?.message
+      );
+    } catch (err) {
+      console.warn("[IA Quota] Excepción consultando Supabase (usando fallback en memoria):", err);
+    }
+  }
+
+  // Fallback en memoria (solo si falla Supabase o falta service key en local)
   const now = Date.now();
-  const entry = ipAttempts.get(ip);
+  const entry = ipAttemptsFallback.get(ipHash);
+  const currentCount = !entry || now > entry.resetAt ? 0 : entry.count;
 
+  if (currentCount >= MAX_AI_GENERATIONS_PER_IP_24H) {
+    return {
+      allowed: false,
+      limitType: "ip",
+      errorMessage:
+        "Has alcanzado el límite de 3 diseños con IA por hoy. Puedes subir tu propia foto o describir tu idea y nuestro taller hará el mockup gratis por ti.",
+      ipCount: currentCount,
+      usedSupabase: false,
+    };
+  }
+
+  return {
+    allowed: true,
+    ipCount: currentCount,
+    usedSupabase: false,
+  };
+}
+
+async function recordSuccessfulAiUsage(
+  ipHash: string,
+  product: string,
+  usedSupabase: boolean
+): Promise<void> {
+  if (usedSupabase) {
+    try {
+      const supabase = getCachedSupabaseClient();
+      const { error } = await supabase
+        .from("ai_usage_logs")
+        .insert([{ ip_hash: ipHash, product: product || "otro" }]);
+      if (error) {
+        console.warn("[IA Quota] No se pudo registrar uso en ai_usage_logs:", error.message);
+      }
+      return;
+    } catch (err) {
+      console.warn("[IA Quota] Excepción registrando en ai_usage_logs:", err);
+    }
+  }
+
+  // Fallback en memoria
+  const now = Date.now();
+  const entry = ipAttemptsFallback.get(ipHash);
   if (!entry || now > entry.resetAt) {
-    ipAttempts.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return { allowed: true, remaining: MAX_ATTEMPTS - 1 };
+    ipAttemptsFallback.set(ipHash, { count: 1, resetAt: now + WINDOW_24H_MS });
+  } else {
+    entry.count += 1;
   }
-
-  if (entry.count >= MAX_ATTEMPTS) {
-    return { allowed: false, remaining: 0 };
-  }
-
-  entry.count += 1;
-  return { allowed: true, remaining: MAX_ATTEMPTS - entry.count };
 }
 
 // Especificaciones físicas y de proporción por producto para sublimación
@@ -70,14 +206,19 @@ async function optimizePromptWithGemini(
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for") || req.ip || "127.0.0.1";
-    const { allowed, remaining } = checkRateLimit(ip);
+    const rawIp = extractClientIp(req);
+    const ipHash = hashIpAddress(rawIp);
 
-    if (!allowed) {
+    // Verificar cuota persistente en Supabase (3/24h por IP + fusible global diario)
+    const quota = await checkSupabaseQuota(ipHash);
+
+    if (!quota.allowed) {
       return NextResponse.json(
         {
           error:
-            "Has alcanzado el límite de 3 intentos de generación visual. Puedes continuar con tu pedido describiendo tu idea.",
+            quota.errorMessage ||
+            "Has alcanzado el límite de 3 diseños con IA por hoy. Puedes subir tu propia foto o describir tu idea y nuestro taller hará el mockup gratis por ti.",
+          limitType: quota.limitType || "ip",
           remainingAttempts: 0,
         },
         { status: 429 }
@@ -156,11 +297,17 @@ export async function POST(req: NextRequest) {
       const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
       if (imageUrl) {
-        console.log(`[Abacus.AI] Imagen generada con éxito (${imageUrl.length} bytes). Créditos estimados: 4.`);
+        // Registrar el consumo en Supabase ÚNICAMENTE cuando Abacus.AI devolvió la imagen con éxito
+        await recordSuccessfulAiUsage(ipHash, product, quota.usedSupabase);
+        const remainingAttempts = Math.max(0, MAX_AI_GENERATIONS_PER_IP_24H - (quota.ipCount + 1));
+
+        console.log(
+          `[IA] Imagen generada con éxito (${imageUrl.length} bytes). Restantes IP (24h): ${remainingAttempts}.`
+        );
         return NextResponse.json({
           success: true,
           imageUrl,
-          remainingAttempts: remaining,
+          remainingAttempts,
           modelUsed: "flux_kontext",
           optimizedPrompt,
           estimatedCredits: 4,

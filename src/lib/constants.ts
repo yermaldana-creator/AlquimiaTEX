@@ -394,6 +394,10 @@ export function getLocalPagoMovilPhone(): string {
 
 export const MAX_ORDER_ITEMS = 10;
 
+// Límites oficiales de generación con IA (control persistente en Supabase)
+export const MAX_AI_GENERATIONS_PER_IP_24H = 3;
+export const MAX_DAILY_GLOBAL_AI_GENERATIONS = 40;
+
 // Condiciones de pago oficiales
 export const ORDER_PRICING_CONDITIONS = {
   unidad: {
