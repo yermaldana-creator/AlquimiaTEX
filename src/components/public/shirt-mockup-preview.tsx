@@ -57,11 +57,11 @@ const DUAL_FRONT_BOXES: Record<string, PlacementBox> = {
   extendido_pecho: { x: 0.17, y: 0.36, w: 0.20, h: 0.08 },
 };
 
-// shirt-back-right.png (desplazado ligeramente a la izquierda, cx = 0.722)
+// shirt-back-right.png (centrado exacto en el torso trasero, cx = 0.755)
 const DUAL_BACK_BOXES: Record<string, PlacementBox> = {
-  extendido_espalda: { x: 0.612, y: 0.32, w: 0.22, h: 0.082 },
-  espalda_mediana: { x: 0.622, y: 0.33, w: 0.20, h: 0.24 },
-  espalda_completa: { x: 0.607, y: 0.31, w: 0.23, h: 0.30 },
+  extendido_espalda: { x: 0.645, y: 0.32, w: 0.22, h: 0.082 },
+  espalda_mediana: { x: 0.655, y: 0.33, w: 0.20, h: 0.24 },
+  espalda_completa: { x: 0.64, y: 0.31, w: 0.23, h: 0.30 },
 };
 
 function getLuminance(hex: string): number {
