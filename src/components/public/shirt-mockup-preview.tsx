@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Shirt } from "lucide-react";
 import {
+  IS_CHRISTMAS_SEASON,
   getShirtColorHex,
   getShirtColorLabel,
   getFrontPlacementLabel,
@@ -19,24 +20,44 @@ interface ShirtMockupPreviewProps {
 }
 
 interface PlacementBox {
-  x: number; // 0..1 relativo al ancho de una silueta
-  y: number; // 0..1 relativo al alto de una silueta
+  x: number; // 0..1 relativo al lienzo cuadrado
+  y: number; // 0..1 relativo al lienzo cuadrado
   w: number; // 0..1
   h: number; // 0..1
 }
 
-// Coordenadas matemáticas limpias para cada zona de estampado sobre una camisa cuello redondo
-const FRONT_BOXES: Record<string, PlacementBox> = {
-  pecho_completo: { x: 0.30, y: 0.25, w: 0.40, h: 0.42 },
-  pecho_izquierdo: { x: 0.56, y: 0.26, w: 0.14, h: 0.14 }, // Lado corazón (derecha visual en vista frontal)
-  pecho_derecho: { x: 0.30, y: 0.26, w: 0.14, h: 0.14 },
-  centro_pequeno: { x: 0.41, y: 0.27, w: 0.18, h: 0.18 },
+// =========================================================================
+// COORDENADAS CALIBRADAS PARA LIENZO CUADRADO 1:1 (public/mockups/*.png)
+// =========================================================================
+
+// Modo 1 Camisa Centrada (shirt-front-single.png / shirt-back-single.png)
+const SINGLE_FRONT_BOXES: Record<string, PlacementBox> = {
+  logo_izquierdo: { x: 0.56, y: 0.30, w: 0.11, h: 0.14 }, // ~5x8 cm (lado corazón)
+  cuadrado_chico: { x: 0.38, y: 0.31, w: 0.24, h: 0.24 }, // ~16x16 cm
+  cuadrado_mediano: { x: 0.34, y: 0.29, w: 0.32, h: 0.32 }, // ~22x22 cm
+  cuadrado_grande: { x: 0.31, y: 0.27, w: 0.38, h: 0.38 }, // ~26x26 cm
+  extendido_pecho: { x: 0.31, y: 0.30, w: 0.38, h: 0.15 }, // ~26x10 cm (franja ancha superior)
 };
 
-const BACK_BOXES: Record<string, PlacementBox> = {
-  espalda_completa: { x: 0.29, y: 0.22, w: 0.42, h: 0.46 },
-  espalda_superior_pequeno: { x: 0.42, y: 0.16, w: 0.16, h: 0.13 },
-  espalda_centro_pequeno: { x: 0.41, y: 0.28, w: 0.18, h: 0.18 },
+const SINGLE_BACK_BOXES: Record<string, PlacementBox> = {
+  extendido_espalda: { x: 0.29, y: 0.24, w: 0.42, h: 0.15 }, // ~29x10 cm (franja superior espalda)
+  espalda_mediana: { x: 0.31, y: 0.25, w: 0.38, h: 0.45 }, // ~26x35 cm
+  espalda_completa: { x: 0.28, y: 0.22, w: 0.44, h: 0.54 }, // ~30x42 cm (casi todo el torso trasero)
+};
+
+// Modo 2 Camisas Lado a Lado (shirt-front-left.png + shirt-back-right.png)
+const DUAL_FRONT_BOXES: Record<string, PlacementBox> = {
+  logo_izquierdo: { x: 0.295, y: 0.35, w: 0.065, h: 0.085 },
+  cuadrado_chico: { x: 0.195, y: 0.36, w: 0.14, h: 0.14 },
+  cuadrado_mediano: { x: 0.175, y: 0.34, w: 0.18, h: 0.18 },
+  cuadrado_grande: { x: 0.16, y: 0.33, w: 0.21, h: 0.21 },
+  extendido_pecho: { x: 0.16, y: 0.35, w: 0.21, h: 0.085 },
+};
+
+const DUAL_BACK_BOXES: Record<string, PlacementBox> = {
+  extendido_espalda: { x: 0.62, y: 0.31, w: 0.23, h: 0.085 },
+  espalda_mediana: { x: 0.63, y: 0.32, w: 0.21, h: 0.26 },
+  espalda_completa: { x: 0.615, y: 0.30, w: 0.24, h: 0.32 },
 };
 
 function getLuminance(hex: string): number {
@@ -63,154 +84,122 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
 }
 
 /**
- * Dibuja una silueta vectorial limpia de camisa cuello redondo (sin arrugas exageradas)
- * con sombreado de estudio sutil. Sirve como fallback inmediato si /mockups/shirt-*.png no existen.
+ * Capa 1 (Fallback): Fondo de estudio oscuro elegante con bokeh suave
+ * (y acentos festivos discretos cuando IS_CHRISTMAS_SEASON === true).
  */
-function drawProceduralShirt(
-  ctx: CanvasRenderingContext2D,
-  w: number,
-  h: number,
-  hexColor: string,
-  side: "front" | "back"
-) {
-  const isDark = getLuminance(hexColor) < 0.25;
+function drawStudioBackground(ctx: CanvasRenderingContext2D, size: number) {
+  // Degradado radial de estudio oscuro
+  const bgGrad = ctx.createRadialGradient(
+    size * 0.5,
+    size * 0.42,
+    size * 0.06,
+    size * 0.5,
+    size * 0.5,
+    size * 0.72
+  );
+  bgGrad.addColorStop(0, "#2B2F3B");
+  bgGrad.addColorStop(0.55, "#181B23");
+  bgGrad.addColorStop(1, "#0D0F14");
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, size, size);
 
-  const tracePath = () => {
+  // Luces bokeh suaves de estudio
+  const bokehDots = IS_CHRISTMAS_SEASON
+    ? [
+        { x: 0.14, y: 0.18, r: 0.09, color: "rgba(250, 204, 21, 0.11)" }, // Dorado
+        { x: 0.86, y: 0.22, r: 0.11, color: "rgba(225, 29, 72, 0.10)" }, // Rojo navideño
+        { x: 0.82, y: 0.82, r: 0.12, color: "rgba(21, 128, 61, 0.11)" }, // Verde pino
+        { x: 0.18, y: 0.80, r: 0.10, color: "rgba(250, 204, 21, 0.08)" },
+        { x: 0.72, y: 0.12, r: 0.05, color: "rgba(255, 255, 255, 0.07)" },
+        { x: 0.26, y: 0.88, r: 0.06, color: "rgba(225, 29, 72, 0.07)" },
+      ]
+    : [
+        { x: 0.16, y: 0.20, r: 0.10, color: "rgba(255, 255, 255, 0.06)" },
+        { x: 0.84, y: 0.24, r: 0.12, color: "rgba(6, 182, 212, 0.07)" },
+        { x: 0.78, y: 0.82, r: 0.11, color: "rgba(255, 255, 255, 0.05)" },
+        { x: 0.20, y: 0.82, r: 0.09, color: "rgba(250, 204, 21, 0.05)" },
+      ];
+
+  for (const dot of bokehDots) {
+    const g = ctx.createRadialGradient(
+      size * dot.x,
+      size * dot.y,
+      0,
+      size * dot.x,
+      size * dot.y,
+      size * dot.r
+    );
+    g.addColorStop(0, dot.color);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
     ctx.beginPath();
-    // Cuello izquierdo -> hombro izquierdo -> manga izquierda
-    ctx.moveTo(w * 0.38, h * 0.10);
-    ctx.quadraticCurveTo(w * 0.29, h * 0.12, w * 0.21, h * 0.16);
-    ctx.lineTo(w * 0.05, h * 0.34);
-    ctx.lineTo(w * 0.17, h * 0.46);
-    ctx.lineTo(w * 0.25, h * 0.37);
-    // Costado izquierdo -> dobladillo inferior
-    ctx.lineTo(w * 0.24, h * 0.91);
-    ctx.quadraticCurveTo(w * 0.50, h * 0.935, w * 0.76, h * 0.91);
-    // Costado derecho -> manga derecha -> hombro derecho -> cuello derecho
-    ctx.lineTo(w * 0.75, h * 0.37);
-    ctx.lineTo(w * 0.83, h * 0.46);
-    ctx.lineTo(w * 0.95, h * 0.34);
-    ctx.lineTo(w * 0.79, h * 0.16);
-    ctx.quadraticCurveTo(w * 0.71, h * 0.12, w * 0.62, h * 0.10);
-    // Escote (frente más curvo, espalda más recto)
-    if (side === "front") {
-      ctx.quadraticCurveTo(w * 0.50, h * 0.21, w * 0.38, h * 0.10);
-    } else {
-      ctx.quadraticCurveTo(w * 0.50, h * 0.14, w * 0.38, h * 0.10);
-    }
-    ctx.closePath();
-  };
-
-  // Sombra suave debajo de la prenda
-  ctx.save();
-  ctx.shadowColor = "rgba(10, 10, 10, 0.14)";
-  ctx.shadowBlur = 16;
-  ctx.shadowOffsetY = 8;
-  tracePath();
-  ctx.fillStyle = hexColor;
-  ctx.fill();
-  ctx.restore();
-
-  // Sombreado de estudio sutil dentro de la silueta
-  ctx.save();
-  tracePath();
-  ctx.clip();
-
-  const gradH = ctx.createLinearGradient(w * 0.15, 0, w * 0.85, 0);
-  gradH.addColorStop(0, "rgba(0,0,0,0.09)");
-  gradH.addColorStop(0.25, "rgba(255,255,255,0.06)");
-  gradH.addColorStop(0.5, "rgba(255,255,255,0.09)");
-  gradH.addColorStop(0.75, "rgba(255,255,255,0.05)");
-  gradH.addColorStop(1, "rgba(0,0,0,0.10)");
-  ctx.fillStyle = gradH;
-  ctx.fillRect(0, 0, w, h);
-
-  // Costura sutil del cuello
-  ctx.beginPath();
-  ctx.moveTo(w * 0.37, h * 0.11);
-  if (side === "front") {
-    ctx.quadraticCurveTo(w * 0.50, h * 0.23, w * 0.63, h * 0.11);
-  } else {
-    ctx.quadraticCurveTo(w * 0.50, h * 0.16, w * 0.63, h * 0.11);
-  }
-  ctx.strokeStyle = isDark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.18)";
-  ctx.lineWidth = Math.max(2, w * 0.006);
-  ctx.stroke();
-
-  // Interior del cuello visible en frente
-  if (side === "front") {
-    ctx.beginPath();
-    ctx.moveTo(w * 0.38, h * 0.10);
-    ctx.quadraticCurveTo(w * 0.50, h * 0.13, w * 0.62, h * 0.10);
-    ctx.quadraticCurveTo(w * 0.50, h * 0.205, w * 0.38, h * 0.10);
-    ctx.closePath();
-    ctx.fillStyle = "rgba(0,0,0,0.12)";
+    ctx.arc(size * dot.x, size * dot.y, size * dot.r, 0, Math.PI * 2);
     ctx.fill();
   }
-
-  ctx.restore();
-
-  // Contorno limpio de la prenda
-  tracePath();
-  ctx.strokeStyle = isDark ? "rgba(255,255,255,0.28)" : "rgba(10,10,10,0.35)";
-  ctx.lineWidth = 2;
-  ctx.stroke();
 }
 
 /**
- * Dibuja una plantilla PNG teñida dinámicamente al HEX exacto preservando sombras.
+ * Capa 2: Tiñe un PNG blanco transparente al HEX exacto preservando volumen y sombras
+ * y lo pega con drop-shadow / halo de contorno para destacar sobre el fondo oscuro.
  */
-function drawTintedTemplate(
+function drawTintedShirtLayer(
   ctx: CanvasRenderingContext2D,
   template: HTMLImageElement,
-  w: number,
-  h: number,
+  size: number,
   hexColor: string
 ) {
   const off = document.createElement("canvas");
-  off.width = w;
-  off.height = h;
+  off.width = size;
+  off.height = size;
   const octx = off.getContext("2d");
   if (!octx) return;
 
-  // Escalar plantilla manteniendo proporción
-  const scale = Math.min((w * 0.9) / template.width, (h * 0.88) / template.height);
-  const dw = template.width * scale;
-  const dh = template.height * scale;
-  const dx = (w - dw) / 2;
-  const dy = (h - dh) / 2;
-
-  // 1. Pintar máscara de la camisa
-  octx.drawImage(template, dx, dy, dw, dh);
+  // 1. Pintar máscara del PNG oficial (0, 0, size, size)
+  octx.drawImage(template, 0, 0, size, size);
   // 2. Rellenar con color exacto HEX
   octx.globalCompositeOperation = "source-atop";
   octx.fillStyle = hexColor;
-  octx.fillRect(0, 0, w, h);
-  // 3. Preservar sombreado y textura de la plantilla con multiply
+  octx.fillRect(0, 0, size, size);
+  // 3. Preservar sombras naturales del PNG blanco con multiply
   octx.globalCompositeOperation = "multiply";
-  octx.drawImage(template, dx, dy, dw, dh);
+  octx.drawImage(template, 0, 0, size, size);
   // 4. Recortar alfa final
   octx.globalCompositeOperation = "destination-in";
-  octx.drawImage(template, dx, dy, dw, dh);
+  octx.drawImage(template, 0, 0, size, size);
 
-  ctx.drawImage(off, 0, 0);
+  const isVeryDark = getLuminance(hexColor) < 0.22;
+
+  ctx.save();
+  // En prendas negras/marino oscuro agregamos un halo sutil claro + sombra para separarlas del fondo oscuro
+  if (isVeryDark) {
+    ctx.shadowColor = "rgba(255, 255, 255, 0.24)";
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+  } else {
+    ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
+    ctx.shadowBlur = 22;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 10;
+  }
+  ctx.drawImage(off, 0, 0, size, size);
+  ctx.restore();
 }
 
 /**
- * Superpone el arte del cliente dentro de las coordenadas matemáticas exactas de la zona.
+ * Capa 3: Dibuja el estampado del cliente centrado dentro de su rectángulo calibrado.
  */
 function drawArtworkInBox(
   ctx: CanvasRenderingContext2D,
   art: HTMLImageElement,
-  shirtW: number,
-  shirtH: number,
+  size: number,
   box: PlacementBox,
   useMultiply: boolean
 ) {
-  const bx = shirtW * box.x;
-  const by = shirtH * box.y;
-  const bw = shirtW * box.w;
-  const bh = shirtH * box.h;
+  const bx = size * box.x;
+  const by = size * box.y;
+  const bw = size * box.w;
+  const bh = size * box.h;
 
   const scale = Math.min(bw / art.width, bh / art.height);
   const dw = art.width * scale;
@@ -240,7 +229,6 @@ export function ShirtMockupPreview({
   const isLightShirt = getLuminance(hexColor) >= 0.52;
   const [blendWhiteBg, setBlendWhiteBg] = React.useState<boolean>(isLightShirt);
 
-  // Ajustar blend por defecto cuando cambia el color de camisa
   React.useEffect(() => {
     setBlendWhiteBg(getLuminance(getShirtColorHex(shirtColor)) >= 0.52);
   }, [shirtColor]);
@@ -259,99 +247,89 @@ export function ShirtMockupPreview({
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      const totalW = showDual ? 960 : 540;
-      const totalH = showDual ? 540 : 580;
-      canvas.width = totalW;
-      canvas.height = totalH;
+      const size = 800;
+      canvas.width = size;
+      canvas.height = size;
 
-      // Fondo limpio de estudio
-      ctx.fillStyle = "#F5F2EB";
-      ctx.fillRect(0, 0, totalW, totalH);
+      // Cargar capas necesarias en paralelo
+      const bgCandidate = IS_CHRISTMAS_SEASON
+        ? "/mockups/bg-christmas.jpg"
+        : "/mockups/bg-custom.jpg";
 
-      // Cargar plantillas opcionales PNG (si existen en public/mockups/) y artes del cliente
-      const [frontTpl, backTpl, frontArt, backArt] = await Promise.all([
-        hasFront ? loadImage("/mockups/shirt-front.png") : Promise.resolve(null),
-        hasBack ? loadImage("/mockups/shirt-back.png") : Promise.resolve(null),
+      const [
+        primaryBg,
+        fallbackBg,
+        shirtFrontTpl,
+        shirtBackTpl,
+        logoOverlay,
+        frontArt,
+        backArt,
+      ] = await Promise.all([
+        loadImage(bgCandidate),
+        IS_CHRISTMAS_SEASON ? loadImage("/mockups/bg-custom.jpg") : Promise.resolve(null),
+        hasFront
+          ? loadImage(showDual ? "/mockups/shirt-front-left.png" : "/mockups/shirt-front-single.png")
+          : Promise.resolve(null),
+        hasBack
+          ? loadImage(showDual ? "/mockups/shirt-back-right.png" : "/mockups/shirt-back-single.png")
+          : Promise.resolve(null),
+        loadImage("/mockups/logo-overlay.png"),
         frontImage ? loadImage(frontImage) : Promise.resolve(null),
         effectiveBackImage ? loadImage(effectiveBackImage) : Promise.resolve(null),
       ]);
 
       if (cancelled) return;
 
-      const renderSide = (
-        offsetX: number,
-        panelW: number,
-        panelH: number,
-        side: "front" | "back",
-        tpl: HTMLImageElement | null,
-        art: HTMLImageElement | null,
-        placement: string
-      ) => {
-        ctx.save();
-        ctx.translate(offsetX, 0);
-
-        const topPad = showDual ? 28 : 16;
-        const shirtH = panelH - topPad - 12;
-        const shirtW = Math.min(panelW - 16, shirtH * 0.92);
-        const startX = (panelW - shirtW) / 2;
-
-        // Etiqueta de lado cuando hay 2 vistas
-        if (showDual) {
-          ctx.fillStyle = "#0A0A0A";
-          ctx.font = "bold 16px monospace";
-          ctx.textAlign = "center";
-          ctx.fillText(
-            side === "front" ? "FRENTE" : "ESPALDA",
-            panelW / 2,
-            24
-          );
-        }
-
-        ctx.save();
-        ctx.translate(startX, topPad);
-
-        if (tpl) {
-          drawTintedTemplate(ctx, tpl, shirtW, shirtH, hexColor);
-        } else {
-          drawProceduralShirt(ctx, shirtW, shirtH, hexColor, side);
-        }
-
-        const box = side === "front" ? FRONT_BOXES[placement] : BACK_BOXES[placement];
-        if (art && box) {
-          drawArtworkInBox(ctx, art, shirtW, shirtH, box, blendWhiteBg && isLightShirt);
-        }
-
-        ctx.restore();
-        ctx.restore();
-      };
-
-      if (showDual) {
-        renderSide(0, totalW / 2, totalH, "front", frontTpl, frontArt, frontPlacement);
-        // Línea divisoria sutil
-        ctx.strokeStyle = "rgba(10,10,10,0.12)";
-        ctx.setLineDash([6, 6]);
-        ctx.beginPath();
-        ctx.moveTo(totalW / 2, 18);
-        ctx.lineTo(totalW / 2, totalH - 18);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        renderSide(totalW / 2, totalW / 2, totalH, "back", backTpl, backArt, backPlacement);
-      } else if (hasFront) {
-        renderSide(0, totalW, totalH, "front", frontTpl, frontArt, frontPlacement);
-      } else if (hasBack) {
-        renderSide(0, totalW, totalH, "back", backTpl, backArt, backPlacement);
+      // CAPA 1: Fondo (JPG personalizado/navideño o estudio oscuro por código)
+      const activeBg = primaryBg || fallbackBg;
+      if (activeBg) {
+        const bgScale = Math.max(size / activeBg.width, size / activeBg.height);
+        const bw = activeBg.width * bgScale;
+        const bh = activeBg.height * bgScale;
+        ctx.drawImage(activeBg, (size - bw) / 2, (size - bh) / 2, bw, bh);
+      } else {
+        drawStudioBackground(ctx, size);
       }
 
-      // Exportar PNG limpio para guardarlo en el pedido y subirlo a Supabase Storage
+      // CAPA 2: Camisa(s) teñidas al HEX exacto con drop-shadow
+      if (hasFront && shirtFrontTpl) {
+        drawTintedShirtLayer(ctx, shirtFrontTpl, size, hexColor);
+      }
+      if (hasBack && shirtBackTpl) {
+        drawTintedShirtLayer(ctx, shirtBackTpl, size, hexColor);
+      }
+
+      // CAPA 3: Estampado(s) en coordenadas calibradas
+      const shouldMultiply = blendWhiteBg && isLightShirt;
+      if (hasFront && frontArt) {
+        const frontBox = showDual
+          ? DUAL_FRONT_BOXES[frontPlacement] || DUAL_FRONT_BOXES.cuadrado_mediano
+          : SINGLE_FRONT_BOXES[frontPlacement] || SINGLE_FRONT_BOXES.cuadrado_mediano;
+        drawArtworkInBox(ctx, frontArt, size, frontBox, shouldMultiply);
+      }
+
+      if (hasBack && backArt) {
+        const backBox = showDual
+          ? DUAL_BACK_BOXES[backPlacement] || DUAL_BACK_BOXES.espalda_mediana
+          : SINGLE_BACK_BOXES[backPlacement] || SINGLE_BACK_BOXES.espalda_mediana;
+        drawArtworkInBox(ctx, backArt, size, backBox, shouldMultiply);
+      }
+
+      // CAPA 4: Logo AlquimiaTex arriba de todo (0, 0, size, size)
+      if (logoOverlay) {
+        ctx.drawImage(logoOverlay, 0, 0, size, size);
+      }
+
+      // Exportar imagen compuesta para guardarla en el pedido y subirla a Supabase Storage
       if (onMockupGenerated && (frontArt || backArt)) {
         try {
-          const dataUrl = canvas.toDataURL("image/png");
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
           if (dataUrl && dataUrl !== lastExportRef.current) {
             lastExportRef.current = dataUrl;
             onMockupGenerated(dataUrl);
           }
         } catch {
-          // Canvas tainted fallback silencioso
+          // Fallback silencioso
         }
       }
     };
@@ -381,7 +359,7 @@ export function ShirtMockupPreview({
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <span className="font-mono text-[10px] font-black uppercase text-[#0A0A0A] flex items-center gap-1.5">
           <Shirt className="h-3.5 w-3.5 text-[#0891B2]" />
-          <span>Mockup en vivo • {getShirtColorLabel(shirtColor)}</span>
+          <span>Mockup de Estudio • {getShirtColorLabel(shirtColor)}</span>
         </span>
 
         {isLightShirt && (
@@ -397,22 +375,22 @@ export function ShirtMockupPreview({
         )}
       </div>
 
-      <div className="overflow-hidden rounded-lg border-2 border-black/20 bg-[#F5F2EB] flex items-center justify-center">
+      <div className="overflow-hidden rounded-lg border-2 border-black bg-[#0D0F14] flex items-center justify-center">
         <canvas
           ref={canvasRef}
-          className="w-full h-auto max-h-[300px] object-contain block"
+          className="w-full max-w-[360px] aspect-square h-auto object-contain block"
         />
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-[10px] text-slate-700">
+      <div className="flex flex-wrap items-center justify-center gap-1.5 font-mono text-[10px] text-slate-800">
         {hasFront && (
-          <span className="rounded border border-black/25 bg-white px-2 py-0.5 font-bold">
-            Frente: {getFrontPlacementLabel(frontPlacement)}
+          <span className="rounded border border-black/30 bg-white px-2 py-0.5 font-bold">
+            Frente: {getFrontPlacementLabel(frontPlacement, true)}
           </span>
         )}
         {hasBack && (
-          <span className="rounded border border-black/25 bg-white px-2 py-0.5 font-bold">
-            Espalda: {getBackPlacementLabel(backPlacement)}
+          <span className="rounded border border-black/30 bg-white px-2 py-0.5 font-bold">
+            Espalda: {getBackPlacementLabel(backPlacement, true)}
           </span>
         )}
       </div>

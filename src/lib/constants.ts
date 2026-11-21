@@ -177,47 +177,67 @@ export const SHIRT_PRINT_PLACEMENTS = [
 ] as const;
 
 export const SHIRT_FRONT_PLACEMENTS = [
-  { value: "ninguno", label: "Sin estampado", shortDesc: "Frente limpio" },
-  { value: "pecho_completo", label: "Pecho completo", shortDesc: "Centro frontal" },
-  { value: "pecho_izquierdo", label: "Pecho izquierdo", shortDesc: "Logo lado corazón" },
-  { value: "pecho_derecho", label: "Pecho derecho", shortDesc: "Logo lado derecho" },
-  { value: "centro_pequeno", label: "Centro pequeño", shortDesc: "Logo centrado" },
+  { value: "ninguno", label: "Ninguno", shortDesc: "Sin estampado frontal" },
+  { value: "logo_izquierdo", label: "Logo Pecho Izq.", shortDesc: "~5x8 cm" },
+  { value: "cuadrado_chico", label: "Cuadrado Chico", shortDesc: "~16x16 cm" },
+  { value: "cuadrado_mediano", label: "Cuadrado Mediano", shortDesc: "~22x22 cm" },
+  { value: "cuadrado_grande", label: "Cuadrado Grande", shortDesc: "~26x26 cm" },
+  { value: "extendido_pecho", label: "Extendido Pecho", shortDesc: "~26x10 cm" },
 ] as const;
 
 export const SHIRT_BACK_PLACEMENTS = [
-  { value: "ninguno", label: "Sin estampado", shortDesc: "Espalda limpia" },
-  { value: "espalda_completa", label: "Espalda completa", shortDesc: "Centro trasero" },
-  { value: "espalda_superior_pequeno", label: "Nuca / Superior", shortDesc: "Logo arriba" },
-  { value: "espalda_centro_pequeno", label: "Centro pequeño", shortDesc: "Logo centrado" },
+  { value: "ninguno", label: "Ninguno", shortDesc: "Sin estampado trasero" },
+  { value: "extendido_espalda", label: "Extendido Espalda", shortDesc: "~29x10 cm" },
+  { value: "espalda_mediana", label: "Diseño Mediano", shortDesc: "~26x35 cm" },
+  { value: "espalda_completa", label: "Espalda Completa", shortDesc: "~30x42 cm" },
 ] as const;
 
-export function getFrontPlacementLabel(value?: string): string {
-  if (!value || value === "ninguno") return "Sin estampado";
+const LEGACY_PLACEMENT_LABELS: Record<string, string> = {
+  pecho_completo: "Pecho completo",
+  pecho_izquierdo: "Logo Pecho Izq. (~5x8 cm)",
+  pecho_derecho: "Pecho derecho",
+  centro_pequeno: "Centro pequeño",
+  pecho_y_espalda: "Pecho + Espalda",
+  espalda_superior_pequeno: "Nuca / Espalda superior",
+  espalda_centro_pequeno: "Espalda centro pequeño",
+};
+
+export function getFrontPlacementLabel(value?: string, withSize = true): string {
+  if (!value || value === "ninguno") return "Ninguno";
   const found = SHIRT_FRONT_PLACEMENTS.find((p) => p.value === value);
-  if (found) return found.label;
+  if (found) {
+    return withSize && found.shortDesc.startsWith("~")
+      ? `${found.label} (${found.shortDesc})`
+      : found.label;
+  }
+  if (LEGACY_PLACEMENT_LABELS[value]) return LEGACY_PLACEMENT_LABELS[value];
   return value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
-export function getBackPlacementLabel(value?: string): string {
-  if (!value || value === "ninguno") return "Sin estampado";
+export function getBackPlacementLabel(value?: string, withSize = true): string {
+  if (!value || value === "ninguno") return "Ninguno";
   const found = SHIRT_BACK_PLACEMENTS.find((p) => p.value === value);
-  if (found) return found.label;
+  if (found) {
+    return withSize && found.shortDesc.startsWith("~")
+      ? `${found.label} (${found.shortDesc})`
+      : found.label;
+  }
+  if (LEGACY_PLACEMENT_LABELS[value]) return LEGACY_PLACEMENT_LABELS[value];
   return value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 export function getPrintPlacementLabel(value?: string): string {
-  if (!value) return "Pecho completo";
-  const foundLegacy = SHIRT_PRINT_PLACEMENTS.find((p) => p.value === value);
-  if (foundLegacy) return foundLegacy.label;
+  if (!value) return "Cuadrado Mediano (~22x22 cm)";
   const foundFront = SHIRT_FRONT_PLACEMENTS.find((p) => p.value === value);
-  if (foundFront) return foundFront.label;
+  if (foundFront) return getFrontPlacementLabel(value, true);
   const foundBack = SHIRT_BACK_PLACEMENTS.find((p) => p.value === value);
-  if (foundBack) return foundBack.label;
+  if (foundBack) return getBackPlacementLabel(value, true);
+  if (LEGACY_PLACEMENT_LABELS[value]) return LEGACY_PLACEMENT_LABELS[value];
   return value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 /**
- * Resuelve frente y espalda con retrocompatibilidad para pedidos viejos que solo tienen printPlacement.
+ * Resuelve frente y espalda con retrocompatibilidad total para pedidos viejos.
  */
 export function resolveShirtPlacements(item: {
   frontPlacement?: string;
@@ -225,21 +245,37 @@ export function resolveShirtPlacements(item: {
   printPlacement?: string;
 }): { front: string; back: string } {
   if (item.frontPlacement || item.backPlacement) {
+    const normalizeFront = (v?: string) => {
+      if (!v || v === "ninguno") return "ninguno";
+      if (v === "pecho_completo") return "cuadrado_mediano";
+      if (v === "pecho_izquierdo") return "logo_izquierdo";
+      if (v === "centro_pequeno") return "cuadrado_chico";
+      if (v === "pecho_derecho") return "logo_izquierdo";
+      return v;
+    };
+    const normalizeBack = (v?: string) => {
+      if (!v || v === "ninguno") return "ninguno";
+      if (v === "espalda_superior_pequeno") return "extendido_espalda";
+      if (v === "espalda_centro_pequeno") return "espalda_mediana";
+      return v;
+    };
     return {
-      front: item.frontPlacement || "ninguno",
-      back: item.backPlacement || "ninguno",
+      front: normalizeFront(item.frontPlacement),
+      back: normalizeBack(item.backPlacement),
     };
   }
   switch (item.printPlacement) {
     case "pecho_izquierdo":
-      return { front: "pecho_izquierdo", back: "ninguno" };
+    case "logo_izquierdo":
+      return { front: "logo_izquierdo", back: "ninguno" };
     case "espalda_completa":
       return { front: "ninguno", back: "espalda_completa" };
     case "pecho_y_espalda":
-      return { front: "pecho_completo", back: "espalda_completa" };
+      return { front: "cuadrado_mediano", back: "espalda_completa" };
     case "pecho_completo":
+    case "cuadrado_mediano":
     default:
-      return { front: "pecho_completo", back: "ninguno" };
+      return { front: "cuadrado_mediano", back: "ninguno" };
   }
 }
 
@@ -248,11 +284,26 @@ export function getShirtPlacementSummary(item: {
   backPlacement?: string;
   printPlacement?: string;
 }): string {
+  // Si es un pedido histórico con valores legacy específicos en frontPlacement/backPlacement, respetamos su etiqueta legible
+  const frontRaw = item.frontPlacement;
+  const backRaw = item.backPlacement;
+
+  if (frontRaw || backRaw) {
+    const parts: string[] = [];
+    if (frontRaw && frontRaw !== "ninguno") {
+      parts.push(`Frente: ${getFrontPlacementLabel(frontRaw, true)}`);
+    }
+    if (backRaw && backRaw !== "ninguno") {
+      parts.push(`Espalda: ${getBackPlacementLabel(backRaw, true)}`);
+    }
+    if (parts.length > 0) return parts.join(" • ");
+  }
+
   const { front, back } = resolveShirtPlacements(item);
   const parts: string[] = [];
-  if (front !== "ninguno") parts.push(`Frente: ${getFrontPlacementLabel(front)}`);
-  if (back !== "ninguno") parts.push(`Espalda: ${getBackPlacementLabel(back)}`);
-  return parts.length > 0 ? parts.join(" • ") : "Frente: Pecho completo";
+  if (front !== "ninguno") parts.push(`Frente: ${getFrontPlacementLabel(front, true)}`);
+  if (back !== "ninguno") parts.push(`Espalda: ${getBackPlacementLabel(back, true)}`);
+  return parts.length > 0 ? parts.join(" • ") : "Frente: Cuadrado Mediano (~22x22 cm)";
 }
 
 export const SHIRT_FABRICS = [
