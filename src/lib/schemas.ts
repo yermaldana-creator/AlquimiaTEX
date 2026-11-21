@@ -16,6 +16,7 @@ export const orderItemSchema = z
     shirtCut: z.string().optional(),
     shirtColor: z.string().optional(),
     shirtFabric: z.string().optional(),
+    printPlacement: z.string().optional(),
     mousepadSize: z.string().optional(),
     puzzlePieces: z.string().optional(),
     mugType: z.string().optional(),
@@ -29,6 +30,8 @@ export const orderItemSchema = z
     referenceImageName: z.string().optional(),
     referenceImageUrl: z.string().optional(),
     aiGeneratedImage: z.string().optional(),
+    aiMockupImage: z.string().optional(),
+    aiPrompt: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.product === "camisa") {

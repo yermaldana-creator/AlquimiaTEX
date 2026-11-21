@@ -25,6 +25,7 @@ import {
   MUG_TYPES,
   getShirtFabricLabel,
   getShirtColorLabel,
+  getPrintPlacementLabel,
 } from "@/lib/constants";
 import { OrderStatusBadge } from "./order-status-badge";
 import { OrderStatusSelect } from "./order-status-select";
@@ -124,7 +125,16 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
     if (item.aiGeneratedImage) {
       orderImages.push({
         url: item.aiGeneratedImage,
-        filename: `${rawCode}-item${idx + 1}-arte-ia.png`,
+        filename: `${rawCode}-item${idx + 1}-arte-limpio-ia.png`,
+        itemIndex: idx + 1,
+        isAi: true,
+      });
+    }
+
+    if (item.aiMockupImage) {
+      orderImages.push({
+        url: item.aiMockupImage,
+        filename: `${rawCode}-item${idx + 1}-mockup-camisa-ia.png`,
         itemIndex: idx + 1,
         isAi: true,
       });
@@ -493,6 +503,14 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                             <strong className="text-black dark:text-zinc-100">{getShirtColorLabel(item.shirtColor)}</strong>
                           </div>
                         )}
+                        <div className="bg-[#FEF9C3] dark:bg-amber-950/40 p-2 border-2 border-black dark:border-amber-600 sm:col-span-2 lg:col-span-4">
+                          <span className="text-[10px] text-slate-700 dark:text-amber-300 uppercase font-bold block">
+                            Ubicación Estampado:
+                          </span>
+                          <strong className="text-black dark:text-amber-100">
+                            {getPrintPlacementLabel(item.printPlacement)}
+                          </strong>
+                        </div>
                       </>
                     )}
 
@@ -542,8 +560,8 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                   )}
 
                   {/* PREVISUALIZACIÓN DE IMÁGENES & BOTONES DE DESCARGA */}
-                  {(item.referenceImage || item.referenceImageUrl || item.aiGeneratedImage) && (
-                    <div className="pt-2 border-t border-black dark:border-zinc-700 space-y-2">
+                  {(item.referenceImage || item.referenceImageUrl || item.aiGeneratedImage || item.aiMockupImage) && (
+                    <div className="pt-2 border-t border-black dark:border-zinc-700 space-y-3">
                       <span className="font-mono text-[10px] font-bold text-slate-700 dark:text-zinc-300 uppercase block">
                         Arte & Referencias Visuales:
                       </span>
@@ -572,6 +590,9 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                                 alt={`Referencia item ${index + 1}`}
                                 className="h-full w-full object-contain p-1 transition-transform group-hover:scale-105"
                               />
+                              <span className="absolute top-1 left-1 bg-black text-white text-[9px] font-mono font-bold px-1 border border-white/30">
+                                REF
+                              </span>
                             </button>
 
                             <div className="grid grid-cols-2 gap-1">
@@ -600,13 +621,13 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                                   handleDownloadSingleImage(
                                     url,
                                     `${rawCode}-item${index + 1}-referencia.jpg`,
-                                    index * 2
+                                    index * 3
                                   );
                                 }}
-                                disabled={downloadingImageIdx === index * 2}
+                                disabled={downloadingImageIdx === index * 3}
                                 className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border border-black dark:border-zinc-700 px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all disabled:opacity-50"
                               >
-                                {downloadingImageIdx === index * 2 ? (
+                                {downloadingImageIdx === index * 3 ? (
                                   <Loader2 className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <Download className="h-3 w-3 shrink-0" />
@@ -617,7 +638,7 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                           </div>
                         )}
 
-                        {/* ARTE GENERADO POR IA */}
+                        {/* ARTE LIMPIO GENERADO POR IA */}
                         {item.aiGeneratedImage && (
                           <div className="flex flex-col gap-1.5 w-36">
                             <button
@@ -626,21 +647,21 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                                 const rawCode = (order.order_code || "pedido").replace(/#/g, "");
                                 setPreviewImage({
                                   url: item.aiGeneratedImage!,
-                                  filename: `${rawCode}-item${index + 1}-arte-ia.png`,
-                                  label: `Arte IA — Item #${index + 1}`,
+                                  filename: `${rawCode}-item${index + 1}-arte-limpio-ia.png`,
+                                  label: `Arte Limpio IA — Item #${index + 1}`,
                                 });
                               }}
                               className="relative h-32 w-36 bg-[#FAF5FF] dark:bg-purple-950/40 border-2 border-[#581C87] dark:border-purple-600 shadow-[2px_2px_0px_#581C87] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group cursor-zoom-in"
-                              title="Toca para ampliar arte IA"
+                              title="Toca para ampliar arte limpio IA"
                             >
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={item.aiGeneratedImage}
-                                alt={`Arte IA item ${index + 1}`}
+                                alt={`Arte Limpio IA item ${index + 1}`}
                                 className="h-full w-full object-contain p-1 transition-transform group-hover:scale-105"
                               />
                               <span className="absolute top-1 left-1 bg-[#581C87] text-[#FACC15] text-[9px] font-mono font-bold px-1 border border-black">
-                                IA
+                                ARTE IA
                               </span>
                             </button>
 
@@ -651,8 +672,8 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                                   const rawCode = (order.order_code || "pedido").replace(/#/g, "");
                                   setPreviewImage({
                                     url: item.aiGeneratedImage!,
-                                    filename: `${rawCode}-item${index + 1}-arte-ia.png`,
-                                    label: `Arte IA — Item #${index + 1}`,
+                                    filename: `${rawCode}-item${index + 1}-arte-limpio-ia.png`,
+                                    label: `Arte Limpio IA — Item #${index + 1}`,
                                   });
                                 }}
                                 className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-[#FACC15] text-black border border-black px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:bg-[#EAB308] transition-all"
@@ -667,14 +688,82 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                                   const rawCode = (order.order_code || "pedido").replace(/#/g, "");
                                   handleDownloadSingleImage(
                                     item.aiGeneratedImage!,
-                                    `${rawCode}-item${index + 1}-arte-ia.png`,
-                                    index * 2 + 1
+                                    `${rawCode}-item${index + 1}-arte-limpio-ia.png`,
+                                    index * 3 + 1
                                   );
                                 }}
-                                disabled={downloadingImageIdx === index * 2 + 1}
+                                disabled={downloadingImageIdx === index * 3 + 1}
                                 className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-[#581C87] text-[#FACC15] border border-black px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:opacity-95 transition-all disabled:opacity-50"
                               >
-                                {downloadingImageIdx === index * 2 + 1 ? (
+                                {downloadingImageIdx === index * 3 + 1 ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Download className="h-3 w-3 shrink-0" />
+                                )}
+                                <span>Bajar</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* MOCKUP SOBRE CAMISA GENERADO POR IA */}
+                        {item.aiMockupImage && (
+                          <div className="flex flex-col gap-1.5 w-36">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                setPreviewImage({
+                                  url: item.aiMockupImage!,
+                                  filename: `${rawCode}-item${index + 1}-mockup-camisa-ia.png`,
+                                  label: `Mockup Camisa IA — Item #${index + 1}`,
+                                });
+                              }}
+                              className="relative h-32 w-36 bg-[#ECFEFF] dark:bg-cyan-950/40 border-2 border-[#0891B2] dark:border-cyan-600 shadow-[2px_2px_0px_#0891B2] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group cursor-zoom-in"
+                              title="Toca para ampliar mockup en camisa"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={item.aiMockupImage}
+                                alt={`Mockup Camisa IA item ${index + 1}`}
+                                className="h-full w-full object-contain p-1 transition-transform group-hover:scale-105"
+                              />
+                              <span className="absolute top-1 left-1 bg-[#0891B2] text-white text-[9px] font-mono font-bold px-1 border border-black">
+                                MOCKUP
+                              </span>
+                            </button>
+
+                            <div className="grid grid-cols-2 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                  setPreviewImage({
+                                    url: item.aiMockupImage!,
+                                    filename: `${rawCode}-item${index + 1}-mockup-camisa-ia.png`,
+                                    label: `Mockup Camisa IA — Item #${index + 1}`,
+                                  });
+                                }}
+                                className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-[#FACC15] text-black border border-black px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:bg-[#EAB308] transition-all"
+                              >
+                                <Eye className="h-3 w-3 shrink-0" />
+                                <span>Ver</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                  handleDownloadSingleImage(
+                                    item.aiMockupImage!,
+                                    `${rawCode}-item${index + 1}-mockup-camisa-ia.png`,
+                                    index * 3 + 2
+                                  );
+                                }}
+                                disabled={downloadingImageIdx === index * 3 + 2}
+                                className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-[#0891B2] text-white border border-black px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:opacity-95 transition-all disabled:opacity-50"
+                              >
+                                {downloadingImageIdx === index * 3 + 2 ? (
                                   <Loader2 className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <Download className="h-3 w-3 shrink-0" />
@@ -685,6 +774,18 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                           </div>
                         )}
                       </div>
+
+                      {/* PROMPT OPTIMIZADO DE IA */}
+                      {item.aiPrompt && (
+                        <div className="bg-[#FAF5FF] dark:bg-purple-950/30 p-2.5 border border-[#581C87]/40 dark:border-purple-700 font-mono text-[11px]">
+                          <span className="text-[10px] text-[#581C87] dark:text-purple-300 uppercase font-bold block">
+                            Prompt IA utilizado:
+                          </span>
+                          <p className="text-slate-800 dark:text-zinc-200 pt-0.5 break-words">
+                            {item.aiPrompt}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -15,7 +15,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { OrderItem } from "@/lib/schemas";
-import { MUG_TYPES } from "@/lib/constants";
+import {
+  MUG_TYPES,
+  SHIRT_PRINT_PLACEMENTS,
+  getShirtColorLabel,
+  getShirtColorHex,
+  getPrintPlacementLabel,
+} from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -42,7 +48,9 @@ export function OrderStep2({
   onUseAiAttempt,
 }: OrderStep2Props) {
   const [generatingItemId, setGeneratingItemId] = React.useState<string | null>(null);
+  const [generatingPhase, setGeneratingPhase] = React.useState<"artwork" | "mockup" | null>(null);
   const [aiErrors, setAiErrors] = React.useState<Record<string, string>>({});
+  const [aiWarnings, setAiWarnings] = React.useState<Record<string, string>>({});
   const [descErrors, setDescErrors] = React.useState<Record<string, string>>({});
   const [activeTabs, setActiveTabs] = React.useState<Record<string, "upload" | "ai">>({});
   const fileInputRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
@@ -137,47 +145,124 @@ export function OrderStep2({
     }
 
     setGeneratingItemId(item.id);
+    setGeneratingPhase("artwork");
     setAiErrors((prev) => {
+      const copy = { ...prev };
+      delete copy[item.id];
+      return copy;
+    });
+    setAiWarnings((prev) => {
       const copy = { ...prev };
       delete copy[item.id];
       return copy;
     });
 
     try {
-      const res = await fetch("/api/generate-preview", {
+      // PASO A: Generar Arte Limpio aislado
+      const resArt = await fetch("/api/generate-preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          mode: "artwork",
           description: item.description,
           product: item.product,
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "No se pudo generar la imagen con Abacus.AI.");
+      const dataArt = await resArt.json();
+      if (!resArt.ok) {
+        throw new Error(dataArt.error || "No se pudo generar la imagen con Abacus.AI.");
       }
 
-      if (data.imageUrl) {
-        updateItem(item.id, { aiGeneratedImage: data.imageUrl });
-        onUseAiAttempt();
-        setDescErrors((prev) => {
-          if (!prev[item.id]) return prev;
-          const copy = { ...prev };
-          delete copy[item.id];
-          return copy;
-        });
+      if (!dataArt.imageUrl) {
+        throw new Error("No se recibió la imagen generada por IA.");
+      }
+
+      const artworkUrl: string = dataArt.imageUrl;
+      const savedPrompt: string = dataArt.optimizedPrompt || item.description.trim();
+
+      // Guardar inmediatamente el Arte Limpio y descontar 1 intento
+      updateItem(item.id, {
+        aiGeneratedImage: artworkUrl,
+        aiPrompt: savedPrompt,
+        aiMockupImage: "",
+      });
+      onUseAiAttempt();
+      setDescErrors((prev) => {
+        if (!prev[item.id]) return prev;
+        const copy = { ...prev };
+        delete copy[item.id];
+        return copy;
+      });
+
+      // PASO B (solo para camisas): Segunda llamada independiente para montar el Mockup sobre la camisa
+      if (item.product === "camisa") {
+        setGeneratingPhase("mockup");
+        try {
+          const resMockup = await fetch("/api/generate-preview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mode: "mockup",
+              artworkImageUrl: artworkUrl,
+              description: item.description,
+              product: "camisa",
+              shirtColor: item.shirtColor || "blanco",
+              shirtColorLabel: getShirtColorLabel(item.shirtColor),
+              shirtColorHex: getShirtColorHex(item.shirtColor),
+              shirtCut: item.shirtCut || "unisex",
+              shirtFabric: item.shirtFabric || "microdurazno",
+              printPlacement: item.printPlacement || "pecho_completo",
+            }),
+          });
+
+          const dataMockup = await resMockup.json();
+          if (resMockup.ok && dataMockup.imageUrl) {
+            // Actualizar preservando aiGeneratedImage y aiPrompt
+            onItemsChange(
+              items.map((it) =>
+                it.id === item.id
+                  ? {
+                      ...it,
+                      aiGeneratedImage: artworkUrl,
+                      aiPrompt: savedPrompt,
+                      aiMockupImage: dataMockup.imageUrl,
+                    }
+                  : it
+              )
+            );
+          } else {
+            setAiWarnings((prev) => ({
+              ...prev,
+              [item.id]:
+                "Tu arte limpio está listo, pero no pudimos montar la vista previa sobre la camisa. Igual se enviará tu arte al taller.",
+            }));
+          }
+        } catch {
+          setAiWarnings((prev) => ({
+            ...prev,
+            [item.id]:
+              "Tu arte limpio está listo, pero no pudimos montar la vista previa sobre la camisa. Igual se enviará tu arte al taller.",
+          }));
+        }
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error al conectar con el motor de IA.";
       setAiErrors((prev) => ({ ...prev, [item.id]: msg }));
     } finally {
       setGeneratingItemId(null);
+      setGeneratingPhase(null);
     }
   };
 
   const handleDiscardAiImage = (id: string) => {
-    updateItem(id, { aiGeneratedImage: "" });
+    updateItem(id, { aiGeneratedImage: "", aiMockupImage: "", aiPrompt: "" });
+    setAiWarnings((prev) => {
+      if (!prev[id]) return prev;
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
   };
 
   const validateAndProceed = () => {
@@ -224,7 +309,7 @@ export function OrderStep2({
         {items.map((item, index) => {
           let variantLabel = "";
           if (item.product === "camisa") {
-            variantLabel = `Talla ${item.shirtSize} • ${item.shirtCut} • ${item.shirtColor}`;
+            variantLabel = `Talla ${item.shirtSize} • ${item.shirtCut} • ${getShirtColorLabel(item.shirtColor)}`;
           } else if (item.product === "mousepad") {
             variantLabel = item.mousepadSize || "Estándar";
           } else if (item.product === "rompecabezas") {
@@ -267,6 +352,46 @@ export function OrderStep2({
                   </span>
                 )}
               </div>
+
+              {/* 0. SELECTOR DE UBICACIÓN DEL ESTAMPADO (SOLO PARA CAMISAS) */}
+              {item.product === "camisa" && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <Label className="text-xs font-bold text-[#0A0A0A]">
+                      Ubicación del estampado <span className="text-rose-600">*</span>
+                    </Label>
+                    <span className="font-mono text-[10px] font-bold text-slate-600">
+                      {getPrintPlacementLabel(item.printPlacement)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {SHIRT_PRINT_PLACEMENTS.map((place) => {
+                      const currentPlacement = item.printPlacement || "pecho_completo";
+                      const isSelected = currentPlacement === place.value;
+                      return (
+                        <button
+                          key={place.value}
+                          type="button"
+                          onClick={() => updateItem(item.id, { printPlacement: place.value })}
+                          className={cn(
+                            "rounded-lg border-2 px-2.5 py-2 text-left transition-all",
+                            isSelected
+                              ? "border-black bg-[#FACC15] text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]"
+                              : "border-black/20 bg-[#FAF7F0] text-slate-800 hover:border-black"
+                          )}
+                        >
+                          <p className="text-xs font-bold leading-tight text-[#0A0A0A]">
+                            {place.label}
+                          </p>
+                          <p className="text-[10px] text-slate-700 leading-tight mt-0.5">
+                            {place.shortDesc}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* 1. DESCRIPCIÓN */}
               <div className="space-y-2">
@@ -457,7 +582,13 @@ export function OrderStep2({
                           {isGeneratingThis ? (
                             <>
                               <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                              <span>Creando con IA (15-30 seg)...</span>
+                              <span>
+                                {item.product === "camisa"
+                                  ? generatingPhase === "mockup"
+                                    ? "2/2 Montando mockup en tu camisa..."
+                                    : "1/2 Generando arte limpio..."
+                                  : "Creando con IA (15-30 seg)..."}
+                              </span>
                             </>
                           ) : (
                             <>
@@ -485,29 +616,77 @@ export function OrderStep2({
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
                             <ImageIcon className="h-3.5 w-3.5" />
-                            Concepto IA guardado en tu pedido
+                            {item.aiMockupImage
+                              ? "Mockup + Arte Limpio guardados"
+                              : "Concepto IA guardado en tu pedido"}
                           </span>
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDiscardAiImage(item.id)}
+                            disabled={isGeneratingThis}
                             className="h-7 px-2 text-[11px] font-bold text-rose-700 hover:bg-rose-100 hover:text-rose-900"
                           >
                             Descartar
                           </Button>
                         </div>
 
-                        <div className="relative mx-auto h-44 w-full max-w-[220px] overflow-hidden rounded-lg border-2 border-black/20 bg-slate-100">
-                          <Image
-                            src={item.aiGeneratedImage}
-                            alt="Concepto IA"
-                            fill
-                            unoptimized
-                            sizes="220px"
-                            className="object-contain"
-                          />
+                        {isGeneratingThis && generatingPhase === "mockup" && (
+                          <div className="flex items-center justify-center gap-2 rounded-lg border border-black/20 bg-[#FEF9C3] px-3 py-2 text-[11px] font-bold text-[#0A0A0A]">
+                            <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                            <span>2/2 Montando tu arte en la camisa ({getShirtColorLabel(item.shirtColor)})...</span>
+                          </div>
+                        )}
+
+                        <div
+                          className={cn(
+                            "grid gap-2.5",
+                            item.aiMockupImage ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
+                          )}
+                        >
+                          {item.aiMockupImage && (
+                            <div className="space-y-1">
+                              <span className="block text-center font-mono text-[10px] font-bold uppercase text-[#0A0A0A]">
+                                Mockup ({getPrintPlacementLabel(item.printPlacement)})
+                              </span>
+                              <div className="relative mx-auto h-44 w-full max-w-[220px] overflow-hidden rounded-lg border-2 border-black bg-slate-100">
+                                <Image
+                                  src={item.aiMockupImage}
+                                  alt="Mockup en camisa"
+                                  fill
+                                  unoptimized
+                                  sizes="220px"
+                                  className="object-contain"
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="space-y-1">
+                            {item.aiMockupImage && (
+                              <span className="block text-center font-mono text-[10px] font-bold uppercase text-slate-600">
+                                Arte Limpio (Sublimación)
+                              </span>
+                            )}
+                            <div className="relative mx-auto h-44 w-full max-w-[220px] overflow-hidden rounded-lg border-2 border-black/20 bg-slate-100">
+                              <Image
+                                src={item.aiGeneratedImage}
+                                alt="Concepto IA"
+                                fill
+                                unoptimized
+                                sizes="220px"
+                                className="object-contain"
+                              />
+                            </div>
+                          </div>
                         </div>
+
+                        {aiWarnings[item.id] && (
+                          <p className="text-[11px] text-amber-800 bg-amber-50 border border-amber-300 rounded-md p-2 text-center font-medium">
+                            {aiWarnings[item.id]}
+                          </p>
+                        )}
 
                         <p className="text-[10px] text-slate-600 text-center leading-relaxed">
                           * Concepto visual referencial. Nuestro taller preparará el arte final de impresión contigo.

@@ -21,6 +21,61 @@ export interface SubmitOrderResponse {
   error?: string;
 }
 
+async function uploadAssetToOrderReferences(
+  supabase: ReturnType<typeof createClient>,
+  source: string | undefined,
+  filePrefix: string
+): Promise<string | undefined> {
+  if (!source) return source;
+  // Si ya es una URL pública de nuestro bucket order-references, no re-subir
+  if (source.includes("/storage/v1/object/public/order-references/")) {
+    return source;
+  }
+
+  try {
+    let buffer: Buffer | null = null;
+    let contentType = "image/png";
+    let ext = "png";
+
+    if (source.startsWith("data:")) {
+      const matches = source.match(/^data:([A-Za-z0-9\-+\/]+);base64,(.+)$/);
+      if (matches && matches.length === 3) {
+        contentType = matches[1];
+        ext = (contentType.split("/")[1] || "png").replace("jpeg", "jpg");
+        buffer = Buffer.from(matches[2], "base64");
+      }
+    } else if (source.startsWith("http://") || source.startsWith("https://")) {
+      const res = await fetch(source);
+      if (res.ok) {
+        contentType = res.headers.get("content-type") || "image/png";
+        ext = (contentType.split("/")[1]?.split(";")[0] || "png").replace("jpeg", "jpg");
+        buffer = Buffer.from(await res.arrayBuffer());
+      }
+    }
+
+    if (!buffer) return source;
+
+    const fileName = `${filePrefix}-${Date.now()}.${ext}`;
+    const { data: uploadData, error: uploadErr } = await supabase.storage
+      .from("order-references")
+      .upload(fileName, buffer, {
+        contentType,
+        upsert: true,
+      });
+
+    if (!uploadErr && uploadData) {
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("order-references").getPublicUrl(fileName);
+      return publicUrl;
+    }
+  } catch (e) {
+    console.warn(`Error al subir asset ${filePrefix} a order-references:`, e);
+  }
+
+  return source;
+}
+
 export async function submitOrderAction(payload: SubmitOrderPayload): Promise<SubmitOrderResponse> {
   try {
     const { items, contact } = payload;
@@ -37,45 +92,37 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
     // Generar código amigable: #ALQ-XXXX
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const orderCode = `#ALQ-${randomSuffix}`;
+    const cleanCode = orderCode.replace("#", "");
 
     const supabase = createClient();
 
-    // 1. Subir imágenes de referencia a Supabase Storage (bucket: order-references) si existen
+    // 1. Subir imágenes (referencia, arte limpio IA y mockup IA) al bucket 'order-references'
+    // para evitar guardar strings base64 pesados dentro del JSONB 'items'
     const processedItems = await Promise.all(
       items.map(async (item, idx) => {
-        if (item.referenceImage && item.referenceImage.startsWith("data:")) {
-          try {
-            const matches = item.referenceImage.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-            if (matches && matches.length === 3) {
-              const contentType = matches[1];
-              const ext = contentType.split("/")[1] || "jpeg";
-              const buffer = Buffer.from(matches[2], "base64");
-              const fileName = `${orderCode.replace("#", "")}-item-${idx + 1}-${Date.now()}.${ext}`;
+        const [uploadedRef, uploadedAiArt, uploadedAiMockup] = await Promise.all([
+          item.referenceImage
+            ? uploadAssetToOrderReferences(supabase, item.referenceImage, `${cleanCode}-item-${idx + 1}-ref`)
+            : Promise.resolve(undefined),
+          item.aiGeneratedImage
+            ? uploadAssetToOrderReferences(supabase, item.aiGeneratedImage, `${cleanCode}-item-${idx + 1}-arte-ia`)
+            : Promise.resolve(undefined),
+          item.aiMockupImage
+            ? uploadAssetToOrderReferences(supabase, item.aiMockupImage, `${cleanCode}-item-${idx + 1}-mockup-ia`)
+            : Promise.resolve(undefined),
+        ]);
 
-              const { data: uploadData, error: uploadErr } = await supabase.storage
-                .from("order-references")
-                .upload(fileName, buffer, {
-                  contentType,
-                  upsert: true,
-                });
-
-              if (!uploadErr && uploadData) {
-                const {
-                  data: { publicUrl },
-                } = supabase.storage.from("order-references").getPublicUrl(fileName);
-
-                return {
-                  ...item,
-                  referenceImageUrl: publicUrl,
-                  referenceImage: publicUrl, // Reemplazar base64 pesado por URL
-                };
+        return {
+          ...item,
+          ...(uploadedRef
+            ? {
+                referenceImageUrl: uploadedRef,
+                referenceImage: uploadedRef,
               }
-            }
-          } catch (e) {
-            console.warn(`Error al subir imagen del item ${idx}:`, e);
-          }
-        }
-        return item;
+            : {}),
+          ...(uploadedAiArt ? { aiGeneratedImage: uploadedAiArt } : {}),
+          ...(uploadedAiMockup ? { aiMockupImage: uploadedAiMockup } : {}),
+        };
       })
     );
 

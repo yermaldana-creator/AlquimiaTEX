@@ -153,6 +153,36 @@ export const SHIRT_CUT_LABELS: Record<string, string> = {
   oversize: "Oversize",
 };
 
+export const SHIRT_PRINT_PLACEMENTS = [
+  {
+    value: "pecho_completo",
+    label: "Pecho completo",
+    shortDesc: "Centro frontal",
+  },
+  {
+    value: "pecho_izquierdo",
+    label: "Pecho izquierdo",
+    shortDesc: "Logo lado corazón",
+  },
+  {
+    value: "espalda_completa",
+    label: "Espalda completa",
+    shortDesc: "Centro trasero",
+  },
+  {
+    value: "pecho_y_espalda",
+    label: "Pecho + Espalda",
+    shortDesc: "Ambos lados (máx. 2)",
+  },
+] as const;
+
+export function getPrintPlacementLabel(value?: string): string {
+  if (!value) return "Pecho completo";
+  const found = SHIRT_PRINT_PLACEMENTS.find((p) => p.value === value);
+  if (found) return found.label;
+  return value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
 export const SHIRT_FABRICS = [
   {
     value: "microdurazno",

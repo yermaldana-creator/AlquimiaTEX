@@ -25,6 +25,7 @@ import {
   SHIRT_CUT_LABELS,
   getShirtColorLabel,
   getShirtFabricLabel,
+  getPrintPlacementLabel,
   MUG_TYPES,
 } from "@/lib/constants";
 import { step3ContactSchema, type Step3ContactFormData, type OrderItem } from "@/lib/schemas";
@@ -177,6 +178,8 @@ export function OrderStep3({
                         <span>Color: <strong className="text-[#0A0A0A]">{getShirtColorLabel(item.shirtColor)}</strong></span>
                         <span>•</span>
                         <span>Tela: <strong className="text-[#0A0A0A]">{getShirtFabricLabel(item.shirtFabric)}</strong></span>
+                        <span>•</span>
+                        <span>Estampado: <strong className="text-[#0A0A0A]">{getPrintPlacementLabel(item.printPlacement)}</strong></span>
                       </>
                     )}
                     {item.product === "mousepad" && (
@@ -211,10 +214,10 @@ export function OrderStep3({
                       />
                     </div>
                   )}
-                  {item.aiGeneratedImage && (
+                  {(item.aiMockupImage || item.aiGeneratedImage) && (
                     <div className="relative h-12 w-12 rounded-lg overflow-hidden border-2 border-black bg-[#FFFBEB] shadow-[1px_1px_0px_#0A0A0A]" title="Concepto visual generado por IA">
                       <Image
-                        src={item.aiGeneratedImage}
+                        src={item.aiMockupImage || item.aiGeneratedImage || ""}
                         alt="Concepto IA"
                         fill
                         unoptimized
