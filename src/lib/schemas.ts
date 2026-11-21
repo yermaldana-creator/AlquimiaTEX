@@ -34,6 +34,11 @@ export const orderItemSchema = z
     backReferenceImage: z.string().optional(),
     backReferenceImageName: z.string().optional(),
     backReferenceImageUrl: z.string().optional(),
+    backDescription: z
+      .string()
+      .max(500, "La descripción de espalda no puede superar los 500 caracteres")
+      .optional(),
+    backAiPrompt: z.string().optional(),
     aiGeneratedImage: z.string().optional(),
     aiMockupImage: z.string().optional(),
     aiPrompt: z.string().optional(),

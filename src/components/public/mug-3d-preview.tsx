@@ -157,18 +157,18 @@ export default function Mug3DPreview({
     const handleMesh = new THREE.Mesh(handleGeo, handleMat);
     mugGroup.add(handleMesh);
 
-    // 6. Manga envolvente de sublimación (20x9 cm dejando margen blanco realista junto al asa en +X)
+    // 6. Manga envolvente de sublimación borde a borde (~21 cm reales, 97% de altura)
     // En CylinderGeometry, theta = 0 está en +Z, theta = PI/2 está en +X (asa).
-    const wrapGap = 0.44; // Margen blanco junto al asa
+    const wrapGap = 0.22; // Margen pequeño realista junto a la raíz del asa
     const wrapThetaLength = Math.PI * 2 - wrapGap;
     const wrapThetaStart = Math.PI / 2 + wrapGap / 2;
-    const printHeight = mugHeight * 0.86;
+    const printHeight = mugHeight * 0.97;
 
     const printGeo = new THREE.CylinderGeometry(
       mugRadius + 0.005,
       mugRadius + 0.005,
       printHeight,
-      44,
+      48,
       1,
       true,
       wrapThetaStart,
@@ -191,8 +191,8 @@ export default function Mug3DPreview({
       magicGeo = new THREE.CylinderGeometry(
         mugRadius + 0.01,
         mugRadius + 0.01,
-        mugHeight - 0.02,
-        44,
+        mugHeight * 0.99,
+        48,
         1,
         true
       );

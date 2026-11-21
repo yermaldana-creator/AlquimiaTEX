@@ -27,37 +27,41 @@ interface PlacementBox {
 }
 
 // =========================================================================
-// COORDENADAS CALIBRADAS PARA LIENZO CUADRADO 1:1 (public/mockups/*.png)
+// COORDENADAS CALIBRADAS POR MEDICIÓN REAL DEL TORSO EN public/mockups/*.png
 // =========================================================================
 
-// Modo 1 Camisa Centrada (shirt-front-single.png / shirt-back-single.png)
+// Modo 1 Camisa Centrada:
+// shirt-front-single.png (torso_cx = 0.523, torso_w = 0.341)
 const SINGLE_FRONT_BOXES: Record<string, PlacementBox> = {
-  logo_izquierdo: { x: 0.56, y: 0.30, w: 0.11, h: 0.14 }, // ~5x8 cm (lado corazón)
-  cuadrado_chico: { x: 0.38, y: 0.31, w: 0.24, h: 0.24 }, // ~16x16 cm
-  cuadrado_mediano: { x: 0.34, y: 0.29, w: 0.32, h: 0.32 }, // ~22x22 cm
-  cuadrado_grande: { x: 0.31, y: 0.27, w: 0.38, h: 0.38 }, // ~26x26 cm
-  extendido_pecho: { x: 0.31, y: 0.30, w: 0.38, h: 0.15 }, // ~26x10 cm (franja ancha superior)
+  logo_izquierdo: { x: 0.575, y: 0.295, w: 0.095, h: 0.125 }, // ~5x8 cm (lado corazón real)
+  cuadrado_chico: { x: 0.423, y: 0.305, w: 0.20, h: 0.20 }, // ~16x16 cm
+  cuadrado_mediano: { x: 0.388, y: 0.285, w: 0.27, h: 0.27 }, // ~22x22 cm
+  cuadrado_grande: { x: 0.363, y: 0.27, w: 0.32, h: 0.32 }, // ~26x26 cm
+  extendido_pecho: { x: 0.363, y: 0.295, w: 0.32, h: 0.125 }, // ~26x10 cm
 };
 
+// shirt-back-single.png (torso_cx = 0.522, torso_w = 0.353)
 const SINGLE_BACK_BOXES: Record<string, PlacementBox> = {
-  extendido_espalda: { x: 0.29, y: 0.24, w: 0.42, h: 0.15 }, // ~29x10 cm (franja superior espalda)
-  espalda_mediana: { x: 0.31, y: 0.25, w: 0.38, h: 0.45 }, // ~26x35 cm
-  espalda_completa: { x: 0.28, y: 0.22, w: 0.44, h: 0.54 }, // ~30x42 cm (casi todo el torso trasero)
+  extendido_espalda: { x: 0.347, y: 0.245, w: 0.35, h: 0.13 }, // ~29x10 cm
+  espalda_mediana: { x: 0.362, y: 0.26, w: 0.32, h: 0.38 }, // ~26x35 cm
+  espalda_completa: { x: 0.337, y: 0.23, w: 0.37, h: 0.48 }, // ~30x42 cm
 };
 
-// Modo 2 Camisas Lado a Lado (shirt-front-left.png + shirt-back-right.png)
+// Modo 2 Camisas Lado a Lado:
+// shirt-front-left.png (torso_cx = 0.270, torso_w = 0.312)
 const DUAL_FRONT_BOXES: Record<string, PlacementBox> = {
-  logo_izquierdo: { x: 0.295, y: 0.35, w: 0.065, h: 0.085 },
-  cuadrado_chico: { x: 0.195, y: 0.36, w: 0.14, h: 0.14 },
-  cuadrado_mediano: { x: 0.175, y: 0.34, w: 0.18, h: 0.18 },
-  cuadrado_grande: { x: 0.16, y: 0.33, w: 0.21, h: 0.21 },
-  extendido_pecho: { x: 0.16, y: 0.35, w: 0.21, h: 0.085 },
+  logo_izquierdo: { x: 0.312, y: 0.365, w: 0.068, h: 0.088 }, // Pecho izquierdo real (no pegado al centro)
+  cuadrado_chico: { x: 0.205, y: 0.37, w: 0.13, h: 0.13 },
+  cuadrado_mediano: { x: 0.185, y: 0.355, w: 0.17, h: 0.17 },
+  cuadrado_grande: { x: 0.17, y: 0.34, w: 0.20, h: 0.20 },
+  extendido_pecho: { x: 0.17, y: 0.36, w: 0.20, h: 0.08 },
 };
 
+// shirt-back-right.png (desplazado ligeramente a la izquierda, cx = 0.722)
 const DUAL_BACK_BOXES: Record<string, PlacementBox> = {
-  extendido_espalda: { x: 0.62, y: 0.31, w: 0.23, h: 0.085 },
-  espalda_mediana: { x: 0.63, y: 0.32, w: 0.21, h: 0.26 },
-  espalda_completa: { x: 0.615, y: 0.30, w: 0.24, h: 0.32 },
+  extendido_espalda: { x: 0.612, y: 0.32, w: 0.22, h: 0.082 },
+  espalda_mediana: { x: 0.622, y: 0.33, w: 0.20, h: 0.24 },
+  espalda_completa: { x: 0.607, y: 0.31, w: 0.23, h: 0.30 },
 };
 
 function getLuminance(hex: string): number {
@@ -187,6 +191,137 @@ function drawTintedShirtLayer(
 }
 
 /**
+ * Algoritmo ligero de flood-fill (BFS iterativo) desde los bordes exteriores:
+ * Detecta si las esquinas son blanco sólido y convierte únicamente el fondo blanco
+ * conectado al borde exterior en transparente con antialiasing suave, preservando
+ * cualquier blanco interior del diseño (ojos, texto, brillos).
+ */
+function removeOuterWhiteBackground(img: HTMLImageElement): HTMLCanvasElement | HTMLImageElement {
+  const maxDim = 560;
+  const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+  const w = Math.max(1, Math.round(img.width * scale));
+  const h = Math.max(1, Math.round(img.height * scale));
+
+  const off = document.createElement("canvas");
+  off.width = w;
+  off.height = h;
+  const octx = off.getContext("2d", { willReadFrequently: true });
+  if (!octx) return img;
+
+  octx.drawImage(img, 0, 0, w, h);
+
+  let imageData: ImageData;
+  try {
+    imageData = octx.getImageData(0, 0, w, h);
+  } catch {
+    // Si el canvas está tainted por CORS, devolver la imagen original sin romper
+    return img;
+  }
+
+  const data = imageData.data;
+
+  // 1. Verificar las 4 esquinas: solo aplicar recorte si al menos 3 son blanco/casi blanco opaco
+  const corners = [
+    0,
+    (w - 1) * 4,
+    (h - 1) * w * 4,
+    ((h - 1) * w + (w - 1)) * 4,
+  ];
+  let whiteCornerCount = 0;
+  for (const cIdx of corners) {
+    const r = data[cIdx];
+    const g = data[cIdx + 1];
+    const b = data[cIdx + 2];
+    const a = data[cIdx + 3];
+    if (a >= 235 && r >= 228 && g >= 228 && b >= 228) {
+      whiteCornerCount++;
+    }
+  }
+  if (whiteCornerCount < 3) {
+    return img;
+  }
+
+  // 2. BFS iterativo desde todo el perímetro exterior (sin recursión, muy rápido en móvil)
+  const total = w * h;
+  const visited = new Uint8Array(total);
+  const queue = new Int32Array(total);
+  let head = 0;
+  let tail = 0;
+
+  // Distancia euclidiana aproximada al blanco puro (255,255,255)
+  const whiteDist = (idx4: number) => {
+    const dr = 255 - data[idx4];
+    const dg = 255 - data[idx4 + 1];
+    const db = 255 - data[idx4 + 2];
+    return Math.max(dr, dg, db);
+  };
+
+  const SOLID_THRESHOLD = 30; // Totalmente transparente
+  const FEATHER_THRESHOLD = 66; // Borde suavizado (antialiasing)
+
+  const enqueueIfBorder = (pos: number) => {
+    if (visited[pos]) return;
+    const idx4 = pos * 4;
+    if (data[idx4 + 3] < 10) {
+      visited[pos] = 1;
+      queue[tail++] = pos;
+      return;
+    }
+    if (whiteDist(idx4) <= SOLID_THRESHOLD) {
+      visited[pos] = 1;
+      queue[tail++] = pos;
+    }
+  };
+
+  // Sembrar los 4 bordes exteriores
+  for (let x = 0; x < w; x++) {
+    enqueueIfBorder(x);
+    enqueueIfBorder((h - 1) * w + x);
+  }
+  for (let y = 1; y < h - 1; y++) {
+    enqueueIfBorder(y * w);
+    enqueueIfBorder(y * w + (w - 1));
+  }
+
+  // Propagar solo a través de píxeles blancos conectados al exterior
+  while (head < tail) {
+    const pos = queue[head++];
+    const idx4 = pos * 4;
+    data[idx4 + 3] = 0;
+
+    const x = pos % w;
+    const y = (pos - x) / w;
+
+    // 4 vecinos cardinales
+    const neighbors: number[] = [];
+    if (x > 0) neighbors.push(pos - 1);
+    if (x < w - 1) neighbors.push(pos + 1);
+    if (y > 0) neighbors.push(pos - w);
+    if (y < h - 1) neighbors.push(pos + w);
+
+    for (let i = 0; i < neighbors.length; i++) {
+      const nPos = neighbors[i];
+      if (visited[nPos]) continue;
+      const nIdx4 = nPos * 4;
+      const dist = whiteDist(nIdx4);
+
+      if (data[nIdx4 + 3] < 10 || dist <= SOLID_THRESHOLD) {
+        visited[nPos] = 1;
+        queue[tail++] = nPos;
+      } else if (dist <= FEATHER_THRESHOLD) {
+        // Suavizado antialiasing en el borde sin propagar hacia el interior del dibujo
+        visited[nPos] = 1;
+        const ratio = (dist - SOLID_THRESHOLD) / (FEATHER_THRESHOLD - SOLID_THRESHOLD);
+        data[nIdx4 + 3] = Math.round(data[nIdx4 + 3] * ratio);
+      }
+    }
+  }
+
+  octx.putImageData(imageData, 0, 0);
+  return off;
+}
+
+/**
  * Capa 3: Dibuja el estampado del cliente centrado dentro de su rectángulo calibrado.
  */
 function drawArtworkInBox(
@@ -194,24 +329,25 @@ function drawArtworkInBox(
   art: HTMLImageElement,
   size: number,
   box: PlacementBox,
-  useMultiply: boolean
+  stripWhiteBg: boolean
 ) {
+  const source = stripWhiteBg ? removeOuterWhiteBackground(art) : art;
+  const srcW = source.width;
+  const srcH = source.height;
+
   const bx = size * box.x;
   const by = size * box.y;
   const bw = size * box.w;
   const bh = size * box.h;
 
-  const scale = Math.min(bw / art.width, bh / art.height);
-  const dw = art.width * scale;
-  const dh = art.height * scale;
+  const scale = Math.min(bw / srcW, bh / srcH);
+  const dw = srcW * scale;
+  const dh = srcH * scale;
   const dx = bx + (bw - dw) / 2;
   const dy = by + (bh - dh) / 2;
 
   ctx.save();
-  if (useMultiply) {
-    ctx.globalCompositeOperation = "multiply";
-  }
-  ctx.drawImage(art, dx, dy, dw, dh);
+  ctx.drawImage(source, dx, dy, dw, dh);
   ctx.restore();
 }
 
@@ -226,12 +362,7 @@ export function ShirtMockupPreview({
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const lastExportRef = React.useRef<string>("");
   const hexColor = getShirtColorHex(shirtColor);
-  const isLightShirt = getLuminance(hexColor) >= 0.52;
-  const [blendWhiteBg, setBlendWhiteBg] = React.useState<boolean>(isLightShirt);
-
-  React.useEffect(() => {
-    setBlendWhiteBg(getLuminance(getShirtColorHex(shirtColor)) >= 0.52);
-  }, [shirtColor]);
+  const [stripWhiteBg, setStripWhiteBg] = React.useState<boolean>(true);
 
   const hasFront = frontPlacement !== "ninguno";
   const hasBack = backPlacement !== "ninguno";
@@ -299,20 +430,19 @@ export function ShirtMockupPreview({
         drawTintedShirtLayer(ctx, shirtBackTpl, size, hexColor);
       }
 
-      // CAPA 3: Estampado(s) en coordenadas calibradas
-      const shouldMultiply = blendWhiteBg && isLightShirt;
+      // CAPA 3: Estampado(s) en coordenadas calibradas con recorte limpio de fondo blanco
       if (hasFront && frontArt) {
         const frontBox = showDual
           ? DUAL_FRONT_BOXES[frontPlacement] || DUAL_FRONT_BOXES.cuadrado_mediano
           : SINGLE_FRONT_BOXES[frontPlacement] || SINGLE_FRONT_BOXES.cuadrado_mediano;
-        drawArtworkInBox(ctx, frontArt, size, frontBox, shouldMultiply);
+        drawArtworkInBox(ctx, frontArt, size, frontBox, stripWhiteBg);
       }
 
       if (hasBack && backArt) {
         const backBox = showDual
           ? DUAL_BACK_BOXES[backPlacement] || DUAL_BACK_BOXES.espalda_mediana
           : SINGLE_BACK_BOXES[backPlacement] || SINGLE_BACK_BOXES.espalda_mediana;
-        drawArtworkInBox(ctx, backArt, size, backBox, shouldMultiply);
+        drawArtworkInBox(ctx, backArt, size, backBox, stripWhiteBg);
       }
 
       // CAPA 4: Logo AlquimiaTex arriba de todo (0, 0, size, size)
@@ -340,8 +470,7 @@ export function ShirtMockupPreview({
     };
   }, [
     hexColor,
-    isLightShirt,
-    blendWhiteBg,
+    stripWhiteBg,
     frontPlacement,
     backPlacement,
     frontImage,
@@ -362,17 +491,15 @@ export function ShirtMockupPreview({
           <span>Mockup de Estudio • {getShirtColorLabel(shirtColor)}</span>
         </span>
 
-        {isLightShirt && (
-          <label className="inline-flex items-center gap-1.5 cursor-pointer font-mono text-[10px] font-bold text-slate-700">
-            <input
-              type="checkbox"
-              checked={blendWhiteBg}
-              onChange={(e) => setBlendWhiteBg(e.target.checked)}
-              className="h-3.5 w-3.5 accent-black"
-            />
-            <span>Fundir fondo blanco</span>
-          </label>
-        )}
+        <label className="inline-flex items-center gap-1.5 cursor-pointer font-mono text-[10px] font-bold text-slate-700">
+          <input
+            type="checkbox"
+            checked={stripWhiteBg}
+            onChange={(e) => setStripWhiteBg(e.target.checked)}
+            className="h-3.5 w-3.5 accent-black"
+          />
+          <span>Recortar fondo blanco</span>
+        </label>
       </div>
 
       <div className="overflow-hidden rounded-lg border-2 border-black bg-[#0D0F14] flex items-center justify-center">

@@ -62,10 +62,13 @@ export function OrderStep2({
   onUseAiAttempt,
 }: OrderStep2Props) {
   const [generatingItemId, setGeneratingItemId] = React.useState<string | null>(null);
+  const [generatingBackItemId, setGeneratingBackItemId] = React.useState<string | null>(null);
   const [aiErrors, setAiErrors] = React.useState<Record<string, string>>({});
+  const [backAiErrors, setBackAiErrors] = React.useState<Record<string, string>>({});
   const [descErrors, setDescErrors] = React.useState<Record<string, string>>({});
   const [placementErrors, setPlacementErrors] = React.useState<Record<string, string>>({});
   const [activeTabs, setActiveTabs] = React.useState<Record<string, "upload" | "ai">>({});
+  const [backArtModes, setBackArtModes] = React.useState<Record<string, "upload" | "ai">>({});
   const fileInputRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
   const backFileInputRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -192,6 +195,7 @@ export function OrderStep2({
         backReferenceImage: "",
         backReferenceImageName: "",
         backReferenceImageUrl: "",
+        backAiPrompt: "",
       });
       if (backFileInputRefs.current[id]) {
         backFileInputRefs.current[id]!.value = "";
@@ -205,6 +209,56 @@ export function OrderStep2({
       if (fileInputRefs.current[id]) {
         fileInputRefs.current[id]!.value = "";
       }
+    }
+  };
+
+  // Generar el 2.º arte independiente para la espalda (comparte el mismo contador global attemptsLeft)
+  const handleGenerateBackAi = async (item: OrderItem) => {
+    if (attemptsLeft <= 0) return;
+    const backDesc = (item.backDescription || "").trim();
+    if (backDesc.length < 10) {
+      setBackAiErrors((prev) => ({
+        ...prev,
+        [item.id]: "Describe la idea para la espalda con al menos 10 caracteres.",
+      }));
+      return;
+    }
+
+    setGeneratingBackItemId(item.id);
+    setBackAiErrors((prev) => {
+      const copy = { ...prev };
+      delete copy[item.id];
+      return copy;
+    });
+
+    try {
+      const res = await fetch("/api/generate-preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description: backDesc,
+          product: "camisa",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "No se pudo generar el arte de espalda con IA.");
+      }
+
+      if (data.imageUrl) {
+        updateItem(item.id, {
+          backReferenceImage: data.imageUrl,
+          backReferenceImageName: "Arte IA (Espalda)",
+          backAiPrompt: data.optimizedPrompt || backDesc,
+        });
+        onUseAiAttempt();
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error al conectar con el motor de IA.";
+      setBackAiErrors((prev) => ({ ...prev, [item.id]: msg }));
+    } finally {
+      setGeneratingBackItemId(null);
     }
   };
 
@@ -455,46 +509,124 @@ export function OrderStep2({
                     </p>
                   )}
 
-                  {/* Opción compacta para subir segunda imagen independiente para la espalda */}
+                  {/* Opción compacta para 2.º arte independiente de espalda (Subir foto O Crear con IA) */}
                   {bothShirtSidesActive && (
-                    <div className="pt-2 border-t border-black/10 space-y-2">
+                    <div className="pt-2.5 border-t border-black/15 space-y-2.5">
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <span className="text-[11px] font-bold text-[#0A0A0A]">
-                          Arte de Espalda{" "}
+                          Arte independiente para la espalda{" "}
                           <span className="font-normal text-slate-600">
-                            (Opcional — por defecto usa el mismo arte)
+                            (Opcional — por defecto repite el del frente)
                           </span>
                         </span>
                       </div>
 
                       {!item.backReferenceImage ? (
-                        <button
-                          type="button"
-                          onClick={() => backFileInputRefs.current[item.id]?.click()}
-                          className="w-full flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-black/35 bg-white px-3 py-2 text-[11px] font-bold text-[#0A0A0A] hover:border-black hover:bg-[#CFFAFE]/30 transition-all"
-                        >
-                          <UploadCloud className="h-3.5 w-3.5 text-[#0891B2]" />
-                          <span>Subir un arte distinto para la espalda</span>
-                          <input
-                            ref={(el) => {
-                              backFileInputRefs.current[item.id] = el;
-                            }}
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            onChange={(e) => handleFileChange(item.id, e, true)}
-                            className="hidden"
-                          />
-                        </button>
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-2 gap-1.5 rounded-lg border border-black bg-[#F3EFE6] p-1">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setBackArtModes((prev) => ({ ...prev, [item.id]: "upload" }))
+                              }
+                              className={cn(
+                                "flex items-center justify-center gap-1 rounded-md py-1.5 text-[11px] font-bold transition-all",
+                                (backArtModes[item.id] || "upload") === "upload"
+                                  ? "bg-white text-[#0A0A0A] border border-black shadow-[1px_1px_0px_#0A0A0A]"
+                                  : "text-slate-700 hover:text-black"
+                              )}
+                            >
+                              <UploadCloud className="h-3.5 w-3.5 text-[#0891B2]" />
+                              <span>Subir foto</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setBackArtModes((prev) => ({ ...prev, [item.id]: "ai" }))
+                              }
+                              className={cn(
+                                "flex items-center justify-center gap-1 rounded-md py-1.5 text-[11px] font-bold transition-all",
+                                backArtModes[item.id] === "ai"
+                                  ? "bg-[#FACC15] text-[#0A0A0A] border border-black shadow-[1px_1px_0px_#0A0A0A]"
+                                  : "text-slate-700 hover:text-black"
+                              )}
+                            >
+                              <Sparkles className="h-3.5 w-3.5 text-[#9333EA]" />
+                              <span>Crear con IA</span>
+                            </button>
+                          </div>
+
+                          {(backArtModes[item.id] || "upload") === "upload" ? (
+                            <button
+                              type="button"
+                              onClick={() => backFileInputRefs.current[item.id]?.click()}
+                              className="w-full flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-black/35 bg-white px-3 py-2 text-[11px] font-bold text-[#0A0A0A] hover:border-black hover:bg-[#CFFAFE]/30 transition-all"
+                            >
+                              <UploadCloud className="h-3.5 w-3.5 text-[#0891B2]" />
+                              <span>Subir foto distinta para la espalda</span>
+                              <input
+                                ref={(el) => {
+                                  backFileInputRefs.current[item.id] = el;
+                                }}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={(e) => handleFileChange(item.id, e, true)}
+                                className="hidden"
+                              />
+                            </button>
+                          ) : (
+                            <div className="space-y-2 rounded-lg border border-black/25 bg-[#FFFBEB] p-2.5">
+                              <Textarea
+                                rows={2}
+                                maxLength={500}
+                                placeholder="Describe el diseño que quieres específicamente en la espalda (mín. 10 caracteres)..."
+                                value={item.backDescription || ""}
+                                onChange={(e) =>
+                                  updateItem(item.id, { backDescription: e.target.value })
+                                }
+                                className="bg-white text-[#0A0A0A] placeholder:text-slate-500 border border-black/30 focus-visible:border-black text-xs"
+                              />
+                              <Button
+                                type="button"
+                                onClick={() => handleGenerateBackAi(item)}
+                                disabled={
+                                  generatingBackItemId === item.id ||
+                                  attemptsLeft <= 0 ||
+                                  (item.backDescription || "").trim().length < 10
+                                }
+                                className="w-full h-9 rounded-lg border-2 border-black bg-[#FACC15] text-[#0A0A0A] hover:bg-[#fde047] disabled:bg-slate-200 disabled:text-slate-500 text-xs font-bold gap-1.5 shadow-[2px_2px_0px_#0A0A0A]"
+                              >
+                                {generatingBackItemId === item.id ? (
+                                  <>
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                                    <span>Generando arte de espalda...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                                    <span>Generar espalda con IA ({attemptsLeft} disp.)</span>
+                                  </>
+                                )}
+                              </Button>
+                              {backAiErrors[item.id] && (
+                                <p className="text-[11px] text-rose-600 font-semibold flex items-center gap-1">
+                                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                                  {backAiErrors[item.id]}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         <div className="flex items-center gap-2.5 rounded-lg border-2 border-black bg-white p-2">
-                          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded border border-black bg-slate-100">
+                          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded border border-black bg-slate-100">
                             <Image
                               src={item.backReferenceImage}
                               alt="Arte espalda"
                               fill
                               unoptimized
-                              sizes="40px"
-                              className="object-cover"
+                              sizes="44px"
+                              className="object-contain"
                             />
                           </div>
                           <div className="min-w-0 flex-1">

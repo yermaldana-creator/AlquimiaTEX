@@ -862,14 +862,24 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                         )}
                       </div>
 
-                      {/* PROMPT OPTIMIZADO DE IA */}
+                      {/* PROMPTS OPTIMIZADOS DE IA */}
                       {item.aiPrompt && (
                         <div className="bg-[#FAF5FF] dark:bg-purple-950/30 p-2.5 border border-[#581C87]/40 dark:border-purple-700 font-mono text-[11px]">
                           <span className="text-[10px] text-[#581C87] dark:text-purple-300 uppercase font-bold block">
-                            Prompt IA utilizado:
+                            Prompt IA utilizado (Principal):
                           </span>
                           <p className="text-slate-800 dark:text-zinc-200 pt-0.5 break-words">
                             {item.aiPrompt}
+                          </p>
+                        </div>
+                      )}
+                      {item.backAiPrompt && (
+                        <div className="bg-[#ECFDF5] dark:bg-emerald-950/30 p-2.5 border border-emerald-700/40 dark:border-emerald-700 font-mono text-[11px]">
+                          <span className="text-[10px] text-emerald-800 dark:text-emerald-300 uppercase font-bold block">
+                            Prompt IA utilizado (Espalda):
+                          </span>
+                          <p className="text-slate-800 dark:text-zinc-200 pt-0.5 break-words">
+                            {item.backAiPrompt}
                           </p>
                         </div>
                       )}
