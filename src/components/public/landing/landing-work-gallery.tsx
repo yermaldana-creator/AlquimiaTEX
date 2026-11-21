@@ -9,6 +9,8 @@ import {
   GALLERY_ITEMS,
   GalleryItem,
 } from "@/lib/landing-content";
+import { IS_CHRISTMAS_SEASON } from "@/lib/constants";
+import { ChristmasCornerStamp } from "./christmas-decor";
 
 export function LandingWorkGallery() {
   const [activeCategory, setActiveCategory] = useState<string>("todas");
@@ -24,8 +26,18 @@ export function LandingWorkGallery() {
         {/* ENCABEZADO DE EXPOSICIÓN */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b-2 border-black pb-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 bg-[#06B6D4] text-black px-3 py-0.5 font-mono text-xs font-black uppercase border border-black shadow-[2px_2px_0px_#0A0A0A]">
-              <span>MUESTRARIO OFICIAL 2026</span>
+            <div
+              className={`inline-flex items-center gap-2 px-3 py-0.5 font-mono text-xs font-black uppercase border border-black shadow-[2px_2px_0px_#0A0A0A] ${
+                IS_CHRISTMAS_SEASON
+                  ? "bg-[#15803D] text-white"
+                  : "bg-[#06B6D4] text-black"
+              }`}
+            >
+              <span>
+                {IS_CHRISTMAS_SEASON
+                  ? "❄ MUESTRARIO OFICIAL • REGALOS NAVIDEÑOS"
+                  : "MUESTRARIO OFICIAL 2026"}
+              </span>
             </div>
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-oswald font-black uppercase tracking-tight text-black leading-none">
               NUESTROS TRABAJOS COMO <span className="bg-[#FACC15] px-2">OBRAS DE ARTE</span>
@@ -114,9 +126,12 @@ export function LandingWorkGallery() {
               {/* CUERPO DE LA FICHA DE MUSEO */}
               <div className="flex flex-1 flex-col justify-between p-4 space-y-3">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
-                    {item.categoryLabel}
-                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+                      {item.categoryLabel}
+                    </span>
+                    <ChristmasCornerStamp variant="gift" className="w-4 h-4" />
+                  </div>
                   <h3 className="text-base font-oswald font-black uppercase text-black line-clamp-1 group-hover:text-[#581C87] transition-colors">
                     {item.title}
                   </h3>

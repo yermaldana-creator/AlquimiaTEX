@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Heart, ExternalLink } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/instagram-icon";
 import { SOCIAL_INFO, INSTAGRAM_POSTS } from "@/lib/landing-content";
+import { IS_CHRISTMAS_SEASON } from "@/lib/constants";
 
 export function LandingInstagramSection() {
   return (
@@ -16,13 +17,18 @@ export function LandingInstagramSection() {
             </div>
 
             <div className="space-y-1">
-              <div className="flex items-center justify-center sm:justify-start gap-2">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <h3 className="text-2xl font-oswald font-black uppercase text-black tracking-tight">
                   {SOCIAL_INFO.instagramHandle}
                 </h3>
                 <span className="bg-[#06B6D4] text-black text-[10px] font-mono font-bold px-1.5 py-0.5 border border-black uppercase">
                   OFICIAL
                 </span>
+                {IS_CHRISTMAS_SEASON && (
+                  <span className="bg-[#E11D48] text-white text-[10px] font-mono font-bold px-1.5 py-0.5 border border-black uppercase">
+                    ❄ EDICIÓN NAVIDAD
+                  </span>
+                )}
               </div>
               <p className="font-mono text-xs text-slate-600">
                 Detrás de cámara, nuevas producciones de franelas y tazas mágicas en Caracas.

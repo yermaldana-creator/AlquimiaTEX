@@ -1,5 +1,7 @@
 import React from "react";
 
+import { IS_CHRISTMAS_SEASON } from "@/lib/constants";
+
 export function StampSeal({
   className = "w-24 h-24 md:w-28 md:h-28",
   text = "100% INDELEBLE",
@@ -124,11 +126,17 @@ export function IndustrialTapeBanner() {
         <span className="h-2 w-2 rounded-full bg-[#E11D48] animate-ping" />
         <span>{"/// TALLER LA DOLORITA • PETARE CARACAS"}</span>
       </span>
-      <span className="hidden md:inline whitespace-nowrap text-white">
-        <span className="text-[#E11D48] mr-1.5">❄</span>
-        SUBLIMACIÓN INDELEBLE • TERMOFIJADO A 180°C
-        <span className="text-[#FACC15] ml-1.5">✦</span>
-      </span>
+      {IS_CHRISTMAS_SEASON ? (
+        <span className="inline-flex items-center gap-1.5 bg-[#E11D48] text-white px-2 py-0.5 font-oswald uppercase font-black text-[11px] sm:text-xs border border-white/30 tracking-wider whitespace-nowrap">
+          <span>❄</span>
+          <span>EDICIÓN NAVIDEÑA • REGALOS</span>
+          <span>✦</span>
+        </span>
+      ) : (
+        <span className="hidden md:inline whitespace-nowrap text-white">
+          SUBLIMACIÓN INDELEBLE • TERMOFIJADO A 180°C
+        </span>
+      )}
       <span className="bg-[#FACC15] text-black px-2 py-0.5 font-oswald uppercase font-black text-xs border border-black shadow-[2px_2px_0px_#0A0A0A]">
         ★ MOCKUP DIGITAL GRATIS ★
       </span>

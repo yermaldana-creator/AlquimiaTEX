@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, MessageCircle, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
 import { SOCIAL_INFO, ORDER_CTA_CONTENT } from "@/lib/landing-content";
+import { IS_CHRISTMAS_SEASON } from "@/lib/constants";
+import { SnowFrostCap } from "./christmas-decor";
 
 export function LandingOrderCta() {
   const whatsappUrl = `https://wa.me/${SOCIAL_INFO.whatsappNumber}?text=${encodeURIComponent(
@@ -27,14 +29,23 @@ export function LandingOrderCta() {
           <p className="font-mono text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
             {ORDER_CTA_CONTENT.subtitle}
           </p>
+          {IS_CHRISTMAS_SEASON && (
+            <div className="pt-2 flex justify-center">
+              <div className="inline-flex items-center gap-2 bg-[#15803D] text-white px-4 py-2 font-mono text-xs font-bold border-2 border-white/80 shadow-[3px_3px_0px_#E11D48]">
+                <span>❄</span>
+                <span>¡Pide tus regalos navideños con tiempo! Entregas en 4 a 7 días hábiles.</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* BOTONES GIGANTES DE ACCIÓN */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 pt-4">
           <Link
             href="/pedido"
-            className="bg-[#FACC15] hover:bg-[#FFE600] text-black font-oswald text-base sm:text-lg font-black uppercase px-8 py-4 border-2 border-black shadow-[5px_5px_0px_#F43F5E] transition-all hover:translate-x-0.5 hover:translate-y-0.5 flex items-center justify-center gap-2"
+            className="relative bg-[#FACC15] hover:bg-[#FFE600] text-black font-oswald text-base sm:text-lg font-black uppercase px-8 py-4 border-2 border-black shadow-[5px_5px_0px_#F43F5E] transition-all hover:translate-x-0.5 hover:translate-y-0.5 flex items-center justify-center gap-2"
           >
+            <SnowFrostCap className="absolute -top-2.5 left-1 right-1 w-[calc(100%-0.5rem)] h-4" />
             <span>{ORDER_CTA_CONTENT.buttonOrder}</span>
             <ArrowRight className="h-5 w-5" />
           </Link>

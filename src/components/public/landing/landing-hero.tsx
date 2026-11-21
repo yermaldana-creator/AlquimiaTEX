@@ -6,6 +6,8 @@ import {
   AlchemistFlask,
   SantaHatBadgeIcon,
 } from "./alchemy-graphics";
+import { SnowFrostCap } from "./christmas-decor";
+import { IS_CHRISTMAS_SEASON } from "@/lib/constants";
 import { LANDING_HERO, SOCIAL_INFO } from "@/lib/landing-content";
 
 export function LandingHero() {
@@ -33,12 +35,16 @@ export function LandingHero() {
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* COLUMNA IZQUIERDA: TIPOGRAFÍA DE GRAN IMPACTO */}
           <div className="lg:col-span-7 space-y-6 text-left">
-            {/* STICKER INFORMATIVO CON TOQUE NAVIDEÑO SUTIL */}
+            {/* STICKER INFORMATIVO (CON TOQUE NAVIDEÑO EN TEMPORADA) */}
             <div className="relative inline-flex items-center gap-2 bg-black text-white px-3.5 py-1.5 font-mono text-xs font-bold border border-black shadow-[3px_3px_0px_#FACC15] mt-2">
-              <SantaHatBadgeIcon className="absolute -top-4 -left-3.5 w-7 h-7 -rotate-12 pointer-events-none drop-shadow-[1px_1px_0px_#0A0A0A]" />
-              <span className="text-[#E11D48] pl-1">❄</span>
+              {IS_CHRISTMAS_SEASON && (
+                <SantaHatBadgeIcon className="absolute -top-4 -left-3.5 w-7 h-7 -rotate-12 pointer-events-none drop-shadow-[1px_1px_0px_#0A0A0A]" />
+              )}
+              <span className={IS_CHRISTMAS_SEASON ? "text-[#E11D48] pl-1" : "text-[#F43F5E]"}>
+                {IS_CHRISTMAS_SEASON ? "❄" : "✦"}
+              </span>
               <span>CATÁLOGO OFICIAL • LA DOLORITA, PETARE</span>
-              <span className="text-[#FACC15]">✦</span>
+              {IS_CHRISTMAS_SEASON && <span className="text-[#FACC15]">✦</span>}
             </div>
 
             {/* TITULAR ASIMÉTRICO */}
@@ -76,11 +82,12 @@ export function LandingHero() {
             </div>
 
             {/* BOTONES DE LLAMADO A LA ACCIÓN */}
-            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link
                 href="/pedido"
-                className="bg-black hover:bg-[#581C87] text-[#FACC15] hover:text-white font-oswald text-base md:text-lg font-black uppercase px-7 py-3.5 border-2 border-black shadow-[5px_5px_0px_#F43F5E] text-center transition-all hover:translate-x-0.5 hover:translate-y-0.5 inline-flex items-center justify-center gap-2"
+                className="relative bg-black hover:bg-[#581C87] text-[#FACC15] hover:text-white font-oswald text-base md:text-lg font-black uppercase px-7 py-3.5 border-2 border-black shadow-[5px_5px_0px_#F43F5E] text-center transition-all hover:translate-x-0.5 hover:translate-y-0.5 inline-flex items-center justify-center gap-2"
               >
+                <SnowFrostCap className="absolute -top-2.5 left-1 right-1 w-[calc(100%-0.5rem)] h-4" />
                 <span>Configurar Mi Pedido</span>
                 <ArrowRight className="h-5 w-5" />
               </Link>

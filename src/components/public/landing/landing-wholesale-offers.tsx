@@ -4,7 +4,9 @@ import {
   WHOLESALE_CATALOG_OFFERS,
   CATALOG_POLICIES,
   ORDER_PRICING_CONDITIONS,
+  IS_CHRISTMAS_SEASON,
 } from "@/lib/constants";
+import { ChristmasCornerStamp } from "./christmas-decor";
 
 export function LandingWholesaleOffers() {
   return (
@@ -12,8 +14,16 @@ export function LandingWholesaleOffers() {
       <div className="container mx-auto max-w-6xl space-y-12">
         {/* ENCABEZADO DE TARIFAS */}
         <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <div className="inline-block bg-[#FACC15] text-black px-3 py-1 font-mono text-xs font-black uppercase border-2 border-black shadow-[3px_3px_0px_#0A0A0A] -rotate-1">
-            ★ LISTA DE PRECIOS MAYORISTA
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="inline-block bg-[#FACC15] text-black px-3 py-1 font-mono text-xs font-black uppercase border-2 border-black shadow-[3px_3px_0px_#0A0A0A] -rotate-1">
+              ★ LISTA DE PRECIOS MAYORISTA
+            </div>
+            {IS_CHRISTMAS_SEASON && (
+              <div className="inline-flex items-center gap-1.5 bg-[#15803D] text-white px-3 py-1 font-mono text-xs font-black uppercase border-2 border-black shadow-[3px_3px_0px_#0A0A0A] rotate-1">
+                <span>❄</span>
+                <span>IDEAL REGALOS CORPORATIVOS</span>
+              </div>
+            )}
           </div>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-oswald font-black uppercase tracking-tight text-black leading-none">
             OFERTAS POR DOCENA <br className="hidden sm:inline" />
@@ -39,8 +49,14 @@ export function LandingWholesaleOffers() {
               >
                 {/* STICKER POPULAR */}
                 {isPopular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#F43F5E] text-white px-3 py-1 font-oswald uppercase text-xs font-black border-2 border-black shadow-[2px_2px_0px_#0A0A0A] tracking-wider z-10">
-                    ★ MÁS SOLICITADA EN CARACAS
+                  <div
+                    className={`absolute -top-3.5 left-1/2 -translate-x-1/2 text-white px-3 py-1 font-oswald uppercase text-xs font-black border-2 border-black shadow-[2px_2px_0px_#0A0A0A] tracking-wider z-10 whitespace-nowrap ${
+                      IS_CHRISTMAS_SEASON ? "bg-[#E11D48]" : "bg-[#F43F5E]"
+                    }`}
+                  >
+                    {IS_CHRISTMAS_SEASON
+                      ? "★ FAVORITA DE NAVIDAD EN CARACAS"
+                      : "★ MÁS SOLICITADA EN CARACAS"}
                   </div>
                 )}
 
@@ -50,6 +66,10 @@ export function LandingWholesaleOffers() {
                     <span className="bg-black text-[#FACC15] px-1.5 py-0.5 uppercase">
                       {offer.tag}
                     </span>
+                    <ChristmasCornerStamp
+                      variant={index % 2 === 0 ? "gift" : "flake"}
+                      className="w-5 h-5"
+                    />
                   </div>
 
                   <div>

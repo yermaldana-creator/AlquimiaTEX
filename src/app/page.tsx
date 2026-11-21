@@ -7,10 +7,18 @@ import { LandingWholesaleOffers } from "@/components/public/landing/landing-whol
 import { LandingInstagramSection } from "@/components/public/landing/landing-instagram-section";
 import { LandingOrderCta } from "@/components/public/landing/landing-order-cta";
 import { LandingFooter } from "@/components/public/landing/landing-footer";
+import {
+  ChristmasSnowOverlay,
+  ChristmasSectionDivider,
+} from "@/components/public/landing/christmas-decor";
+import { IS_CHRISTMAS_SEASON } from "@/lib/constants";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#F3EFE6] text-[#0A0A0A] flex flex-col selection:bg-[#F43F5E] selection:text-white">
+      {/* CAPA LIGERA DE NIEVE SUTIL GLOBAL SOLO EN PORTADA (/) */}
+      <ChristmasSnowOverlay />
+
       {/* 1. ENCABEZADO STREETWEAR CON LOGO Y CINTAS */}
       <LandingHeader />
 
@@ -18,18 +26,24 @@ export default function HomePage() {
         {/* 2. HERO SECTION ASIMÉTRICO (COLLAGE STREETWEAR) */}
         <LandingHero />
 
+        <ChristmasSectionDivider bgClass="bg-[#ECE7DC]" />
+
         {/* 3. GALERÍA EXHIBICIÓN DE ARTE (TAZAS MÁGICAS, MUGS, FRANELAS, ETC.) */}
         <LandingWorkGallery />
 
+        <ChristmasSectionDivider bgClass="bg-[#F3EFE6]" />
+
         {/* 4. OFERTAS POR DOCENA Y POLÍTICAS DEL CATÁLOGO OFICIAL */}
         <LandingWholesaleOffers />
+
+        <ChristmasSectionDivider bgClass="bg-[#F8F5EE]" />
 
         {/* 5. SECCIÓN CÓMO FUNCIONA EL PROCESO (ESTILO FANZINE DE TALLER) */}
         <section id="como-funciona" className="py-16 md:py-24 bg-[#F8F5EE] border-b-2 border-black px-4 sm:px-6 md:px-10">
           <div className="container mx-auto max-w-6xl space-y-12">
             <div className="text-center space-y-3 max-w-2xl mx-auto">
               <div className="inline-block bg-black text-[#FACC15] px-3 py-1 font-mono text-xs font-black uppercase border border-black shadow-[2px_2px_0px_#F43F5E] rotate-1">
-                ✦ PROCESO PASO A PASO
+                {IS_CHRISTMAS_SEASON ? "❄ PROCESO PASO A PASO • NAVIDAD ✦" : "✦ PROCESO PASO A PASO"}
               </div>
               <h2 className="text-4xl sm:text-5xl font-oswald font-black uppercase tracking-tight text-black leading-none">
                 CÓMO REALIZAR TU PEDIDO <br />
@@ -98,9 +112,11 @@ export default function HomePage() {
         </section>
 
         {/* 6. VITRINA SOCIAL INSTAGRAM (@alquimia_tex) */}
+        <ChristmasSectionDivider bgClass="bg-[#ECE7DC]" />
         <LandingInstagramSection />
 
         {/* 7. GRAN LLAMADO A LA ACCIÓN (CTA HACIA /PEDIDO Y WHATSAPP) */}
+        <ChristmasSectionDivider bgClass="bg-[#F3EFE6]" />
         <LandingOrderCta />
       </main>
 

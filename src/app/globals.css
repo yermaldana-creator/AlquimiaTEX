@@ -57,3 +57,59 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* =========================================================
+   TEMÁTICA NAVIDEÑA (PORTADA /) — CSS PURO LIGERO MÓVIL
+   ========================================================= */
+@keyframes snowfall-fall {
+  0% {
+    transform: translate3d(0, -8vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--snow-opacity, 0.45);
+  }
+  50% {
+    transform: translate3d(16px, 48vh, 0) rotate(180deg);
+  }
+  90% {
+    opacity: var(--snow-opacity, 0.45);
+  }
+  100% {
+    transform: translate3d(-12px, 106vh, 0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes christmas-bulb-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    filter: brightness(1.08);
+  }
+  50% {
+    opacity: 0.55;
+    filter: brightness(0.85);
+  }
+}
+
+.christmas-snowflake {
+  animation-name: snowfall-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+.christmas-bulb {
+  animation-name: christmas-bulb-twinkle;
+  animation-duration: 2.8s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .christmas-snowflake,
+  .christmas-bulb {
+    animation: none !important;
+  }
+}

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { MessageCircle, MapPin, Clock, ShieldCheck } from "lucide-react";
 import { InstagramIcon } from "@/components/ui/instagram-icon";
 import { SOCIAL_INFO } from "@/lib/landing-content";
+import { IS_CHRISTMAS_SEASON } from "@/lib/constants";
+import { ChristmasCornerStamp } from "./christmas-decor";
 
 export function LandingFooter() {
   const whatsappUrl = `https://wa.me/${SOCIAL_INFO.whatsappNumber}?text=${encodeURIComponent(
@@ -137,6 +139,13 @@ export function LandingFooter() {
               </Link>
             </div>
           </div>
+
+          {IS_CHRISTMAS_SEASON && (
+            <div className="inline-flex items-center gap-2 bg-[#15803D] text-white px-3 py-1.5 border-2 border-black shadow-[2px_2px_0px_#0A0A0A] font-mono text-[11px] font-bold">
+              <ChristmasCornerStamp variant="gift" className="w-4 h-4" />
+              <span>✦ Felices Fiestas desde el Taller La Dolorita ✦</span>
+            </div>
+          )}
         </div>
       </div>
     </footer>

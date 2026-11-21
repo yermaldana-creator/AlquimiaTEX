@@ -1,5 +1,9 @@
 export const APP_VERSION = "v1.0";
 
+// Interruptor maestro de temporada navideña (solo afecta la portada /)
+// Cambiar a false en enero para desactivar toda la decoración en un clic
+export const IS_CHRISTMAS_SEASON = true;
+
 export const PRODUCT_TYPES = [
   {
     id: "camisa",

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MessageCircle, ArrowRight } from "lucide-react";
 import { IndustrialTapeBanner } from "./alchemy-graphics";
+import { ChristmasLightsGarland } from "./christmas-decor";
 import { SOCIAL_INFO } from "@/lib/landing-content";
 
 export function LandingHeader() {
@@ -81,6 +82,9 @@ export function LandingHeader() {
           </nav>
         </div>
       </header>
+
+      {/* 3. TIRA DE LUCES NAVIDEÑAS NEO-BRUTALISTAS (CONTROLADA POR IS_CHRISTMAS_SEASON) */}
+      <ChristmasLightsGarland className="-mt-[2px]" />
     </div>
   );
 }
