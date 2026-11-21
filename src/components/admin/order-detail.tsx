@@ -25,7 +25,7 @@ import {
   MUG_TYPES,
   getShirtFabricLabel,
   getShirtColorLabel,
-  getPrintPlacementLabel,
+  getShirtPlacementSummary,
 } from "@/lib/constants";
 import { OrderStatusBadge } from "./order-status-badge";
 import { OrderStatusSelect } from "./order-status-select";
@@ -117,6 +117,22 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
       orderImages.push({
         url: item.referenceImage,
         filename: `${rawCode}-item${idx + 1}-referencia.jpg`,
+        itemIndex: idx + 1,
+        isAi: false,
+      });
+    }
+
+    if (item.backReferenceImageUrl) {
+      orderImages.push({
+        url: item.backReferenceImageUrl,
+        filename: `${rawCode}-item${idx + 1}-arte-espalda.jpg`,
+        itemIndex: idx + 1,
+        isAi: false,
+      });
+    } else if (item.backReferenceImage && item.backReferenceImage.startsWith("data:")) {
+      orderImages.push({
+        url: item.backReferenceImage,
+        filename: `${rawCode}-item${idx + 1}-arte-espalda.jpg`,
         itemIndex: idx + 1,
         isAi: false,
       });
@@ -508,7 +524,7 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                             Ubicación Estampado:
                           </span>
                           <strong className="text-black dark:text-amber-100">
-                            {getPrintPlacementLabel(item.printPlacement)}
+                            {getShirtPlacementSummary(item)}
                           </strong>
                         </div>
                       </>
@@ -560,7 +576,7 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                   )}
 
                   {/* PREVISUALIZACIÓN DE IMÁGENES & BOTONES DE DESCARGA */}
-                  {(item.referenceImage || item.referenceImageUrl || item.aiGeneratedImage || item.aiMockupImage) && (
+                  {(item.referenceImage || item.referenceImageUrl || item.backReferenceImage || item.backReferenceImageUrl || item.aiGeneratedImage || item.aiMockupImage) && (
                     <div className="pt-2 border-t border-black dark:border-zinc-700 space-y-3">
                       <span className="font-mono text-[10px] font-bold text-slate-700 dark:text-zinc-300 uppercase block">
                         Arte & Referencias Visuales:
@@ -628,6 +644,77 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                                 className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border border-black dark:border-zinc-700 px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all disabled:opacity-50"
                               >
                                 {downloadingImageIdx === index * 3 ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Download className="h-3 w-3 shrink-0" />
+                                )}
+                                <span>Bajar</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* IMAGEN DE ESPALDA INDEPENDIENTE (SI EXISTE) */}
+                        {(item.backReferenceImageUrl || item.backReferenceImage) && (
+                          <div className="flex flex-col gap-1.5 w-36">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const url = item.backReferenceImageUrl || item.backReferenceImage || "";
+                                const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                setPreviewImage({
+                                  url,
+                                  filename: `${rawCode}-item${index + 1}-arte-espalda.jpg`,
+                                  label: `Arte Espalda — Item #${index + 1}`,
+                                });
+                              }}
+                              className="relative h-32 w-36 bg-white dark:bg-zinc-800 border-2 border-black dark:border-zinc-700 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group cursor-zoom-in"
+                              title="Toca para ampliar arte de espalda"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={item.backReferenceImageUrl || item.backReferenceImage}
+                                alt={`Arte espalda item ${index + 1}`}
+                                className="h-full w-full object-contain p-1 transition-transform group-hover:scale-105"
+                              />
+                              <span className="absolute top-1 left-1 bg-emerald-700 text-white text-[9px] font-mono font-bold px-1 border border-black">
+                                ESPALDA
+                              </span>
+                            </button>
+
+                            <div className="grid grid-cols-2 gap-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const url = item.backReferenceImageUrl || item.backReferenceImage || "";
+                                  const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                  setPreviewImage({
+                                    url,
+                                    filename: `${rawCode}-item${index + 1}-arte-espalda.jpg`,
+                                    label: `Arte Espalda — Item #${index + 1}`,
+                                  });
+                                }}
+                                className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-[#FACC15] text-black border border-black px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:bg-[#EAB308] transition-all"
+                              >
+                                <Eye className="h-3 w-3 shrink-0" />
+                                <span>Ver</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const url = item.backReferenceImageUrl || item.backReferenceImage || "";
+                                  const rawCode = (order.order_code || "pedido").replace(/#/g, "");
+                                  handleDownloadSingleImage(
+                                    url,
+                                    `${rawCode}-item${index + 1}-arte-espalda.jpg`,
+                                    index * 4 + 3
+                                  );
+                                }}
+                                disabled={downloadingImageIdx === index * 4 + 3}
+                                className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border border-black dark:border-zinc-700 px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all disabled:opacity-50"
+                              >
+                                {downloadingImageIdx === index * 4 + 3 ? (
                                   <Loader2 className="h-3 w-3 animate-spin" />
                                 ) : (
                                   <Download className="h-3 w-3 shrink-0" />

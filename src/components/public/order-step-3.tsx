@@ -25,7 +25,7 @@ import {
   SHIRT_CUT_LABELS,
   getShirtColorLabel,
   getShirtFabricLabel,
-  getPrintPlacementLabel,
+  getShirtPlacementSummary,
   MUG_TYPES,
 } from "@/lib/constants";
 import { step3ContactSchema, type Step3ContactFormData, type OrderItem } from "@/lib/schemas";
@@ -179,7 +179,7 @@ export function OrderStep3({
                         <span>•</span>
                         <span>Tela: <strong className="text-[#0A0A0A]">{getShirtFabricLabel(item.shirtFabric)}</strong></span>
                         <span>•</span>
-                        <span>Estampado: <strong className="text-[#0A0A0A]">{getPrintPlacementLabel(item.printPlacement)}</strong></span>
+                        <span>Estampado: <strong className="text-[#0A0A0A]">{getShirtPlacementSummary(item)}</strong></span>
                       </>
                     )}
                     {item.product === "mousepad" && (

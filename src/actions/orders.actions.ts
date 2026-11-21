@@ -96,19 +96,22 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
 
     const supabase = createClient();
 
-    // 1. Subir imágenes (referencia, arte limpio IA y mockup IA) al bucket 'order-references'
+    // 1. Subir imágenes (referencia, arte espalda, arte limpio IA y mockup Canvas) al bucket 'order-references'
     // para evitar guardar strings base64 pesados dentro del JSONB 'items'
     const processedItems = await Promise.all(
       items.map(async (item, idx) => {
-        const [uploadedRef, uploadedAiArt, uploadedAiMockup] = await Promise.all([
+        const [uploadedRef, uploadedBackRef, uploadedAiArt, uploadedAiMockup] = await Promise.all([
           item.referenceImage
             ? uploadAssetToOrderReferences(supabase, item.referenceImage, `${cleanCode}-item-${idx + 1}-ref`)
+            : Promise.resolve(undefined),
+          item.backReferenceImage
+            ? uploadAssetToOrderReferences(supabase, item.backReferenceImage, `${cleanCode}-item-${idx + 1}-espalda`)
             : Promise.resolve(undefined),
           item.aiGeneratedImage
             ? uploadAssetToOrderReferences(supabase, item.aiGeneratedImage, `${cleanCode}-item-${idx + 1}-arte-ia`)
             : Promise.resolve(undefined),
           item.aiMockupImage
-            ? uploadAssetToOrderReferences(supabase, item.aiMockupImage, `${cleanCode}-item-${idx + 1}-mockup-ia`)
+            ? uploadAssetToOrderReferences(supabase, item.aiMockupImage, `${cleanCode}-item-${idx + 1}-mockup`)
             : Promise.resolve(undefined),
         ]);
 
@@ -118,6 +121,12 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
             ? {
                 referenceImageUrl: uploadedRef,
                 referenceImage: uploadedRef,
+              }
+            : {}),
+          ...(uploadedBackRef
+            ? {
+                backReferenceImageUrl: uploadedBackRef,
+                backReferenceImage: uploadedBackRef,
               }
             : {}),
           ...(uploadedAiArt ? { aiGeneratedImage: uploadedAiArt } : {}),

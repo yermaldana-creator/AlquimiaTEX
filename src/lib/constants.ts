@@ -176,11 +176,83 @@ export const SHIRT_PRINT_PLACEMENTS = [
   },
 ] as const;
 
-export function getPrintPlacementLabel(value?: string): string {
-  if (!value) return "Pecho completo";
-  const found = SHIRT_PRINT_PLACEMENTS.find((p) => p.value === value);
+export const SHIRT_FRONT_PLACEMENTS = [
+  { value: "ninguno", label: "Sin estampado", shortDesc: "Frente limpio" },
+  { value: "pecho_completo", label: "Pecho completo", shortDesc: "Centro frontal" },
+  { value: "pecho_izquierdo", label: "Pecho izquierdo", shortDesc: "Logo lado corazón" },
+  { value: "pecho_derecho", label: "Pecho derecho", shortDesc: "Logo lado derecho" },
+  { value: "centro_pequeno", label: "Centro pequeño", shortDesc: "Logo centrado" },
+] as const;
+
+export const SHIRT_BACK_PLACEMENTS = [
+  { value: "ninguno", label: "Sin estampado", shortDesc: "Espalda limpia" },
+  { value: "espalda_completa", label: "Espalda completa", shortDesc: "Centro trasero" },
+  { value: "espalda_superior_pequeno", label: "Nuca / Superior", shortDesc: "Logo arriba" },
+  { value: "espalda_centro_pequeno", label: "Centro pequeño", shortDesc: "Logo centrado" },
+] as const;
+
+export function getFrontPlacementLabel(value?: string): string {
+  if (!value || value === "ninguno") return "Sin estampado";
+  const found = SHIRT_FRONT_PLACEMENTS.find((p) => p.value === value);
   if (found) return found.label;
   return value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+export function getBackPlacementLabel(value?: string): string {
+  if (!value || value === "ninguno") return "Sin estampado";
+  const found = SHIRT_BACK_PLACEMENTS.find((p) => p.value === value);
+  if (found) return found.label;
+  return value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+export function getPrintPlacementLabel(value?: string): string {
+  if (!value) return "Pecho completo";
+  const foundLegacy = SHIRT_PRINT_PLACEMENTS.find((p) => p.value === value);
+  if (foundLegacy) return foundLegacy.label;
+  const foundFront = SHIRT_FRONT_PLACEMENTS.find((p) => p.value === value);
+  if (foundFront) return foundFront.label;
+  const foundBack = SHIRT_BACK_PLACEMENTS.find((p) => p.value === value);
+  if (foundBack) return foundBack.label;
+  return value.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+/**
+ * Resuelve frente y espalda con retrocompatibilidad para pedidos viejos que solo tienen printPlacement.
+ */
+export function resolveShirtPlacements(item: {
+  frontPlacement?: string;
+  backPlacement?: string;
+  printPlacement?: string;
+}): { front: string; back: string } {
+  if (item.frontPlacement || item.backPlacement) {
+    return {
+      front: item.frontPlacement || "ninguno",
+      back: item.backPlacement || "ninguno",
+    };
+  }
+  switch (item.printPlacement) {
+    case "pecho_izquierdo":
+      return { front: "pecho_izquierdo", back: "ninguno" };
+    case "espalda_completa":
+      return { front: "ninguno", back: "espalda_completa" };
+    case "pecho_y_espalda":
+      return { front: "pecho_completo", back: "espalda_completa" };
+    case "pecho_completo":
+    default:
+      return { front: "pecho_completo", back: "ninguno" };
+  }
+}
+
+export function getShirtPlacementSummary(item: {
+  frontPlacement?: string;
+  backPlacement?: string;
+  printPlacement?: string;
+}): string {
+  const { front, back } = resolveShirtPlacements(item);
+  const parts: string[] = [];
+  if (front !== "ninguno") parts.push(`Frente: ${getFrontPlacementLabel(front)}`);
+  if (back !== "ninguno") parts.push(`Espalda: ${getBackPlacementLabel(back)}`);
+  return parts.length > 0 ? parts.join(" • ") : "Frente: Pecho completo";
 }
 
 export const SHIRT_FABRICS = [

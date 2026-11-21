@@ -241,6 +241,8 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtColor: data.product === "camisa" ? data.shirtColor : "",
       shirtFabric: data.product === "camisa" ? data.shirtFabric : "",
       printPlacement: data.product === "camisa" ? data.printPlacement || "pecho_completo" : "",
+      frontPlacement: data.product === "camisa" ? data.frontPlacement || "pecho_completo" : "",
+      backPlacement: data.product === "camisa" ? data.backPlacement || "ninguno" : "",
       mousepadSize: data.product === "mousepad" ? data.mousepadSize : "",
       puzzlePieces: data.product === "rompecabezas" ? data.puzzlePieces : "",
       mugType: data.product === "taza" ? data.mugType : "",

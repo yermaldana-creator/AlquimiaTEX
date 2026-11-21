@@ -2,7 +2,7 @@ import {
   getWhatsAppNumber,
   getShirtColorLabel,
   getShirtFabricLabel,
-  getPrintPlacementLabel,
+  getShirtPlacementSummary,
   SHIRT_CUT_LABELS,
   MUG_TYPES,
 } from "./constants";
@@ -60,7 +60,7 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
       message += `   • Corte: ${cutLabel}\n`;
       message += `   • Color: ${colorLabel}\n`;
       message += `   • Tela: ${fabricLabel}\n`;
-      message += `   • Ubicación estampado: ${getPrintPlacementLabel(item.printPlacement)}\n`;
+      message += `   • Ubicación estampado: ${getShirtPlacementSummary(item)}\n`;
     } else if (item.product === "mousepad") {
       message += `   • Formato: ${item.mousepadSize || "Estándar"}\n`;
     } else if (item.product === "rompecabezas") {
