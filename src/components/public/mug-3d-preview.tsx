@@ -69,24 +69,28 @@ export default function Mug3DPreview({
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 50);
-    camera.position.set(0, 0.45, 4.15);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, 0.62, isStackable ? 4.75 : 4.95);
+    camera.lookAt(0, -0.06, 0);
 
-    // Iluminación limpia y ligera de estudio (sin shadow maps ni HDRIs)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    // Iluminación limpia, cálida y ligera de estudio (sin shadow maps ni HDRIs)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
-    keyLight.position.set(3.5, 4.5, 4.5);
+    const hemiLight = new THREE.HemisphereLight(0xfffaf0, 0xd8b890, 0.55);
+    scene.add(hemiLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.92);
+    keyLight.position.set(3.5, 4.8, 4.5);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xeef6ff, 0.48);
-    rimLight.position.set(-4, 2, -3);
+    const rimLight = new THREE.DirectionalLight(0xfff3dc, 0.48);
+    rimLight.position.set(-4, 2.2, -3);
     scene.add(rimLight);
 
-    // Registro centralizado de geometrías y materiales para dispose() limpio
+    // Registro centralizado de geometrías, materiales y texturas para dispose() limpio
     const geometries: THREE.BufferGeometry[] = [];
     const materials: THREE.Material[] = [];
+    const textures: THREE.Texture[] = [];
     const trackGeo = <T extends THREE.BufferGeometry>(g: T): T => {
       geometries.push(g);
       return g;
@@ -95,9 +99,89 @@ export default function Mug3DPreview({
       materials.push(m);
       return m;
     };
+    const trackTex = <T extends THREE.Texture>(t: T): T => {
+      textures.push(t);
+      return t;
+    };
+
+    // Grupo de escenario (mesa + sombra + taza) para que al inclinar la vista la taza nunca se despegue de la mesa
+    const stageGroup = new THREE.Group();
+    scene.add(stageGroup);
 
     const mugGroup = new THREE.Group();
-    scene.add(mugGroup);
+    stageGroup.add(mugGroup);
+
+    // =========================================================================
+    // BASE DE MESA PROCEDURAL (MADERA CLARA CÁLIDA) + SOMBRA DE CONTACTO (0 KB)
+    // =========================================================================
+    const baseBottomY = isStackable ? -0.83 : -0.96;
+
+    // Textura procedural ligera de madera clara de estudio (256x256)
+    const woodCanvas = document.createElement("canvas");
+    woodCanvas.width = 256;
+    woodCanvas.height = 256;
+    const wctx = woodCanvas.getContext("2d");
+    if (wctx) {
+      const wg = wctx.createRadialGradient(128, 128, 12, 128, 128, 128);
+      wg.addColorStop(0, "#EFE0C9");
+      wg.addColorStop(0.65, "#E2C9A4");
+      wg.addColorStop(1, "#D4B284");
+      wctx.fillStyle = wg;
+      wctx.fillRect(0, 0, 256, 256);
+
+      wctx.strokeStyle = "rgba(135, 90, 42, 0.11)";
+      wctx.lineWidth = 1.5;
+      for (let y = 6; y < 256; y += 9) {
+        wctx.beginPath();
+        wctx.moveTo(0, y);
+        wctx.bezierCurveTo(85, y + Math.sin(y * 0.15) * 4, 170, y - Math.cos(y * 0.12) * 4, 256, y);
+        wctx.stroke();
+      }
+    }
+    const woodTexture = trackTex(new THREE.CanvasTexture(woodCanvas));
+    woodTexture.colorSpace = THREE.SRGBColorSpace;
+
+    const tableGeo = trackGeo(new THREE.CircleGeometry(3.8, 48));
+    const tableMat = trackMat(
+      new THREE.MeshStandardMaterial({
+        map: woodTexture,
+        roughness: 0.78,
+        metalness: 0.02,
+      })
+    );
+    const tableMesh = new THREE.Mesh(tableGeo, tableMat);
+    tableMesh.rotation.x = -Math.PI / 2;
+    tableMesh.position.y = baseBottomY;
+    stageGroup.add(tableMesh);
+
+    // Textura radial suave de sombra de contacto pegada a la base
+    const shadowCanvas = document.createElement("canvas");
+    shadowCanvas.width = 128;
+    shadowCanvas.height = 128;
+    const sctx = shadowCanvas.getContext("2d");
+    if (sctx) {
+      const sg = sctx.createRadialGradient(64, 64, 14, 64, 64, 62);
+      sg.addColorStop(0, "rgba(38, 22, 8, 0.42)");
+      sg.addColorStop(0.55, "rgba(38, 22, 8, 0.22)");
+      sg.addColorStop(1, "rgba(38, 22, 8, 0)");
+      sctx.fillStyle = sg;
+      sctx.fillRect(0, 0, 128, 128);
+    }
+    const shadowTexture = trackTex(new THREE.CanvasTexture(shadowCanvas));
+
+    const shadowRadius = isStackable ? 1.12 : 1.18;
+    const shadowGeo = trackGeo(new THREE.CircleGeometry(shadowRadius, 36));
+    const shadowMat = trackMat(
+      new THREE.MeshBasicMaterial({
+        map: shadowTexture,
+        transparent: true,
+        depthWrite: false,
+      })
+    );
+    const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+    shadowMesh.rotation.x = -Math.PI / 2;
+    shadowMesh.position.set(-0.08, baseBottomY + 0.004, -0.05);
+    stageGroup.add(shadowMesh);
 
     const ceramicMat = trackMat(
       new THREE.MeshStandardMaterial({
@@ -256,7 +340,7 @@ export default function Mug3DPreview({
 
       // Vista inicial 3/4 dejando el asa circular claramente visible al costado derecho
       mugGroup.rotation.y = -0.55;
-      mugGroup.rotation.x = 0.12;
+      stageGroup.rotation.x = 0.08;
     } else {
       // =========================================================================
       // GEOMETRÍA CLÁSICA 11oz (Taza Normal Blanca y Taza Mágica)
@@ -367,7 +451,7 @@ export default function Mug3DPreview({
       }
 
       mugGroup.rotation.y = -Math.PI * 0.35;
-      mugGroup.rotation.x = 0.08;
+      stageGroup.rotation.x = 0.06;
     }
 
     // Cargar textura del diseño del cliente (compatible con base64, blob: y Supabase Storage)
@@ -418,7 +502,7 @@ export default function Mug3DPreview({
       prevY = e.clientY;
 
       mugGroup.rotation.y += dx * 0.012;
-      mugGroup.rotation.x = Math.max(-0.35, Math.min(0.45, mugGroup.rotation.x + dy * 0.006));
+      stageGroup.rotation.x = Math.max(-0.04, Math.min(0.32, stageGroup.rotation.x + dy * 0.005));
     };
 
     const onPointerUp = (e: PointerEvent) => {
@@ -472,6 +556,7 @@ export default function Mug3DPreview({
 
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
+      textures.forEach((t) => t.dispose());
       loadedTexture?.dispose();
 
       renderer?.dispose();
@@ -526,9 +611,15 @@ export default function Mug3DPreview({
         )}
       </div>
 
-      {/* Área del visor 3D o fallback 2D */}
+      {/* Área del visor 3D (fondo cálido alegre de estudio) o fallback 2D */}
       {viewMode === "3d" && !webglFailed ? (
-        <div className="relative h-[265px] sm:h-[290px] w-full rounded-lg border-2 border-black/20 bg-gradient-to-b from-white via-[#F3EFE6] to-[#E6DFD3] overflow-hidden">
+        <div
+          className="relative h-[265px] sm:h-[290px] w-full rounded-lg border-2 border-black/20 overflow-hidden"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 32%, #FFFDF7 0%, #FDECC8 55%, #F3D4A0 100%)",
+          }}
+        >
           <div ref={mountRef} className="h-full w-full" />
           <div className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 rounded-full border border-black/30 bg-white/90 px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#0A0A0A] shadow-xs whitespace-nowrap">
             <RotateCw className="h-3 w-3 text-[#0891B2]" />
