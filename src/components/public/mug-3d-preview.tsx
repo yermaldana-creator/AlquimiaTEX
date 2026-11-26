@@ -4,33 +4,41 @@ import * as React from "react";
 import * as THREE from "three";
 import { RotateCw, Flame, Snowflake, Image as ImageIcon, Box } from "lucide-react";
 
+export type Mug3DVariant = "standard" | "magic" | "stackable";
+
 interface Mug3DPreviewProps {
   imageUrl: string;
-  isMagic: boolean;
+  isMagic?: boolean;
+  mugVariant?: Mug3DVariant;
   alt?: string;
 }
 
 export default function Mug3DPreview({
   imageUrl,
-  isMagic,
+  isMagic = false,
+  mugVariant,
   alt = "Vista previa 3D de taza",
 }: Mug3DPreviewProps) {
+  const resolvedVariant: Mug3DVariant = mugVariant || (isMagic ? "magic" : "standard");
+  const isMagicMug = resolvedVariant === "magic";
+  const isStackable = resolvedVariant === "stackable";
+
   const mountRef = React.useRef<HTMLDivElement | null>(null);
   const [viewMode, setViewMode] = React.useState<"3d" | "2d">("3d");
   const [webglFailed, setWebglFailed] = React.useState(false);
-  const [isHot, setIsHot] = React.useState<boolean>(!isMagic);
+  const [isHot, setIsHot] = React.useState<boolean>(!isMagicMug);
 
   // Ref para animar la capa térmica negra sin reconstruir la escena
-  const isHotRef = React.useRef<boolean>(!isMagic);
+  const isHotRef = React.useRef<boolean>(!isMagicMug);
   React.useEffect(() => {
     isHotRef.current = isHot;
   }, [isHot]);
 
-  // Si cambia de Normal a Mágica, iniciar en estado Fría para lucir el efecto
+  // Si cambia a Taza Mágica, iniciar en estado Fría para lucir el efecto
   React.useEffect(() => {
-    setIsHot(!isMagic);
-    isHotRef.current = !isMagic;
-  }, [isMagic]);
+    setIsHot(!isMagicMug);
+    isHotRef.current = !isMagicMug;
+  }, [isMagicMug]);
 
   React.useEffect(() => {
     if (viewMode !== "3d" || webglFailed) return;
@@ -61,10 +69,10 @@ export default function Mug3DPreview({
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 50);
-    camera.position.set(0, 0.45, 4.1);
+    camera.position.set(0, 0.45, 4.15);
     camera.lookAt(0, 0, 0);
 
-    // Iluminación limpia y ultra-ligera (sin shadow maps ni HDRIs)
+    // Iluminación limpia y ligera de estudio (sin shadow maps ni HDRIs)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(ambientLight);
 
@@ -72,140 +80,294 @@ export default function Mug3DPreview({
     keyLight.position.set(3.5, 4.5, 4.5);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xeef6ff, 0.45);
+    const rimLight = new THREE.DirectionalLight(0xeef6ff, 0.48);
     rimLight.position.set(-4, 2, -3);
     scene.add(rimLight);
 
-    // Grupo principal de la taza 11oz
+    // Registro centralizado de geometrías y materiales para dispose() limpio
+    const geometries: THREE.BufferGeometry[] = [];
+    const materials: THREE.Material[] = [];
+    const trackGeo = <T extends THREE.BufferGeometry>(g: T): T => {
+      geometries.push(g);
+      return g;
+    };
+    const trackMat = <T extends THREE.Material>(m: T): T => {
+      materials.push(m);
+      return m;
+    };
+
     const mugGroup = new THREE.Group();
     scene.add(mugGroup);
 
-    const mugRadius = 0.82;
-    const mugHeight = 1.92;
-    const wallThickness = 0.075;
-
-    const ceramicMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.22,
-      metalness: 0.04,
-    });
-
-    const innerCeramicMat = new THREE.MeshStandardMaterial({
-      color: 0xf8f8f8,
-      roughness: 0.28,
-      metalness: 0.02,
-      side: THREE.BackSide,
-    });
-
-    // 1. Cuerpo exterior cerámico
-    const outerGeo = new THREE.CylinderGeometry(mugRadius, mugRadius, mugHeight, 44, 1, true);
-    const outerMesh = new THREE.Mesh(outerGeo, ceramicMat);
-    mugGroup.add(outerMesh);
-
-    // 2. Interior cerámico
-    const innerGeo = new THREE.CylinderGeometry(
-      mugRadius - wallThickness,
-      mugRadius - wallThickness,
-      mugHeight - 0.08,
-      36,
-      1,
-      true
-    );
-    const innerMesh = new THREE.Mesh(innerGeo, innerCeramicMat);
-    innerMesh.position.y = 0.04;
-    mugGroup.add(innerMesh);
-
-    // 3. Borde superior redondeado (labio)
-    const rimGeo = new THREE.TorusGeometry(
-      mugRadius - wallThickness / 2,
-      wallThickness / 2,
-      14,
-      44
-    );
-    const rimMesh = new THREE.Mesh(rimGeo, ceramicMat);
-    rimMesh.rotation.x = Math.PI / 2;
-    rimMesh.position.y = mugHeight / 2;
-    mugGroup.add(rimMesh);
-
-    // 4. Base inferior (exterior e interior)
-    const bottomGeo = new THREE.CircleGeometry(mugRadius, 36);
-    const bottomMesh = new THREE.Mesh(bottomGeo, ceramicMat);
-    bottomMesh.rotation.x = Math.PI / 2;
-    bottomMesh.position.y = -mugHeight / 2;
-    mugGroup.add(bottomMesh);
-
-    const innerBottomGeo = new THREE.CircleGeometry(mugRadius - wallThickness, 32);
-    const innerBottomMesh = new THREE.Mesh(innerBottomGeo, ceramicMat);
-    innerBottomMesh.rotation.x = -Math.PI / 2;
-    innerBottomMesh.position.y = -mugHeight / 2 + 0.08;
-    mugGroup.add(innerBottomMesh);
-
-    // 5. Asa curva realista (en el lado +X)
-    const handleCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(mugRadius - 0.04, 0.56, 0),
-      new THREE.Vector3(mugRadius + 0.42, 0.54, 0),
-      new THREE.Vector3(mugRadius + 0.52, 0.0, 0),
-      new THREE.Vector3(mugRadius + 0.42, -0.54, 0),
-      new THREE.Vector3(mugRadius - 0.04, -0.56, 0),
-    ]);
-    const handleGeo = new THREE.TubeGeometry(handleCurve, 28, 0.095, 12, false);
-    const handleMat = new THREE.MeshStandardMaterial({
-      color: isMagic ? 0x161616 : 0xffffff,
-      roughness: isMagic ? 0.42 : 0.22,
-      metalness: 0.04,
-    });
-    const handleMesh = new THREE.Mesh(handleGeo, handleMat);
-    mugGroup.add(handleMesh);
-
-    // 6. Manga envolvente de sublimación borde a borde (~21 cm reales, 97% de altura)
-    // En CylinderGeometry, theta = 0 está en +Z, theta = PI/2 está en +X (asa).
-    const wrapGap = 0.22; // Margen pequeño realista junto a la raíz del asa
-    const wrapThetaLength = Math.PI * 2 - wrapGap;
-    const wrapThetaStart = Math.PI / 2 + wrapGap / 2;
-    const printHeight = mugHeight * 0.97;
-
-    const printGeo = new THREE.CylinderGeometry(
-      mugRadius + 0.005,
-      mugRadius + 0.005,
-      printHeight,
-      48,
-      1,
-      true,
-      wrapThetaStart,
-      wrapThetaLength
+    const ceramicMat = trackMat(
+      new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.16,
+        metalness: 0.04,
+        flatShading: false,
+      })
     );
 
-    const printMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.25,
-      metalness: 0.03,
-      transparent: true,
-    });
-    const printMesh = new THREE.Mesh(printGeo, printMat);
-    mugGroup.add(printMesh);
+    const innerCeramicMat = trackMat(
+      new THREE.MeshStandardMaterial({
+        color: 0xf7f7f7,
+        roughness: 0.26,
+        metalness: 0.02,
+        side: THREE.BackSide,
+        flatShading: false,
+      })
+    );
 
-    // 7. Capa térmica negra para Taza Mágica (cubre el exterior en estado Fría)
-    let magicGeo: THREE.CylinderGeometry | null = null;
-    let magicMat: THREE.MeshStandardMaterial | null = null;
-    if (isMagic) {
-      magicGeo = new THREE.CylinderGeometry(
-        mugRadius + 0.01,
-        mugRadius + 0.01,
-        mugHeight * 0.99,
-        48,
-        1,
-        true
-      );
-      magicMat = new THREE.MeshStandardMaterial({
-        color: 0x141414,
-        roughness: 0.48,
-        metalness: 0.06,
+    const printMat = trackMat(
+      new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.2,
+        metalness: 0.03,
         transparent: true,
-        opacity: isHotRef.current ? 0.0 : 0.98,
-        depthWrite: false,
-      });
-      const magicMesh = new THREE.Mesh(magicGeo, magicMat);
-      mugGroup.add(magicMesh);
+        flatShading: false,
+      })
+    );
+
+    let magicMat: THREE.MeshStandardMaterial | null = null;
+
+    if (isStackable) {
+      // =========================================================================
+      // GEOMETRÍA REAL DE TAZA APILABLE (73% cuerpo liso + 27% base acanalada + asa circular)
+      // =========================================================================
+      const totalHeight = 1.66;
+      const upperHeight = totalHeight * 0.73; // ~1.212
+      const baseHeight = totalHeight * 0.27; // ~0.448
+      const upperRadius = 0.9;
+      const wallThickness = 0.075;
+
+      const topY = totalHeight / 2;
+      const stepY = topY - upperHeight;
+      const botY = -totalHeight / 2;
+      const upperCenterY = stepY + upperHeight / 2;
+      const baseCenterY = botY + baseHeight / 2;
+
+      const baseTopR = upperRadius * 0.84;
+      const baseBotR = upperRadius * 0.76;
+
+      // 1. Cuerpo superior liso cerámico (64 segmentos radiales + flatShading: false)
+      const upperGeo = trackGeo(
+        new THREE.CylinderGeometry(upperRadius, upperRadius, upperHeight, 64, 1, true)
+      );
+      const upperMesh = new THREE.Mesh(upperGeo, ceramicMat);
+      upperMesh.position.y = upperCenterY;
+      mugGroup.add(upperMesh);
+
+      // 2. Interior cerámico
+      const innerGeo = trackGeo(
+        new THREE.CylinderGeometry(
+          upperRadius - wallThickness,
+          baseBotR - wallThickness * 0.7,
+          totalHeight - 0.1,
+          48,
+          1,
+          true
+        )
+      );
+      const innerMesh = new THREE.Mesh(innerGeo, innerCeramicMat);
+      innerMesh.position.y = 0.04;
+      mugGroup.add(innerMesh);
+
+      // 3. Borde superior redondeado (labio)
+      const rimGeo = trackGeo(
+        new THREE.TorusGeometry(upperRadius - wallThickness / 2, wallThickness / 2, 16, 64)
+      );
+      const rimMesh = new THREE.Mesh(rimGeo, ceramicMat);
+      rimMesh.rotation.x = Math.PI / 2;
+      rimMesh.position.y = topY;
+      mugGroup.add(rimMesh);
+
+      // 4. Escalón horizontal + bisel redondeado conectando cuerpo liso con base acanalada
+      const stepRingGeo = trackGeo(new THREE.RingGeometry(baseTopR - 0.02, upperRadius, 64));
+      const stepRingMesh = new THREE.Mesh(stepRingGeo, ceramicMat);
+      stepRingMesh.rotation.x = Math.PI / 2;
+      stepRingMesh.position.y = stepY;
+      mugGroup.add(stepRingMesh);
+
+      const stepBevelGeo = trackGeo(new THREE.TorusGeometry(upperRadius - 0.02, 0.022, 10, 64));
+      const stepBevelMesh = new THREE.Mesh(stepBevelGeo, ceramicMat);
+      stepBevelMesh.rotation.x = Math.PI / 2;
+      stepBevelMesh.position.y = stepY + 0.015;
+      mugGroup.add(stepBevelMesh);
+
+      // 5. Base apilable acanalada (32 estrías verticales reales en cerámica blanca)
+      const flutedBaseGeo = trackGeo(
+        new THREE.CylinderGeometry(baseTopR, baseBotR, baseHeight, 160, 1, false)
+      );
+      const posAttr = flutedBaseGeo.attributes.position;
+      const flutes = 32;
+      const fluteAmp = 0.018;
+      for (let i = 0; i < posAttr.count; i++) {
+        const vx = posAttr.getX(i);
+        const vy = posAttr.getY(i);
+        const vz = posAttr.getZ(i);
+        const r = Math.hypot(vx, vz);
+        // Solo modular la pared lateral (no los centros de las tapas)
+        if (r > 0.1) {
+          const angle = Math.atan2(vz, vx);
+          const ridge = Math.cos(angle * flutes) * fluteAmp;
+          const factor = (r + ridge) / r;
+          posAttr.setXYZ(i, vx * factor, vy, vz * factor);
+        }
+      }
+      flutedBaseGeo.computeVertexNormals();
+      const flutedBaseMesh = new THREE.Mesh(flutedBaseGeo, ceramicMat);
+      flutedBaseMesh.position.y = baseCenterY;
+      mugGroup.add(flutedBaseMesh);
+
+      // Fondo interior
+      const innerBottomGeo = trackGeo(new THREE.CircleGeometry(baseBotR - wallThickness, 36));
+      const innerBottomMesh = new THREE.Mesh(innerBottomGeo, ceramicMat);
+      innerBottomMesh.rotation.x = -Math.PI / 2;
+      innerBottomMesh.position.y = botY + 0.09;
+      mugGroup.add(innerBottomMesh);
+
+      // 6. Asa circular compacta (aro/toroide centrado en la zona media-alta del cuerpo liso)
+      const handleGeo = trackGeo(new THREE.TorusGeometry(0.31, 0.088, 16, 36));
+      const handleMesh = new THREE.Mesh(handleGeo, ceramicMat);
+      handleMesh.position.set(upperRadius + 0.24, upperCenterY + 0.06, 0);
+      mugGroup.add(handleMesh);
+
+      // 7. Manga envolvente de sublimación ÚNICAMENTE sobre el cuerpo superior liso
+      const wrapGap = 0.24;
+      const wrapThetaLength = Math.PI * 2 - wrapGap;
+      const wrapThetaStart = Math.PI / 2 + wrapGap / 2;
+      const printHeight = upperHeight * 0.94;
+
+      const printGeo = trackGeo(
+        new THREE.CylinderGeometry(
+          upperRadius + 0.005,
+          upperRadius + 0.005,
+          printHeight,
+          64,
+          1,
+          true,
+          wrapThetaStart,
+          wrapThetaLength
+        )
+      );
+      const printMesh = new THREE.Mesh(printGeo, printMat);
+      printMesh.position.y = upperCenterY;
+      mugGroup.add(printMesh);
+
+      // Vista inicial 3/4 dejando el asa circular claramente visible al costado derecho
+      mugGroup.rotation.y = -0.55;
+      mugGroup.rotation.x = 0.12;
+    } else {
+      // =========================================================================
+      // GEOMETRÍA CLÁSICA 11oz (Taza Normal Blanca y Taza Mágica)
+      // =========================================================================
+      const mugRadius = 0.82;
+      const mugHeight = 1.92;
+      const wallThickness = 0.075;
+
+      const outerGeo = trackGeo(
+        new THREE.CylinderGeometry(mugRadius, mugRadius, mugHeight, 64, 1, true)
+      );
+      mugGroup.add(new THREE.Mesh(outerGeo, ceramicMat));
+
+      const innerGeo = trackGeo(
+        new THREE.CylinderGeometry(
+          mugRadius - wallThickness,
+          mugRadius - wallThickness,
+          mugHeight - 0.08,
+          44,
+          1,
+          true
+        )
+      );
+      const innerMesh = new THREE.Mesh(innerGeo, innerCeramicMat);
+      innerMesh.position.y = 0.04;
+      mugGroup.add(innerMesh);
+
+      const rimGeo = trackGeo(
+        new THREE.TorusGeometry(mugRadius - wallThickness / 2, wallThickness / 2, 16, 64)
+      );
+      const rimMesh = new THREE.Mesh(rimGeo, ceramicMat);
+      rimMesh.rotation.x = Math.PI / 2;
+      rimMesh.position.y = mugHeight / 2;
+      mugGroup.add(rimMesh);
+
+      const bottomGeo = trackGeo(new THREE.CircleGeometry(mugRadius, 44));
+      const bottomMesh = new THREE.Mesh(bottomGeo, ceramicMat);
+      bottomMesh.rotation.x = Math.PI / 2;
+      bottomMesh.position.y = -mugHeight / 2;
+      mugGroup.add(bottomMesh);
+
+      const innerBottomGeo = trackGeo(new THREE.CircleGeometry(mugRadius - wallThickness, 36));
+      const innerBottomMesh = new THREE.Mesh(innerBottomGeo, ceramicMat);
+      innerBottomMesh.rotation.x = -Math.PI / 2;
+      innerBottomMesh.position.y = -mugHeight / 2 + 0.08;
+      mugGroup.add(innerBottomMesh);
+
+      const handleCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(mugRadius - 0.04, 0.56, 0),
+        new THREE.Vector3(mugRadius + 0.42, 0.54, 0),
+        new THREE.Vector3(mugRadius + 0.52, 0.0, 0),
+        new THREE.Vector3(mugRadius + 0.42, -0.54, 0),
+        new THREE.Vector3(mugRadius - 0.04, -0.56, 0),
+      ]);
+      const handleGeo = trackGeo(new THREE.TubeGeometry(handleCurve, 28, 0.095, 14, false));
+      const handleMat = trackMat(
+        new THREE.MeshStandardMaterial({
+          color: isMagicMug ? 0x161616 : 0xffffff,
+          roughness: isMagicMug ? 0.42 : 0.18,
+          metalness: 0.04,
+          flatShading: false,
+        })
+      );
+      mugGroup.add(new THREE.Mesh(handleGeo, handleMat));
+
+      const wrapGap = 0.22;
+      const wrapThetaLength = Math.PI * 2 - wrapGap;
+      const wrapThetaStart = Math.PI / 2 + wrapGap / 2;
+      const printHeight = mugHeight * 0.97;
+
+      const printGeo = trackGeo(
+        new THREE.CylinderGeometry(
+          mugRadius + 0.005,
+          mugRadius + 0.005,
+          printHeight,
+          64,
+          1,
+          true,
+          wrapThetaStart,
+          wrapThetaLength
+        )
+      );
+      mugGroup.add(new THREE.Mesh(printGeo, printMat));
+
+      if (isMagicMug) {
+        const magicGeo = trackGeo(
+          new THREE.CylinderGeometry(
+            mugRadius + 0.01,
+            mugRadius + 0.01,
+            mugHeight * 0.99,
+            64,
+            1,
+            true
+          )
+        );
+        magicMat = trackMat(
+          new THREE.MeshStandardMaterial({
+            color: 0x141414,
+            roughness: 0.48,
+            metalness: 0.06,
+            transparent: true,
+            opacity: isHotRef.current ? 0.0 : 0.98,
+            depthWrite: false,
+            flatShading: false,
+          })
+        );
+        mugGroup.add(new THREE.Mesh(magicGeo, magicMat));
+      }
+
+      mugGroup.rotation.y = -Math.PI * 0.35;
+      mugGroup.rotation.x = 0.08;
     }
 
     // Cargar textura del diseño del cliente (compatible con base64, blob: y Supabase Storage)
@@ -223,14 +385,9 @@ export default function Mug3DPreview({
       },
       undefined,
       () => {
-        // Si la textura falla (CORS o archivo inválido), fallback automático a 2D
         setWebglFailed(true);
       }
     );
-
-    // Orientación inicial mostrando el frente del diseño (opuesto al asa)
-    mugGroup.rotation.y = -Math.PI * 0.35;
-    mugGroup.rotation.x = 0.08;
 
     // Interacción táctil y con mouse (sin bloquear scroll vertical en móvil)
     let isDragging = false;
@@ -277,7 +434,6 @@ export default function Mug3DPreview({
     domElem.addEventListener("pointerup", onPointerUp);
     domElem.addEventListener("pointercancel", onPointerUp);
 
-    // Resize responsive
     const handleResize = () => {
       if (!container || !renderer) return;
       const w = container.clientWidth || 300;
@@ -288,7 +444,6 @@ export default function Mug3DPreview({
     };
     window.addEventListener("resize", handleResize);
 
-    // Loop de renderizado ligero
     let animId = 0;
     const animate = () => {
       animId = window.requestAnimationFrame(animate);
@@ -297,7 +452,6 @@ export default function Mug3DPreview({
         mugGroup.rotation.y += 0.0045;
       }
 
-      // Transición suave térmica en Taza Mágica
       if (magicMat) {
         const targetOpacity = isHotRef.current ? 0.0 : 0.98;
         magicMat.opacity += (targetOpacity - magicMat.opacity) * 0.09;
@@ -308,7 +462,6 @@ export default function Mug3DPreview({
     };
     animate();
 
-    // Limpieza estricta de memoria WebGL al desmontar
     return () => {
       window.cancelAnimationFrame(animId);
       window.removeEventListener("resize", handleResize);
@@ -317,20 +470,8 @@ export default function Mug3DPreview({
       domElem.removeEventListener("pointerup", onPointerUp);
       domElem.removeEventListener("pointercancel", onPointerUp);
 
-      outerGeo.dispose();
-      innerGeo.dispose();
-      rimGeo.dispose();
-      bottomGeo.dispose();
-      innerBottomGeo.dispose();
-      handleGeo.dispose();
-      printGeo.dispose();
-      magicGeo?.dispose();
-
-      ceramicMat.dispose();
-      innerCeramicMat.dispose();
-      handleMat.dispose();
-      printMat.dispose();
-      magicMat?.dispose();
+      geometries.forEach((g) => g.dispose());
+      materials.forEach((m) => m.dispose());
       loadedTexture?.dispose();
 
       renderer?.dispose();
@@ -338,7 +479,13 @@ export default function Mug3DPreview({
         container.removeChild(domElem);
       }
     };
-  }, [imageUrl, isMagic, viewMode, webglFailed]);
+  }, [imageUrl, isMagicMug, isStackable, viewMode, webglFailed]);
+
+  const titleLabel = isMagicMug
+    ? "Vista previa Taza Mágica 3D"
+    : isStackable
+    ? "Vista previa Taza Apilable 3D"
+    : "Vista previa Taza 11oz 3D";
 
   return (
     <div className="rounded-xl border-2 border-black bg-[#FAF7F0] p-3 space-y-2.5 shadow-[3px_3px_0px_#0A0A0A]">
@@ -346,7 +493,7 @@ export default function Mug3DPreview({
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <span className="font-mono text-[10px] font-black uppercase text-[#0A0A0A] flex items-center gap-1.5">
           <Box className="h-3.5 w-3.5 text-[#0891B2]" />
-          <span>{isMagic ? "Vista previa Taza Mágica 3D" : "Vista previa Taza 11oz 3D"}</span>
+          <span>{titleLabel}</span>
         </span>
 
         {!webglFailed && (
@@ -400,7 +547,7 @@ export default function Mug3DPreview({
       )}
 
       {/* Switch Térmico Exclusivo para Taza Mágica */}
-      {isMagic && viewMode === "3d" && !webglFailed && (
+      {isMagicMug && viewMode === "3d" && !webglFailed && (
         <div className="grid grid-cols-2 gap-1.5 pt-0.5">
           <button
             type="button"
@@ -431,7 +578,9 @@ export default function Mug3DPreview({
       )}
 
       <p className="text-[10px] text-slate-600 text-center leading-snug">
-        * Simulación 3D interactiva. Tu imagen original plana se envía intacta al taller para sublimación.
+        {isStackable
+          ? "* Simulación 3D de Taza Apilable (el estampado cubre solo el cuerpo superior liso; la base acanalada queda blanca)."
+          : "* Simulación 3D interactiva. Tu imagen original plana se envía intacta al taller para sublimación."}
       </p>
     </div>
   );

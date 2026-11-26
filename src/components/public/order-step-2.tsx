@@ -425,11 +425,16 @@ export function OrderStep2({
               ? item.aiGeneratedImage || item.referenceImage || ""
               : item.referenceImage || item.aiGeneratedImage || "";
 
-          // Alcance estricto del visor 3D de Taza (excluye Tazas Apilables)
-          const is3DMugEligible =
-            item.product === "taza" &&
-            (item.mugType === "taza_blanca" || item.mugType === "taza_magica") &&
-            Boolean(activeVisualImage);
+          // Visor 3D habilitado para todas las tazas con imagen (Normal, Mágica y Apilables)
+          const isStackableMug =
+            item.mugType === "taza_apilable_individual" || item.mugType === "set_apilable";
+          const mug3DVariant: "standard" | "magic" | "stackable" =
+            item.mugType === "taza_magica"
+              ? "magic"
+              : isStackableMug
+              ? "stackable"
+              : "standard";
+          const is3DMugEligible = item.product === "taza" && Boolean(activeVisualImage);
 
           const shirtPlacements = resolveShirtPlacements(item);
           const bothShirtSidesActive =
@@ -964,11 +969,12 @@ export function OrderStep2({
                   />
                 )}
 
-                {/* 3B. VISOR 3D ULTRA-LIGERO EXCLUSIVO PARA TAZA NORMAL Y TAZA MÁGICA */}
+                {/* 3B. VISOR 3D ULTRA-LIGERO PARA TAZAS (NORMAL, MÁGICA Y APILABLE) */}
                 {is3DMugEligible && (
                   <Mug3DPreview
                     imageUrl={activeVisualImage}
-                    isMagic={item.mugType === "taza_magica"}
+                    isMagic={mug3DVariant === "magic"}
+                    mugVariant={mug3DVariant}
                     alt={`Vista 3D ${variantLabel}`}
                   />
                 )}
