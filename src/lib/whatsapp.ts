@@ -34,8 +34,8 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
 
   const isDocena = params.orderPricingType === "docena";
   const paymentConditionText = isDocena
-    ? "Abono del 50% por anticipado, 50% contra entrega"
-    : "Pago del 100% por anticipado de forma obligatoria";
+    ? "30% de anticipo y 70% contra entrega"
+    : "50% de anticipo y 50% contra entrega";
 
   let message = `¡Hola AlquimiaTex! 👋 Quiero coordinar el siguiente pedido:\n\n`;
   message += `📋 *PEDIDO:* ${params.orderCode}\n`;
@@ -49,7 +49,8 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
 
   params.items.forEach((item, index) => {
     const num = index + 1;
-    message += `\n${num}️⃣ *${item.product.toUpperCase()}* (Cantidad: ${item.quantity})\n`;
+    const productTitle = item.product === "camisa" ? "FRANELA" : item.product.toUpperCase();
+    message += `\n${num}️⃣ *${productTitle}* (Cantidad: ${item.quantity})\n`;
 
     if (item.product === "camisa") {
       const cutLabel = (item.shirtCut && SHIRT_CUT_LABELS[item.shirtCut]) || item.shirtCut || "Caballero / Unisex";
@@ -58,7 +59,11 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string {
 
       message += `   • Talla: ${item.shirtSize || "Por definir"}\n`;
       message += `   • Corte: ${cutLabel}\n`;
-      message += `   • Color: ${colorLabel}\n`;
+      message += `   • Color principal: ${colorLabel}\n`;
+      if (item.backupColors && item.backupColors.length > 0) {
+        const backupLabels = item.backupColors.map((c) => getShirtColorLabel(c)).join(", ");
+        message += `   • Colores de respaldo: ${backupLabels}\n`;
+      }
       message += `   • Tela: ${fabricLabel}\n`;
       message += `   • Ubicación estampado: ${getShirtPlacementSummary(item)}\n`;
     } else if (item.product === "mousepad") {

@@ -30,6 +30,7 @@ import {
 } from "@/lib/constants";
 import { step3ContactSchema, type Step3ContactFormData, type OrderItem } from "@/lib/schemas";
 import { submitOrderAction, type SubmitOrderResponse } from "@/actions/orders.actions";
+import { uploadOrderAssetFromClient } from "@/lib/image-compress";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -65,6 +66,7 @@ export function OrderStep3({
   onGoToStep2,
 }: OrderStep3Props) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitStage, setSubmitStage] = React.useState<string>("Guardando y abriendo WhatsApp...");
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
 
@@ -100,10 +102,34 @@ export function OrderStep3({
   const onSubmit = async (values: Step3ContactFormData) => {
     setIsSubmitting(true);
     setSubmitError(null);
+    setSubmitStage("Subiendo diseños e imágenes...");
 
     try {
+      // 1. Subir imágenes individualmente a /api/upload-order-asset (evita límite 4.5MB de Vercel)
+      const preparedItems: OrderItem[] = await Promise.all(
+        items.map(async (item, idx) => {
+          const [refUrl, backRefUrl, aiArtUrl, aiMockupUrl] = await Promise.all([
+            uploadOrderAssetFromClient(item.referenceImage, `item-${idx + 1}-ref`),
+            uploadOrderAssetFromClient(item.backReferenceImage, `item-${idx + 1}-espalda`),
+            uploadOrderAssetFromClient(item.aiGeneratedImage, `item-${idx + 1}-arte-ia`),
+            uploadOrderAssetFromClient(item.aiMockupImage, `item-${idx + 1}-mockup`),
+          ]);
+
+          return {
+            ...item,
+            ...(refUrl ? { referenceImage: refUrl, referenceImageUrl: refUrl } : {}),
+            ...(backRefUrl ? { backReferenceImage: backRefUrl, backReferenceImageUrl: backRefUrl } : {}),
+            ...(aiArtUrl ? { aiGeneratedImage: aiArtUrl } : {}),
+            ...(aiMockupUrl ? { aiMockupImage: aiMockupUrl } : {}),
+          };
+        })
+      );
+
+      setSubmitStage("Registrando pedido y abriendo WhatsApp...");
+
+      // 2. Registrar pedido ligero en Supabase + generar enlace WhatsApp
       const response = await submitOrderAction({
-        items,
+        items: preparedItems,
         contact: values,
       });
 
@@ -115,8 +141,12 @@ export function OrderStep3({
       }
 
       onSuccess(response);
-    } catch {
-      setSubmitError("Error de conexión con el servidor. Verifica tu conexión a internet.");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error && err.message
+          ? err.message
+          : "Error de conexión con el servidor. Verifica tu conexión a internet e intenta de nuevo.";
+      setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -124,6 +154,32 @@ export function OrderStep3({
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 text-[#0A0A0A]">
+      {/* BANNER DE MARCA CON LOGO AMPLIADO */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border-2 border-black bg-[#FFFDF9] px-4 py-3.5 shadow-[3px_3px_0px_#0A0A0A]">
+        <div className="flex items-center gap-3">
+          <div className="px-2.5 py-1.5 bg-white border-2 border-black shadow-[2px_2px_0px_#0A0A0A]">
+            <Image
+              src="/logo.png"
+              alt="AlquimiaTex"
+              width={210}
+              height={56}
+              className="h-12 sm:h-14 w-auto object-contain"
+            />
+          </div>
+          <div className="space-y-0.5 text-left">
+            <p className="font-oswald text-sm sm:text-base font-black uppercase text-black leading-tight">
+              Confirmación de Pedido Oficial
+            </p>
+            <p className="font-mono text-[11px] text-slate-600">
+              Taller La Dolorita • Caracas, Venezuela
+            </p>
+          </div>
+        </div>
+        <span className="rounded-md border border-black bg-[#FACC15] px-2.5 py-1 font-mono text-[10px] font-black uppercase text-black">
+          Paso Final 3/3
+        </span>
+      </div>
+
       {/* 1. RESUMEN DEL PEDIDO */}
       <Card className="overflow-hidden rounded-xl border-2 border-black bg-white text-[#0A0A0A] shadow-[3px_3px_0px_#0A0A0A]">
         <div className="border-b-2 border-black/15 bg-[#F3EFE6] p-4">
@@ -156,7 +212,7 @@ export function OrderStep3({
                       {idx + 1}
                     </span>
                     <span className="font-oswald font-black uppercase text-sm text-[#0A0A0A]">
-                      {item.product === "camisa" && "Camisa / Franela"}
+                      {item.product === "camisa" && "Franela"}
                       {item.product === "mousepad" && "Mousepad Personalizado"}
                       {item.product === "rompecabezas" && "Rompecabezas Sublimado"}
                       {item.product === "taza" && "Taza Sublimada"}
@@ -176,6 +232,17 @@ export function OrderStep3({
                         <span>Corte: <strong className="text-[#0A0A0A]">{SHIRT_CUT_LABELS[item.shirtCut || "unisex"] || item.shirtCut}</strong></span>
                         <span>•</span>
                         <span>Color: <strong className="text-[#0A0A0A]">{getShirtColorLabel(item.shirtColor)}</strong></span>
+                        {item.backupColors && item.backupColors.length > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>
+                              Respaldo:{" "}
+                              <strong className="text-[#0A0A0A]">
+                                {item.backupColors.map((c) => getShirtColorLabel(c)).join(", ")}
+                              </strong>
+                            </span>
+                          </>
+                        )}
                         <span>•</span>
                         <span>Tela: <strong className="text-[#0A0A0A]">{getShirtFabricLabel(item.shirtFabric)}</strong></span>
                         <span>•</span>
@@ -383,10 +450,10 @@ export function OrderStep3({
             </div>
             <div className="mt-3 rounded-lg bg-white p-2.5 border border-black/20 space-y-1">
               <p className="text-xs font-bold text-[#0A0A0A]">
-                Pago del 100% por anticipado de forma obligatoria
+                50% de anticipo y 50% contra entrega
               </p>
               <p className="text-[11px] text-slate-700 leading-relaxed text-justify">
-                Al ser confección personalizada al detal, la producción inicia inmediatamente tras confirmar el pago total.
+                Abonas el 50% para iniciar corte y estampado, y el 50% restante al retirar en taller o al momento de la entrega.
               </p>
             </div>
           </label>
@@ -424,10 +491,10 @@ export function OrderStep3({
             </div>
             <div className="mt-3 rounded-lg bg-white p-2.5 border border-black/20 space-y-1">
               <p className="text-xs font-bold text-emerald-800">
-                Abono del 50% por anticipado, 50% contra entrega
+                30% de anticipo y 70% contra entrega
               </p>
               <p className="text-[11px] text-slate-700 leading-relaxed text-justify">
-                50% inicial para compra de telas e insumos, y el 50% restante al retirar en taller o al momento de la entrega.
+                Aplica para franelas, tazas, suéteres y demás artículos (12+ unids.): 30% inicial y 70% contra entrega.
               </p>
             </div>
           </label>
@@ -443,8 +510,8 @@ export function OrderStep3({
           </h3>
           <p className="text-xs text-slate-700 leading-relaxed text-justify sm:text-left">
             {selectedPricingType === "docena"
-              ? "Abono del 50% por anticipado, 50% contra entrega. Envíanos tu captura de comprobante por WhatsApp."
-              : "Pago del 100% por anticipado de forma obligatoria. Envíanos tu captura de comprobante por WhatsApp."}
+              ? "30% de anticipo y 70% contra entrega. Envíanos tu captura de comprobante por WhatsApp."
+              : "50% de anticipo y 50% contra entrega. Envíanos tu captura de comprobante por WhatsApp."}
           </p>
         </div>
 
@@ -548,8 +615,8 @@ export function OrderStep3({
               <CreditCard className="h-4 w-4 text-[#0891B2] shrink-0" />
               <span>
                 {selectedPricingType === "docena"
-                  ? "Datos para realizar tu abono del 50% (50% contra entrega):"
-                  : "Datos para realizar tu pago del 100% por anticipado:"}
+                  ? "Datos para realizar tu anticipo del 30% (70% contra entrega):"
+                  : "Datos para realizar tu anticipo del 50% (50% contra entrega):"}
               </span>
             </span>
             <span className="rounded border border-black bg-black px-2 py-0.5 font-mono text-[10px] font-black text-[#FACC15]">
@@ -656,7 +723,7 @@ export function OrderStep3({
                 📍 {PAYMENT_INFO.cash.location}
               </p>
               <p className="text-slate-700 text-[11px] leading-relaxed text-justify sm:text-left">
-                {PAYMENT_INFO.cash.currency}. {selectedPricingType === "docena" ? "Se entrega recibo físico en mano al dejar el 50% de abono inicial." : "Se entrega recibo físico en mano al realizar el pago del 100%."}
+                {PAYMENT_INFO.cash.currency}. {selectedPricingType === "docena" ? "Se entrega recibo físico en mano al dejar el 30% de anticipo (70% contra entrega)." : "Se entrega recibo físico en mano al dejar el 50% de anticipo (50% contra entrega)."}
               </p>
             </div>
           )}
@@ -680,12 +747,10 @@ export function OrderStep3({
           />
           <div className="text-xs text-[#0A0A0A] space-y-1.5">
             <span className="font-bold block">
-              Acepto las condiciones de confección y pago de AlquimiaTex <span className="text-rose-600">*</span>
+              Acepto las condiciones de producción y el uso de mis datos para este pedido <span className="text-rose-600">*</span>
             </span>
             <p className="text-slate-700 text-[11px] leading-relaxed text-justify">
-              {selectedPricingType === "docena"
-                ? "Entiendo que el estampado y confección inician tras confirmar el 50% de abono inicial, liquidando el 50% restante contra entrega en un plazo estimado de 4 a 7 días hábiles."
-                : "Entiendo que el estampado y confección inician tras confirmar el pago del 100% por anticipado, en un plazo estimado de 4 a 7 días hábiles."}
+              Acepto las condiciones de producción (<strong>50% de anticipo y 50% contra entrega</strong> al detal / <strong>30% de anticipo y 70% contra entrega</strong> al mayor, con entrega estimada en <strong>4 a 7 días hábiles</strong> tras confirmar el anticipo) y autorizo el uso de mis datos únicamente para gestionar y coordinar este pedido.
             </p>
             <p className="text-[11px] font-bold text-amber-800">
               🛡️ Garantía oficial: No se realizan cambios por errores en la elección de tallas.
@@ -750,7 +815,7 @@ export function OrderStep3({
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-              <span>Guardando y abriendo WhatsApp...</span>
+              <span>{submitStage}</span>
             </>
           ) : (
             <>

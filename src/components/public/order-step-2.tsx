@@ -387,7 +387,7 @@ export function OrderStep2({
             Personaliza el diseño de cada producto
           </h3>
           <p className="text-xs text-slate-700 leading-relaxed text-justify sm:text-left">
-            Elige si deseas adjuntar tu foto de referencia o generar un arte limpio con IA. Para camisas y tazas (Normal/Mágica) verás una vista previa en vivo.
+            Elige si deseas adjuntar tu foto de referencia o generar un arte limpio con IA. Para franelas y tazas (Normal, Mágica y Apilable) verás una vista previa en vivo.
           </p>
         </div>
         <span className="self-start sm:self-auto inline-flex items-center gap-1 rounded-lg border-2 border-black bg-[#FACC15] px-2.5 py-1 font-mono text-[11px] font-black text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A] shrink-0">

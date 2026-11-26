@@ -383,7 +383,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                                   <div className="font-bold text-black dark:text-white flex items-center justify-between">
                                     <span>
                                       {item.quantity}x{" "}
-                                      {item.product === "camisa" ? "Camisa" : item.product}
+                                      {item.product === "camisa" ? "Franela" : item.product}
                                     </span>
                                     {item.aiGeneratedImage && (
                                       <span className="text-[9px] bg-[#581C87] text-[#FACC15] px-1 border border-black font-bold">

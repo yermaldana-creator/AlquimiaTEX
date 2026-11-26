@@ -127,7 +127,7 @@ export default function TerminosPage() {
                   Pedidos por Unidad (Al Detal)
                 </span>
                 <p className="font-mono text-xs text-slate-700">
-                  Requieren la cancelación del <strong>100% anticipado</strong> de forma obligatoria antes de iniciar la impresión y estampado.
+                  Requieren un <strong>50% de anticipo</strong> para iniciar producción y estampado, liquidando el <strong>50% restante contra entrega</strong>.
                 </p>
               </div>
 
@@ -136,7 +136,7 @@ export default function TerminosPage() {
                   Pedidos por Docena (Al Mayor)
                 </span>
                 <p className="font-mono text-xs text-slate-700">
-                  A partir de 12 unidades, se requiere un <strong>50% de abono inicial</strong> para compra de insumos y corte, liquidando el <strong>50% restante contra entrega</strong>.
+                  A partir de 12 unidades (franelas, tazas, suéteres y demás artículos), se requiere un <strong>30% de anticipo</strong> para compra de insumos y producción, liquidando el <strong>70% restante contra entrega</strong>.
                 </p>
               </div>
             </div>

@@ -116,15 +116,17 @@ export default function PedidoPage() {
         <header className="mb-6 sm:mb-8 space-y-4">
           <div className="flex flex-col gap-3 border-b-2 border-black pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col items-center sm:items-start">
-              <Link href="/" className="inline-flex items-center justify-center gap-2.5 sm:justify-start">
-                <Image
-                  src="/logo.png"
-                  alt="AlquimiaTex"
-                  width={150}
-                  height={40}
-                  priority
-                  className="h-9 sm:h-10 w-auto object-contain"
-                />
+              <Link href="/" className="inline-flex items-center justify-center gap-3 sm:justify-start">
+                <div className="px-2 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_#0A0A0A]">
+                  <Image
+                    src="/logo.png"
+                    alt="AlquimiaTex"
+                    width={220}
+                    height={60}
+                    priority
+                    className="h-12 sm:h-14 w-auto object-contain"
+                  />
+                </div>
                 <span className="inline-block bg-black text-[#FACC15] px-2.5 py-0.5 font-mono text-[10px] font-black uppercase border border-black shadow-[2px_2px_0px_#06B6D4]">
                   Taller La Dolorita
                 </span>

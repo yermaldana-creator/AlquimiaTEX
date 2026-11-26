@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isAllowedAdminEmail } from "@/lib/admin-auth";
 
 const SEVEN_DAYS_IN_SECONDS = 7 * 24 * 60 * 60; // 604.800 segundos (7 días)
 
@@ -42,6 +43,20 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isLoginPage = pathname === "/admin/login";
+
+  // 0. Whitelist estricta: si hay usuario autenticado pero NO es uno de los 3 socios, cerrar sesión y bloquear
+  if (user && !isAllowedAdminEmail(user.email)) {
+    await supabase.auth.signOut();
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin/login";
+    url.searchParams.set("error", "unauthorized");
+    url.searchParams.delete("redirect");
+    const redirectRes = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectRes.cookies.set(cookie.name, cookie.value);
+    });
+    return redirectRes;
+  }
 
   // 1. Si no está autenticado y busca entrar a /admin/* (que no sea login) -> Redirigir a login
   if (!user && !isLoginPage) {

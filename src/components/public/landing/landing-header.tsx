@@ -20,14 +20,14 @@ export function LandingHeader() {
         <div className="container mx-auto flex max-w-6xl items-center justify-between gap-4">
           {/* LOGO OFICIAL */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative p-1 bg-white border-2 border-black shadow-[2px_2px_0px_#0A0A0A] transition-transform group-hover:-rotate-1">
+            <div className="relative px-2 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_#0A0A0A] transition-transform group-hover:-rotate-1">
               <Image
                 src="/logo.png"
                 alt="AlquimiaTex Logo"
-                width={150}
-                height={40}
+                width={220}
+                height={60}
                 priority
-                className="h-9 sm:h-10 w-auto object-contain"
+                className="h-12 sm:h-14 w-auto object-contain"
               />
             </div>
           </Link>

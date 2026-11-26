@@ -1,13 +1,35 @@
 "use server";
 
+import crypto from "crypto";
+import { headers } from "next/headers";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseQueryClient } from "@/lib/supabase/cached-client";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { getSessionUser } from "@/actions/auth.actions";
-import { normalizeOrderStatus, ORDER_STATUSES } from "@/lib/constants";
-import type { OrderItem, Step3ContactFormData } from "@/lib/schemas";
+import { MAX_ORDER_ITEMS, normalizeOrderStatus, ORDER_STATUSES } from "@/lib/constants";
+import {
+  orderItemSchema,
+  step3ContactSchema,
+  type OrderItem,
+  type Step3ContactFormData,
+} from "@/lib/schemas";
 import type { AdminOrder, GetOrdersParams, GetOrdersResult, OrderStatus } from "@/types";
+
+const MAX_ORDERS_PER_IP_WINDOW = 5;
+const ORDER_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutos
+const ALLOWED_UPLOAD_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
+
+function getClientIpHash(): string {
+  const headerList = headers();
+  const forwardedFor = headerList.get("x-forwarded-for");
+  const realIp = headerList.get("x-real-ip");
+  const rawIp = (forwardedFor ? forwardedFor.split(",")[0] : realIp)?.trim() || "127.0.0.1";
+  const salt = process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 16) || "alquimiatex-order-rl";
+  return crypto.createHash("sha256").update(`${rawIp}:${salt}`).digest("hex");
+}
 
 export interface SubmitOrderPayload {
   items: OrderItem[];
@@ -22,7 +44,7 @@ export interface SubmitOrderResponse {
 }
 
 async function uploadAssetToOrderReferences(
-  supabase: ReturnType<typeof createClient>,
+  supabase: ReturnType<typeof getSupabaseQueryClient>,
   source: string | undefined,
   filePrefix: string
 ): Promise<string | undefined> {
@@ -40,20 +62,22 @@ async function uploadAssetToOrderReferences(
     if (source.startsWith("data:")) {
       const matches = source.match(/^data:([A-Za-z0-9\-+\/]+);base64,(.+)$/);
       if (matches && matches.length === 3) {
-        contentType = matches[1];
+        contentType = matches[1].toLowerCase();
         ext = (contentType.split("/")[1] || "png").replace("jpeg", "jpg");
         buffer = Buffer.from(matches[2], "base64");
       }
     } else if (source.startsWith("http://") || source.startsWith("https://")) {
       const res = await fetch(source);
       if (res.ok) {
-        contentType = res.headers.get("content-type") || "image/png";
-        ext = (contentType.split("/")[1]?.split(";")[0] || "png").replace("jpeg", "jpg");
+        contentType = (res.headers.get("content-type") || "image/png").split(";")[0].trim().toLowerCase();
+        ext = (contentType.split("/")[1] || "png").replace("jpeg", "jpg");
         buffer = Buffer.from(await res.arrayBuffer());
       }
     }
 
-    if (!buffer) return source;
+    if (!buffer || buffer.length === 0) return source;
+    if (buffer.length > MAX_UPLOAD_BYTES) return source;
+    if (!ALLOWED_UPLOAD_MIME_TYPES.has(contentType)) return source;
 
     const fileName = `${filePrefix}-${Date.now()}.${ext}`;
     const { data: uploadData, error: uploadErr } = await supabase.storage
@@ -78,14 +102,55 @@ async function uploadAssetToOrderReferences(
 
 export async function submitOrderAction(payload: SubmitOrderPayload): Promise<SubmitOrderResponse> {
   try {
-    const { items, contact } = payload;
+    // 0. Validación estricta con Zod en el servidor
+    const parsedItems = z
+      .array(orderItemSchema)
+      .min(1, "Debes agregar al menos un producto al pedido.")
+      .max(MAX_ORDER_ITEMS, `Máximo ${MAX_ORDER_ITEMS} productos por pedido.`)
+      .safeParse(payload?.items);
 
-    if (!items || items.length === 0) {
+    if (!parsedItems.success) {
       return {
         success: false,
         orderCode: "",
         whatsappUrl: "",
-        error: "Debes agregar al menos un producto al pedido.",
+        error: parsedItems.error.issues[0]?.message || "Los productos del pedido no son válidos.",
+      };
+    }
+
+    const parsedContact = step3ContactSchema.safeParse(payload?.contact);
+    if (!parsedContact.success) {
+      return {
+        success: false,
+        orderCode: "",
+        whatsappUrl: "",
+        error: parsedContact.error.issues[0]?.message || "Verifica tus datos de contacto y términos.",
+      };
+    }
+
+    const items = parsedItems.data;
+    const contact = parsedContact.data;
+
+    // Usamos service_role en el servidor para rate-limit, Storage y registro confiable en 'orders'
+    const supabase = getSupabaseQueryClient();
+
+    // 1. Anti-spam: Rate-limiting persistente por IP (máx. 5 pedidos cada 10 minutos)
+    const ipHash = getClientIpHash();
+    const windowStartIso = new Date(Date.now() - ORDER_RATE_LIMIT_WINDOW_MS).toISOString();
+
+    const { count: recentOrderCount, error: rlErr } = await supabase
+      .from("order_rate_limits")
+      .select("id", { count: "exact", head: true })
+      .eq("ip_hash", ipHash)
+      .gte("created_at", windowStartIso);
+
+    if (!rlErr && typeof recentOrderCount === "number" && recentOrderCount >= MAX_ORDERS_PER_IP_WINDOW) {
+      return {
+        success: false,
+        orderCode: "",
+        whatsappUrl: "",
+        error:
+          "Has enviado varios pedidos seguidos desde esta conexión. Por favor espera 10 minutos antes de registrar otro pedido.",
       };
     }
 
@@ -94,10 +159,7 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
     const orderCode = `#ALQ-${randomSuffix}`;
     const cleanCode = orderCode.replace("#", "");
 
-    const supabase = createClient();
-
-    // 1. Subir imágenes (referencia, arte espalda, arte limpio IA y mockup Canvas) al bucket 'order-references'
-    // para evitar guardar strings base64 pesados dentro del JSONB 'items'
+    // 2. Subir imágenes pendientes (fallback si alguna aún llega en base64 o URL externa)
     const processedItems = await Promise.all(
       items.map(async (item, idx) => {
         const [uploadedRef, uploadedBackRef, uploadedAiArt, uploadedAiMockup] = await Promise.all([
@@ -135,37 +197,45 @@ export async function submitOrderAction(payload: SubmitOrderPayload): Promise<Su
       })
     );
 
-    // 2. Guardar en la tabla de Supabase 'orders'
-    try {
-      const { error: dbErr } = await supabase.from("orders").insert([
-        {
-          order_code: orderCode,
-          customer_name: contact.customerName,
-          customer_phone: contact.customerPhone,
-          delivery_date: contact.deliveryDate,
-          payment_type: contact.orderPricingType,
-          order_pricing_type: contact.orderPricingType,
-          payment_method: contact.paymentMethod,
-          items: processedItems,
-          status: "pendiente_contacto",
-          created_at: new Date().toISOString(),
-        },
-      ]);
+    // 3. Guardar en la tabla de Supabase 'orders' (sin silenciar errores reales)
+    const { error: dbErr } = await supabase.from("orders").insert([
+      {
+        order_code: orderCode,
+        customer_name: contact.customerName.trim(),
+        customer_phone: contact.customerPhone.trim(),
+        delivery_date: contact.deliveryDate,
+        payment_type: contact.orderPricingType,
+        order_pricing_type: contact.orderPricingType,
+        payment_method: contact.paymentMethod,
+        items: processedItems,
+        status: "pendiente_contacto",
+        created_at: new Date().toISOString(),
+      },
+    ]);
 
-      if (dbErr) {
-        console.error("❌ Error al guardar pedido en Supabase:", dbErr.message, dbErr.details || "");
-      } else {
-        console.log("✅ Pedido guardado exitosamente en Supabase con código:", orderCode);
-      }
-    } catch (dbErr) {
-      console.warn("Supabase orders table insert fallback:", dbErr);
+    if (dbErr) {
+      console.error("❌ Error al guardar pedido en Supabase:", dbErr.message, dbErr.details || "");
+      return {
+        success: false,
+        orderCode: "",
+        whatsappUrl: "",
+        error: "No pudimos registrar tu pedido en el sistema. Por favor intenta de nuevo en unos segundos.",
+      };
     }
 
-    // 3. Generar la URL final de WhatsApp
+    // Registrar evento de rate-limit (no bloqueante si la tabla aún no existiera en algún entorno)
+    await supabase
+      .from("order_rate_limits")
+      .insert([{ ip_hash: ipHash }])
+      .then(({ error }) => {
+        if (error) console.warn("Aviso al registrar order_rate_limits:", error.message);
+      });
+
+    // 4. Generar la URL final de WhatsApp
     const whatsappUrl = buildWhatsAppOrderUrl({
       orderCode,
-      customerName: contact.customerName,
-      customerPhone: contact.customerPhone,
+      customerName: contact.customerName.trim(),
+      customerPhone: contact.customerPhone.trim(),
       deliveryDate: contact.deliveryDate,
       orderPricingType: contact.orderPricingType,
       paymentMethod: contact.paymentMethod,

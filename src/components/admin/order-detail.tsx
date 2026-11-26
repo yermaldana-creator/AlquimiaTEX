@@ -397,8 +397,8 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                 </span>
                 <p className="text-[11px] text-slate-600 dark:text-zinc-400 pt-1">
                   {isDocena
-                    ? "Condición: 50% de abono para iniciar producción y 50% restante contra entrega."
-                    : "Condición: Pago del 100% anticipado para confección y estampado."}
+                    ? "Condición: 30% de anticipo para iniciar producción y 70% restante contra entrega."
+                    : "Condición: 50% de anticipo para iniciar producción y 50% restante contra entrega."}
                 </p>
               </div>
 
@@ -466,7 +466,7 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                       </span>
                       <h3 className="font-oswald text-lg font-black uppercase text-black dark:text-white">
                         {item.product === "camisa"
-                          ? "Camisa / Franela"
+                          ? "Franela"
                           : item.product === "mousepad"
                           ? "Mousepad"
                           : item.product === "rompecabezas"
@@ -515,8 +515,16 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                         )}
                         {item.shirtColor && (
                           <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
-                            <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Color:</span>
+                            <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Color Principal:</span>
                             <strong className="text-black dark:text-zinc-100">{getShirtColorLabel(item.shirtColor)}</strong>
+                          </div>
+                        )}
+                        {item.backupColors && item.backupColors.length > 0 && (
+                          <div className="bg-white dark:bg-zinc-800 p-2 border border-black dark:border-zinc-700">
+                            <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase block">Colores de Respaldo:</span>
+                            <strong className="text-black dark:text-zinc-100">
+                              {item.backupColors.map((c) => getShirtColorLabel(c)).join(", ")}
+                            </strong>
                           </div>
                         )}
                         <div className="bg-[#FEF9C3] dark:bg-amber-950/40 p-2 border-2 border-black dark:border-amber-600 sm:col-span-2 lg:col-span-4">
@@ -802,17 +810,17 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                                 const rawCode = (order.order_code || "pedido").replace(/#/g, "");
                                 setPreviewImage({
                                   url: item.aiMockupImage!,
-                                  filename: `${rawCode}-item${index + 1}-mockup-camisa-ia.png`,
-                                  label: `Mockup Camisa IA — Item #${index + 1}`,
+                                  filename: `${rawCode}-item${index + 1}-mockup-franela-ia.png`,
+                                  label: `Mockup Franela IA — Item #${index + 1}`,
                                 });
                               }}
                               className="relative h-32 w-36 bg-[#ECFEFF] dark:bg-cyan-950/40 border-2 border-[#0891B2] dark:border-cyan-600 shadow-[2px_2px_0px_#0891B2] dark:shadow-[2px_2px_0px_#000000] overflow-hidden group cursor-zoom-in"
-                              title="Toca para ampliar mockup en camisa"
+                              title="Toca para ampliar mockup en franela"
                             >
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={item.aiMockupImage}
-                                alt={`Mockup Camisa IA item ${index + 1}`}
+                                alt={`Mockup Franela IA item ${index + 1}`}
                                 className="h-full w-full object-contain p-1 transition-transform group-hover:scale-105"
                               />
                               <span className="absolute top-1 left-1 bg-[#0891B2] text-white text-[9px] font-mono font-bold px-1 border border-black">
@@ -827,8 +835,8 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                                   const rawCode = (order.order_code || "pedido").replace(/#/g, "");
                                   setPreviewImage({
                                     url: item.aiMockupImage!,
-                                    filename: `${rawCode}-item${index + 1}-mockup-camisa-ia.png`,
-                                    label: `Mockup Camisa IA — Item #${index + 1}`,
+                                    filename: `${rawCode}-item${index + 1}-mockup-franela-ia.png`,
+                                    label: `Mockup Franela IA — Item #${index + 1}`,
                                   });
                                 }}
                                 className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-bold uppercase bg-[#FACC15] text-black border border-black px-1.5 py-1.5 shadow-[1.5px_1.5px_0px_#0A0A0A] hover:bg-[#EAB308] transition-all"

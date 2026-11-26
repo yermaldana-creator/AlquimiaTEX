@@ -15,6 +15,10 @@ export const orderItemSchema = z
     shirtSize: z.string().optional(),
     shirtCut: z.string().optional(),
     shirtColor: z.string().optional(),
+    backupColors: z
+      .array(z.string())
+      .max(2, "Puedes seleccionar máximo 2 colores de respaldo")
+      .optional(),
     shirtFabric: z.string().optional(),
     printPlacement: z.string().optional(),
     frontPlacement: z.string().optional(),
@@ -49,7 +53,7 @@ export const orderItemSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["shirtSize"],
-          message: "Selecciona una talla para la camisa",
+          message: "Selecciona una talla para la franela",
         });
       }
       if (!data.shirtCut || data.shirtCut.trim() === "") {
@@ -63,7 +67,7 @@ export const orderItemSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["shirtColor"],
-          message: "Selecciona el color de la camisa",
+          message: "Selecciona el color de la franela",
         });
       }
       if (data.shirtFabric && !ALLOWED_SHIRT_FABRIC_VALUES.includes(data.shirtFabric)) {

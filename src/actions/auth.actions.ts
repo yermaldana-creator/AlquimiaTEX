@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { checkLoginRateLimit, resetLoginRateLimit } from "@/lib/rate-limiter";
+import { isAllowedAdminEmail } from "@/lib/admin-auth";
 
 export interface LoginActionResult {
   success: boolean;
@@ -44,12 +45,27 @@ export async function loginAction(formData: FormData): Promise<LoginActionResult
     };
   }
 
+  if (!isAllowedAdminEmail(email)) {
+    return {
+      success: false,
+      error: "Acceso restringido exclusivamente a los socios autorizados de AlquimiaTex.",
+    };
+  }
+
   const supabase = createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: signInData, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
+
+  if (!error && signInData.user && !isAllowedAdminEmail(signInData.user.email)) {
+    await supabase.auth.signOut();
+    return {
+      success: false,
+      error: "Acceso restringido exclusivamente a los socios autorizados de AlquimiaTex.",
+    };
+  }
 
   if (error) {
     // Si Supabase devuelve error de rate limit (status 429)
@@ -107,6 +123,9 @@ export const getSessionUser = cache(async () => {
     const injectedUserEmail = headerList.get("x-user-email");
 
     if (injectedUserId && injectedUserEmail) {
+      if (!isAllowedAdminEmail(injectedUserEmail)) {
+        return null;
+      }
       return {
         id: injectedUserId,
         email: injectedUserEmail,
@@ -125,7 +144,7 @@ export const getSessionUser = cache(async () => {
       error,
     } = await supabase.auth.getUser();
 
-    if (error || !user) {
+    if (error || !user || !isAllowedAdminEmail(user.email)) {
       return null;
     }
 

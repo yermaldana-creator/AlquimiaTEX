@@ -39,6 +39,7 @@ import {
   MOUSEPAD_SIZES,
   PUZZLE_FORMATS,
   MUG_TYPES,
+  OTHER_PRODUCT_QUICK_OPTIONS,
   MAX_ORDER_ITEMS,
 } from "@/lib/constants";
 import { orderItemSchema, type OrderItem } from "@/lib/schemas";
@@ -109,6 +110,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
   const [addedToast, setAddedToast] = React.useState<boolean>(false);
   const [mounted, setMounted] = React.useState(false);
   const [isColorPaletteOpen, setIsColorPaletteOpen] = React.useState(false);
+  const [isBackupColorsOpen, setIsBackupColorsOpen] = React.useState(false);
   const [colorSearch, setColorSearch] = React.useState("");
   const formRef = React.useRef<HTMLDivElement>(null);
 
@@ -160,6 +162,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtSize: "",
       shirtCut: "unisex",
       shirtColor: "blanco",
+      backupColors: [],
       shirtFabric: "microdurazno",
       mousepadSize: "",
       puzzlePieces: "",
@@ -182,6 +185,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
   const selectedShirtSize = watch("shirtSize");
   const selectedShirtCut = watch("shirtCut");
   const selectedShirtColor = watch("shirtColor");
+  const selectedBackupColors = watch("backupColors") || [];
   const selectedShirtFabric = watch("shirtFabric");
   const selectedMousepadSize = watch("mousepadSize");
   const selectedPuzzlePieces = watch("puzzlePieces");
@@ -232,13 +236,44 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
     setValue("quantity", next, { shouldValidate: true });
   };
 
+  const handleSelectPrimaryColor = (colorVal: string) => {
+    setValue("shirtColor", colorVal, { shouldValidate: true });
+    if (selectedBackupColors.includes(colorVal)) {
+      setValue(
+        "backupColors",
+        selectedBackupColors.filter((c) => c !== colorVal),
+        { shouldValidate: true }
+      );
+    }
+  };
+
+  const toggleBackupColor = (colorVal: string) => {
+    if (colorVal === selectedShirtColor) return;
+    if (selectedBackupColors.includes(colorVal)) {
+      setValue(
+        "backupColors",
+        selectedBackupColors.filter((c) => c !== colorVal),
+        { shouldValidate: true }
+      );
+    } else if (selectedBackupColors.length < 2) {
+      setValue("backupColors", [...selectedBackupColors, colorVal], {
+        shouldValidate: true,
+      });
+    }
+  };
+
   // Agregar o actualizar un producto en el carrito
   const onAddOrUpdateProduct = (data: OrderItem) => {
+    const cleanBackups =
+      data.product === "camisa" && Array.isArray(data.backupColors)
+        ? data.backupColors.filter((c) => c && c !== data.shirtColor).slice(0, 2)
+        : [];
     const sanitizedData: OrderItem = {
       ...data,
       shirtSize: data.product === "camisa" ? data.shirtSize : "",
       shirtCut: data.product === "camisa" ? data.shirtCut : "",
       shirtColor: data.product === "camisa" ? data.shirtColor : "",
+      backupColors: cleanBackups.length > 0 ? cleanBackups : undefined,
       shirtFabric: data.product === "camisa" ? data.shirtFabric : "",
       printPlacement: data.product === "camisa" ? data.printPlacement || "cuadrado_mediano" : "",
       frontPlacement: data.product === "camisa" ? data.frontPlacement || "cuadrado_mediano" : "",
@@ -277,6 +312,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtSize: "",
       shirtCut: "unisex",
       shirtColor: "blanco",
+      backupColors: [],
       shirtFabric: "microdurazno",
       mousepadSize: "",
       puzzlePieces: "",
@@ -343,6 +379,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
       shirtSize: "",
       shirtCut: "unisex",
       shirtColor: "blanco",
+      backupColors: [],
       shirtFabric: "microdurazno",
       mousepadSize: "",
       puzzlePieces: "",
@@ -544,7 +581,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                       <button
                         key={col.value}
                         type="button"
-                        onClick={() => setValue("shirtColor", col.value, { shouldValidate: true })}
+                        onClick={() => handleSelectPrimaryColor(col.value)}
                         className={cn(
                           "flex items-center gap-2 px-2.5 py-2 rounded-lg border-2 text-left transition-all",
                           isSelected
@@ -634,6 +671,13 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                                     type="button"
                                     onClick={() => {
                                       setValue("shirtColor", col.value, { shouldValidate: true });
+                                      if (selectedBackupColors.includes(col.value)) {
+                                        setValue(
+                                          "backupColors",
+                                          selectedBackupColors.filter((c) => c !== col.value),
+                                          { shouldValidate: true }
+                                        );
+                                      }
                                       setIsColorPaletteOpen(false);
                                       setColorSearch("");
                                     }}
@@ -659,6 +703,94 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                     </div>
                   </div>
                 )}
+
+                {/* Colores alternativos de respaldo (opcional, máx. 2) */}
+                <div className="pt-1.5 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsBackupColorsOpen((prev) => !prev)}
+                    className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-black/40 bg-[#FAF7F0] hover:border-black text-xs font-bold text-[#0A0A0A] transition-all"
+                    aria-expanded={isBackupColorsOpen}
+                  >
+                    <span className="flex items-center gap-2 flex-wrap text-left">
+                      <span>Colores alternativos de respaldo (opcional, máx. 2)</span>
+                      {selectedBackupColors.length > 0 && (
+                        <span className="rounded border border-black bg-[#FACC15] px-1.5 py-0 font-mono text-[10px] font-black">
+                          {selectedBackupColors.length}/2
+                        </span>
+                      )}
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 shrink-0 transition-transform duration-150",
+                        isBackupColorsOpen && "rotate-180"
+                      )}
+                    />
+                  </button>
+
+                  {selectedBackupColors.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {selectedBackupColors.map((colVal, idx) => (
+                        <span
+                          key={colVal}
+                          className="inline-flex items-center gap-1.5 rounded-md border border-black bg-white px-2 py-0.5 font-mono text-[11px] font-bold text-[#0A0A0A]"
+                        >
+                          <span
+                            className="h-3 w-3 rounded-full border border-black/50 shrink-0"
+                            style={{ backgroundColor: getShirtColorHex(colVal) }}
+                          />
+                          <span>
+                            Opción {idx + 2}: {getShirtColorLabel(colVal)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => toggleBackupColor(colVal)}
+                            className="text-slate-500 hover:text-rose-600"
+                            aria-label={`Quitar color de respaldo ${getShirtColorLabel(colVal)}`}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {isBackupColorsOpen && (
+                    <div className="rounded-xl border-2 border-black bg-white p-3 space-y-2.5 shadow-[2px_2px_0px_#0A0A0A] animate-in fade-in-50 duration-150">
+                      <p className="text-[11px] text-slate-600 leading-snug">
+                        Elige hasta <strong>2 colores de respaldo</strong> por si el color principal está agotado en taller. El mockup seguirá mostrando tu color principal.
+                      </p>
+                      <div className="max-h-44 overflow-y-auto flex flex-wrap gap-1.5 pr-1">
+                        {SHIRT_COLORS.filter((c) => c.value !== selectedShirtColor).map((col) => {
+                          const isBackup = selectedBackupColors.includes(col.value);
+                          const isDisabled = !isBackup && selectedBackupColors.length >= 2;
+                          return (
+                            <button
+                              key={col.value}
+                              type="button"
+                              disabled={isDisabled}
+                              onClick={() => toggleBackupColor(col.value)}
+                              className={cn(
+                                "inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border text-[11px] font-bold transition-all",
+                                isBackup
+                                  ? "border-2 border-black bg-[#FACC15] text-[#0A0A0A] shadow-[1.5px_1.5px_0px_#0A0A0A]"
+                                  : isDisabled
+                                    ? "border-black/15 bg-slate-100 text-slate-400 cursor-not-allowed opacity-60"
+                                    : "border-black/25 bg-[#FAF7F0] text-[#0A0A0A] hover:border-black"
+                              )}
+                            >
+                              <span
+                                className="h-3 w-3 rounded-full border border-black/40 shrink-0"
+                                style={{ backgroundColor: col.hex }}
+                              />
+                              <span>{col.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Tipo de Tela */}
@@ -808,13 +940,35 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
 
           {/* OTRO */}
           {selectedProduct === "otro" && (
-            <div className="space-y-2 animate-in fade-in-50 duration-200">
+            <div className="space-y-2.5 animate-in fade-in-50 duration-200">
               <Label htmlFor="customDetails" className="text-xs font-bold text-[#0A0A0A]">
                 ¿Qué artículo personalizado necesitas? <span className="text-rose-600">*</span>
               </Label>
+              <div className="flex flex-wrap gap-1.5">
+                {OTHER_PRODUCT_QUICK_OPTIONS.map((option) => {
+                  const isActive = customDetails === option;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() =>
+                        setValue("customProductDetails", option, { shouldValidate: true })
+                      }
+                      className={cn(
+                        "px-2.5 py-1.5 rounded-lg border-2 text-[11px] font-bold transition-all",
+                        isActive
+                          ? "border-black bg-[#FFE4E6] text-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]"
+                          : "border-black/25 bg-[#FAF7F0] text-[#0A0A0A] hover:border-black"
+                      )}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
               <Input
                 id="customDetails"
-                placeholder="Ej: Gorra bordada/estampada, llavero acrílico, bolso tote..."
+                placeholder="Ej: Suéter / Hoodie personalizado, gorra, bolso tote, cojín..."
                 value={customDetails || ""}
                 onChange={(e) => setValue("customProductDetails", e.target.value, { shouldValidate: true })}
                 className="bg-white text-[#0A0A0A] placeholder:text-slate-400 border-2 border-black/30 focus-visible:border-black text-xs"
@@ -955,8 +1109,12 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
               if (item.product === "camisa") {
                 const cutText = (item.shirtCut && SHIRT_CUT_LABELS[item.shirtCut]) || item.shirtCut || "Caballero / Unisex";
                 const colorText = getShirtColorLabel(item.shirtColor);
+                const backupText =
+                  item.backupColors && item.backupColors.length > 0
+                    ? ` (Respaldo: ${item.backupColors.map((c) => getShirtColorLabel(c)).join(", ")})`
+                    : "";
                 const fabricText = getShirtFabricLabel(item.shirtFabric);
-                variantSummary = `Camisa — Talla ${item.shirtSize || "?"} — ${cutText} — ${colorText} — Tela ${fabricText} — x${item.quantity}`;
+                variantSummary = `Franela — Talla ${item.shirtSize || "?"} — ${cutText} — ${colorText}${backupText} — Tela ${fabricText} — x${item.quantity}`;
               } else if (item.product === "mousepad") {
                 variantSummary = `Mousepad — Medida ${item.mousepadSize || "Estándar"} — x${item.quantity}`;
               } else if (item.product === "rompecabezas") {
@@ -992,7 +1150,7 @@ export function OrderStep1({ items, onItemsChange, onNext }: OrderStep1Props) {
                     <div className="min-w-0 space-y-0.5">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-oswald text-xs sm:text-sm font-black uppercase text-[#0A0A0A]">
-                          #{index + 1} • {item.product === "camisa" ? "Camisa" : item.product}
+                          #{index + 1} • {item.product === "camisa" ? "Franela" : item.product}
                         </p>
                         <span className="rounded border border-black bg-[#FAF7F0] px-1.5 py-0 font-mono text-[10px] font-bold text-[#0A0A0A]">
                           x{item.quantity} {item.quantity === 1 ? "unid." : "unids."}

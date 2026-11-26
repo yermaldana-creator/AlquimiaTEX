@@ -288,7 +288,7 @@ export function OrderInventoryPanel({
                   </span>
                   <span className="font-oswald text-base font-black uppercase text-black dark:text-white">
                     {orderItem.product === "camisa"
-                      ? "Camisa / Franela"
+                      ? "Franela"
                       : orderItem.product === "mousepad"
                       ? "Mousepad"
                       : orderItem.product === "rompecabezas"

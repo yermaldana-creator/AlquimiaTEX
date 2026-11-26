@@ -30,7 +30,7 @@ export function LandingWholesaleOffers() {
             <span className="text-[#F43F5E]">DEL CATÁLOGO OFICIAL</span>
           </h2>
           <p className="font-mono text-xs sm:text-sm text-slate-700">
-            Ahorra a partir de 12 unidades en prendas con hasta 2 estampados incluidos (pecho y espalda).
+            Ahorra a partir de 12 unidades en franelas (con hasta 2 estampados incluidos), tazas personalizadas, suéteres y demás artículos del catálogo.
           </p>
         </div>
 
@@ -129,6 +129,29 @@ export function LandingWholesaleOffers() {
               </div>
             );
           })}
+        </div>
+
+        {/* BLOQUE MAYORISTA PARA TAZAS, SUÉTERES Y DEMÁS ARTÍCULOS */}
+        <div className="bg-white border-3 border-black p-5 sm:p-6 shadow-[6px_6px_0px_#06B6D4] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 bg-[#06B6D4] text-black px-2.5 py-0.5 font-mono text-[10px] font-black uppercase border border-black">
+              <span>★ AL MAYOR EN TODO EL CATÁLOGO</span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-oswald font-black uppercase text-black">
+              Tazas (Normal 11 oz, Mágicas y Apilables), Suéteres, Mousepads y Más por Docena
+            </h3>
+            <p className="text-xs sm:text-sm font-sans text-slate-700 max-w-2xl">
+              ¿Necesitas 12 o más tazas corporativas, suéteres para tu equipo o combos promocionales? Aplica tarifa al mayor con{" "}
+              <strong className="text-black">30% de anticipo y 70% contra entrega</strong> y mockup digital previo sin costo.
+            </p>
+          </div>
+          <Link
+            href="/pedido"
+            className="shrink-0 inline-flex items-center gap-2 bg-[#FACC15] hover:bg-[#FFE600] text-black font-oswald uppercase text-sm font-black px-5 py-3 border-2 border-black shadow-[3px_3px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+          >
+            <span>Cotizar al Mayor</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
 
         {/* MODALIDADES DE PAGO (UNIDAD VS DOCENA) */}

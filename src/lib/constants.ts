@@ -7,7 +7,7 @@ export const IS_CHRISTMAS_SEASON = true;
 export const PRODUCT_TYPES = [
   {
     id: "camisa",
-    name: "Camisa / Franela",
+    name: "Franela",
     description: "Sublimación de alta durabilidad en tela suave al tacto",
     badge: "Más vendido",
   },
@@ -26,15 +26,22 @@ export const PRODUCT_TYPES = [
   {
     id: "taza",
     name: "Tazas",
-    description: "Taza mágica, normal blanca o set apilable",
+    description: "Taza normal (11 oz), mágica o apilable",
     badge: "Populares",
   },
   {
     id: "otro",
     name: "Otro Producto",
-    description: "Gorras u otros artículos personalizados a cotizar",
-    badge: "A convenir",
+    description: "Suéteres, gorras u otros artículos personalizados a cotizar",
+    badge: "Suéteres y más",
   },
+] as const;
+
+export const OTHER_PRODUCT_QUICK_OPTIONS = [
+  "Suéter / Hoodie personalizado",
+  "Gorra personalizada",
+  "Bolso / Tote Bag",
+  "Cojín personalizado",
 ] as const;
 
 export const SHIRT_SIZES = [
@@ -319,8 +326,8 @@ export const SHIRT_FABRICS = [
   },
   {
     value: "algodon_100_peinado",
-    label: "Algodón 100% Peinado",
-    description: "Calidad premium superior, ultra suave y máxima transpirabilidad.",
+    label: "Algodón Peinado",
+    description: "100% Algodón Peinado de calidad premium, ultra suave y máxima transpirabilidad.",
   },
   {
     value: "oversize",
@@ -348,24 +355,24 @@ export const PUZZLE_FORMATS = [
 
 export const MUG_TYPES = [
   {
+    value: "taza_blanca",
+    label: "Taza Normal (11 oz)",
+    description: "Cerámica blanca brillante de 11 oz, perfecta para regalos, empresas o uso diario.",
+  },
+  {
     value: "taza_magica",
     label: "Taza Mágica",
     description: "Termosensible negra: revela la imagen o diseño al llenarse con calor.",
   },
   {
-    value: "taza_blanca",
-    label: "Taza Normal Blanca",
-    description: "Cerámica brillante 11oz de alta calidad, perfecta para regalos o uso diario.",
+    value: "taza_apilable_individual",
+    label: "Taza Apilable (Individual)",
+    description: "Taza apilable con base acanalada por unidad (sin soporte metálico).",
   },
   {
     value: "set_apilable",
     label: "Set Apilable (Set completo con base)",
     description: "Torre de 4 tazas apilables con su soporte metálico organizador.",
-  },
-  {
-    value: "taza_apilable_individual",
-    label: "Taza Apilable (Individual)",
-    description: "Taza apilable por unidad sin soporte (para complementar o compra individual).",
   },
 ] as const;
 
@@ -403,16 +410,16 @@ export const ORDER_PRICING_CONDITIONS = {
   unidad: {
     id: "unidad",
     title: "Pedido por Unidad (Al detal)",
-    condition: "Pago del 100% por anticipado de forma obligatoria",
+    condition: "50% de anticipo y 50% contra entrega",
     badge: "1 a 11 unidades",
-    description: "Para pedidos al detal, se cancela la totalidad del importe antes de iniciar corte y estampado.",
+    description: "Para pedidos al detal, abonas el 50% para iniciar corte y estampado, y el 50% restante contra entrega.",
   },
   docena: {
     id: "docena",
     title: "Pedido por Docena (Al mayor)",
-    condition: "Abono del 50% por anticipado, 50% contra entrega",
-    badge: "12+ unidades",
-    description: "Para pedidos por docena, abonas el 50% para inicio de confección y el 50% restante contra entrega en taller o despacho.",
+    condition: "30% de anticipo y 70% contra entrega",
+    badge: "12+ unidades (Franelas, Tazas y más)",
+    description: "Para pedidos por docena o al mayor (franelas, tazas, suéteres y más), abonas el 30% al iniciar y el 70% restante contra entrega.",
   },
 } as const;
 
@@ -471,7 +478,7 @@ export const CATALOG_POLICIES = {
 // Instrucciones de pago manuales
 export const PAYMENT_INFO = {
   pagoMovil: {
-    bank: process.env.NEXT_PUBLIC_PAGO_MOVIL_BANK || "Banesco (0134) / Banco de Venezuela (0102)",
+    bank: process.env.NEXT_PUBLIC_PAGO_MOVIL_BANK || "Banco de Venezuela (0102)",
     phone: getLocalPagoMovilPhone(),
     idNumber: process.env.NEXT_PUBLIC_PAGO_MOVIL_ID || "",
     beneficiary: process.env.NEXT_PUBLIC_PAGO_MOVIL_BENEFICIARY || "AlquimiaTex",
@@ -530,7 +537,7 @@ export const ORDER_STATUS_CONFIG: Record<OrderStatusValue, OrderStatusConfigItem
     border: "border-[#06B6D4]",
     dotColor: "bg-[#06B6D4]",
     hex: "#06B6D4",
-    description: "50% mayor o 100% detal confirmado en banco",
+    description: "Anticipo confirmado en banco (50% detal / 30% mayor)",
   },
   en_produccion: {
     label: "🟣 En Producción",
