@@ -11,11 +11,15 @@ import {
   Calendar,
   RefreshCw,
   ExternalLink,
+  Trash2,
+  AlertTriangle,
+  Loader2,
+  X,
 } from "lucide-react";
-import { getFinanceDashboardData } from "@/actions/finance.actions";
+import { deleteCashMovement, getFinanceDashboardData } from "@/actions/finance.actions";
 import { CashMovementModal } from "./cash-movement-modal";
 import { PurchaseFormModal } from "./purchase-form-modal";
-import type { CashCurrency, FinanceDashboardData } from "@/types";
+import type { CashCurrency, CashMovement, FinanceDashboardData } from "@/types";
 
 interface FinanceDashboardProps {
   initialData: FinanceDashboardData;
@@ -54,7 +58,30 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
   const [typeFilter, setTypeFilter] = useState<string>("todos");
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+  const [movementToDelete, setMovementToDelete] = useState<CashMovement | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const handleConfirmDeleteMovement = async () => {
+    if (!movementToDelete) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const res = await deleteCashMovement(movementToDelete.id);
+      if (!res.success) {
+        setDeleteError(res.error || "No se pudo eliminar el movimiento.");
+        return;
+      }
+      setMovementToDelete(null);
+      reloadData();
+    } catch {
+      setDeleteError("Error inesperado al eliminar el movimiento.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const reloadData = (dateOverride?: string) => {
     const targetDate = dateOverride ?? selectedDate;
@@ -328,6 +355,7 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
                       <th className="p-3">Concepto</th>
                       <th className="p-3 text-right">Monto</th>
                       <th className="p-3">Socio</th>
+                      <th className="p-3 text-center">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/15 dark:divide-zinc-800">
@@ -381,6 +409,29 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
                         </td>
                         <td className="p-3 text-[11px] text-slate-600 dark:text-zinc-400 whitespace-nowrap">
                           {m.created_by.split("@")[0]}
+                        </td>
+                        <td className="p-3 text-center whitespace-nowrap">
+                          {m.related_purchase_id ? (
+                            <span
+                              title="Vinculado a una compra de inventario (no se puede eliminar directamente para no descuadrar stock)"
+                              className="inline-flex items-center justify-center px-2 py-1 border border-slate-300 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 text-[10px] font-bold uppercase cursor-not-allowed"
+                            >
+                              Compra
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteError(null);
+                                setMovementToDelete(m);
+                              }}
+                              className="inline-flex items-center justify-center p-1.5 border-2 border-black dark:border-zinc-700 bg-white dark:bg-zinc-800 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white shadow-[1.5px_1.5px_0px_#0A0A0A] transition-all"
+                              title="Eliminar movimiento"
+                              aria-label="Eliminar movimiento"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -483,6 +534,94 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
         inventoryItems={data.inventoryItems}
         onSuccess={() => reloadData()}
       />
+
+      {/* MODAL DE CONFIRMACIÓN PARA ELIMINAR MOVIMIENTO */}
+      {movementToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] overflow-hidden">
+            <div className="flex items-center justify-between bg-[#FFE4E6] dark:bg-rose-950/60 border-b-2 border-black dark:border-zinc-700 px-4 py-3">
+              <div className="flex items-center gap-2 text-rose-900 dark:text-rose-200">
+                <AlertTriangle className="h-5 w-5 shrink-0" />
+                <h3 className="font-oswald text-lg font-black uppercase">
+                  Confirmar Eliminación
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => !isDeleting && setMovementToDelete(null)}
+                className="p-1 text-rose-900 dark:text-rose-200 hover:opacity-75"
+                aria-label="Cerrar confirmación"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4 font-mono text-xs">
+              <p className="text-slate-700 dark:text-zinc-300">
+                ¿Estás seguro de eliminar este movimiento? Los saldos en vivo de la cuenta y el Cierre del Día se recalcularán automáticamente.
+              </p>
+
+              <div className="bg-[#F8F5EE] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 p-3 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase text-slate-500">Tipo / Cuenta:</span>
+                  <strong className="text-black dark:text-white uppercase">
+                    {movementToDelete.type} • {movementToDelete.account_name}
+                  </strong>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase text-slate-500">Monto:</span>
+                  <strong
+                    className={
+                      movementToDelete.type === "ingreso"
+                        ? "text-emerald-700 dark:text-emerald-400 text-sm"
+                        : "text-rose-700 dark:text-rose-400 text-sm"
+                    }
+                  >
+                    {movementToDelete.type === "ingreso" ? "+" : "-"}
+                    {formatMoney(movementToDelete.amount, movementToDelete.currency)}
+                  </strong>
+                </div>
+                <div className="pt-1 border-t border-black/10 dark:border-zinc-700">
+                  <span className="text-[10px] uppercase text-slate-500 block">Concepto:</span>
+                  <strong className="text-black dark:text-zinc-100 break-words">
+                    {movementToDelete.concept}
+                  </strong>
+                </div>
+              </div>
+
+              {deleteError && (
+                <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-600 text-rose-700 dark:text-rose-300 font-bold">
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/15 dark:border-zinc-700">
+                <button
+                  type="button"
+                  onClick={() => setMovementToDelete(null)}
+                  disabled={isDeleting}
+                  className="px-3.5 py-2 border-2 border-black dark:border-zinc-700 bg-white dark:bg-zinc-800 font-bold uppercase text-black dark:text-white"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleConfirmDeleteMovement()}
+                  disabled={isDeleting}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 border-2 border-black bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-[2.5px_2.5px_0px_#0A0A0A] disabled:opacity-60"
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                  )}
+                  <span>Sí, Eliminar</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

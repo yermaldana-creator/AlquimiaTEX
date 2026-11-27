@@ -543,7 +543,7 @@ export function OrderStep3({
               </span>
             </div>
             <p className="text-[11px] text-slate-700 mt-2 leading-snug">
-              Banesco o Venezuela en Bs al cambio oficial BCV.
+              Banco de Venezuela (0102) en Bs al cambio oficial BCV.
             </p>
           </label>
 

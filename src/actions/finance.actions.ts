@@ -432,3 +432,68 @@ export async function registerInventoryPurchase(
     return { success: false, error: "Error inesperado al registrar la compra." };
   }
 }
+
+/**
+ * Elimina un movimiento manual o de pedido en cash_movements de forma segura.
+ * Bloquea el borrado directo si el movimiento proviene de una compra de insumos
+ * (related_purchase_id) para evitar descuadrar el stock del inventario.
+ */
+export async function deleteCashMovement(
+  movementId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      return { success: false, error: "No autorizado. Inicia sesión como socio." };
+    }
+
+    const cleanId = movementId?.trim();
+    if (
+      !cleanId ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)
+    ) {
+      return { success: false, error: "ID de movimiento no válido." };
+    }
+
+    const supabase = getSupabaseQueryClient();
+
+    const { data: movement, error: fetchErr } = await supabase
+      .from("cash_movements")
+      .select("id, related_purchase_id, related_order_id")
+      .eq("id", cleanId)
+      .single();
+
+    if (fetchErr || !movement) {
+      return { success: false, error: "El movimiento no existe o ya fue eliminado." };
+    }
+
+    if (movement.related_purchase_id) {
+      return {
+        success: false,
+        error:
+          "Este movimiento proviene de una compra de insumos vinculada al inventario y no puede eliminarse directamente para no descuadrar el stock.",
+      };
+    }
+
+    const { error: deleteErr } = await supabase
+      .from("cash_movements")
+      .delete()
+      .eq("id", cleanId);
+
+    if (deleteErr) {
+      console.error("Error al eliminar cash_movements:", deleteErr.message);
+      return { success: false, error: "No se pudo eliminar el movimiento en caja." };
+    }
+
+    revalidatePath("/admin/finanzas");
+    revalidatePath("/admin");
+    if (movement.related_order_id) {
+      revalidatePath(`/admin/pedidos/${movement.related_order_id}`);
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("Error inesperado en deleteCashMovement:", err);
+    return { success: false, error: "Error inesperado al eliminar el movimiento." };
+  }
+}
