@@ -497,3 +497,107 @@ export async function deleteCashMovement(
     return { success: false, error: "Error inesperado al eliminar el movimiento." };
   }
 }
+
+/**
+ * Elimina una compra de insumos en inventory_purchases revirtiendo automáticamente:
+ * 1) Resta la cantidad comprada del ítem en inventory_items (con piso en 0).
+ * 2) Elimina el egreso vinculado en cash_movements (devolviendo el saldo a la cuenta).
+ * 3) Elimina el registro en inventory_purchases.
+ */
+export async function deleteInventoryPurchase(
+  purchaseId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      return { success: false, error: "No autorizado. Inicia sesión como socio." };
+    }
+
+    const cleanId = purchaseId?.trim();
+    if (
+      !cleanId ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)
+    ) {
+      return { success: false, error: "ID de compra no válido." };
+    }
+
+    const supabase = getSupabaseQueryClient();
+
+    // 0. Buscar la compra
+    const { data: purchase, error: fetchErr } = await supabase
+      .from("inventory_purchases")
+      .select("id, inventory_item_id, quantity, total_cost, account_id")
+      .eq("id", cleanId)
+      .single();
+
+    if (fetchErr || !purchase) {
+      return { success: false, error: "La compra no existe o ya fue eliminada." };
+    }
+
+    // 1. Restar la cantidad comprada del stock del ítem (sin permitir stock negativo)
+    const { data: item } = await supabase
+      .from("inventory_items")
+      .select("id, quantity")
+      .eq("id", purchase.inventory_item_id)
+      .single();
+
+    if (item) {
+      const currentQty = Number(item.quantity || 0);
+      const purchasedQty = Number(purchase.quantity || 0);
+      const nextQty = Number(Math.max(0, currentQty - purchasedQty).toFixed(2));
+
+      const { error: stockErr } = await supabase
+        .from("inventory_items")
+        .update({
+          quantity: nextQty,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", item.id);
+
+      if (stockErr) {
+        console.error("Error revirtiendo stock en inventory_items:", stockErr.message);
+        return {
+          success: false,
+          error: "No se pudo revertir el stock del inventario. Operación cancelada.",
+        };
+      }
+    }
+
+    // 2. Eliminar el egreso vinculado en cash_movements
+    const { error: movErr } = await supabase
+      .from("cash_movements")
+      .delete()
+      .eq("related_purchase_id", cleanId);
+
+    if (movErr) {
+      console.error("Error eliminando egreso vinculado en cash_movements:", movErr.message);
+      return {
+        success: false,
+        error: "No se pudo revertir el egreso en caja.",
+      };
+    }
+
+    // 3. Eliminar el registro en inventory_purchases
+    const { error: delErr } = await supabase
+      .from("inventory_purchases")
+      .delete()
+      .eq("id", cleanId);
+
+    if (delErr) {
+      console.error("Error eliminando registro en inventory_purchases:", delErr.message);
+      return {
+        success: false,
+        error: "No se pudo eliminar el registro de compra.",
+      };
+    }
+
+    revalidatePath("/admin/finanzas");
+    revalidatePath("/admin/inventario");
+    revalidatePath("/admin");
+
+    return { success: true };
+  } catch (err) {
+    console.error("Error inesperado en deleteInventoryPurchase:", err);
+    return { success: false, error: "Error inesperado al eliminar la compra." };
+  }
+}

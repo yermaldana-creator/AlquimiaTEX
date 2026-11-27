@@ -16,10 +16,19 @@ import {
   Loader2,
   X,
 } from "lucide-react";
-import { deleteCashMovement, getFinanceDashboardData } from "@/actions/finance.actions";
+import {
+  deleteCashMovement,
+  deleteInventoryPurchase,
+  getFinanceDashboardData,
+} from "@/actions/finance.actions";
 import { CashMovementModal } from "./cash-movement-modal";
 import { PurchaseFormModal } from "./purchase-form-modal";
-import type { CashCurrency, CashMovement, FinanceDashboardData } from "@/types";
+import type {
+  CashCurrency,
+  CashMovement,
+  FinanceDashboardData,
+  InventoryPurchase,
+} from "@/types";
 
 interface FinanceDashboardProps {
   initialData: FinanceDashboardData;
@@ -61,7 +70,30 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
   const [movementToDelete, setMovementToDelete] = useState<CashMovement | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [purchaseToDelete, setPurchaseToDelete] = useState<InventoryPurchase | null>(null);
+  const [deletePurchaseError, setDeletePurchaseError] = useState<string | null>(null);
+  const [isDeletingPurchase, setIsDeletingPurchase] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const handleConfirmDeletePurchase = async () => {
+    if (!purchaseToDelete) return;
+    setIsDeletingPurchase(true);
+    setDeletePurchaseError(null);
+
+    try {
+      const res = await deleteInventoryPurchase(purchaseToDelete.id);
+      if (!res.success) {
+        setDeletePurchaseError(res.error || "No se pudo eliminar la compra.");
+        return;
+      }
+      setPurchaseToDelete(null);
+      reloadData();
+    } catch {
+      setDeletePurchaseError("Error inesperado al eliminar la compra.");
+    } finally {
+      setIsDeletingPurchase(false);
+    }
+  };
 
   const handleConfirmDeleteMovement = async () => {
     if (!movementToDelete) return;
@@ -473,6 +505,7 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
                     <th className="p-3 text-right">Costo Total</th>
                     <th className="p-3">Cuenta</th>
                     <th className="p-3">Notas</th>
+                    <th className="p-3 text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-black/15 dark:divide-zinc-800">
@@ -508,6 +541,20 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
                         </td>
                         <td className="p-3 text-[11px] text-slate-600 dark:text-zinc-400 max-w-xs truncate">
                           {p.notes || "—"}
+                        </td>
+                        <td className="p-3 text-center whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDeletePurchaseError(null);
+                              setPurchaseToDelete(p);
+                            }}
+                            className="inline-flex items-center justify-center p-1.5 border-2 border-black dark:border-zinc-700 bg-rose-600 hover:bg-rose-700 text-white shadow-[1.5px_1.5px_0px_#0A0A0A] transition-all"
+                            title="Eliminar compra y revertir stock y caja"
+                            aria-label="Eliminar compra"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         </td>
                       </tr>
                     );
@@ -616,6 +663,96 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
                     <Trash2 className="h-3.5 w-3.5" />
                   )}
                   <span>Sí, Eliminar</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE CONFIRMACIÓN PARA ELIMINAR COMPRA DE INSUMO */}
+      {purchaseToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] overflow-hidden">
+            <div className="flex items-center justify-between bg-[#FFE4E6] dark:bg-rose-950/60 border-b-2 border-black dark:border-zinc-700 px-4 py-3">
+              <div className="flex items-center gap-2 text-rose-900 dark:text-rose-200">
+                <AlertTriangle className="h-5 w-5 shrink-0" />
+                <h3 className="font-oswald text-lg font-black uppercase">
+                  Revertir y Eliminar Compra
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => !isDeletingPurchase && setPurchaseToDelete(null)}
+                className="p-1 text-rose-900 dark:text-rose-200 hover:opacity-75"
+                aria-label="Cerrar confirmación"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4 font-mono text-xs">
+              <p className="text-slate-700 dark:text-zinc-300">
+                Al eliminar esta compra se revertirán automáticamente el inventario y el saldo de caja:
+              </p>
+
+              <div className="bg-[#F8F5EE] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 p-3 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] uppercase text-slate-500">Insumo:</span>
+                  <strong className="text-black dark:text-white text-right">
+                    {purchaseToDelete.inventory_item_name}
+                    {purchaseToDelete.inventory_item_variant
+                      ? ` (${purchaseToDelete.inventory_item_variant})`
+                      : ""}
+                  </strong>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] uppercase text-slate-500">Se restará del stock:</span>
+                  <strong className="text-rose-700 dark:text-rose-400">
+                    -{purchaseToDelete.quantity} {purchaseToDelete.inventory_item_unit || "ud"}
+                  </strong>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] uppercase text-slate-500">Se devolverá a caja:</span>
+                  <strong className="text-emerald-700 dark:text-emerald-400 text-sm">
+                    +{formatMoney(purchaseToDelete.total_cost, purchaseToDelete.account_currency || "USD")}
+                  </strong>
+                </div>
+                <div className="flex items-center justify-between gap-2 pt-1 border-t border-black/10 dark:border-zinc-700">
+                  <span className="text-[10px] uppercase text-slate-500">Cuenta:</span>
+                  <strong className="text-black dark:text-zinc-200">
+                    {purchaseToDelete.account_name}
+                  </strong>
+                </div>
+              </div>
+
+              {deletePurchaseError && (
+                <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-600 text-rose-700 dark:text-rose-300 font-bold">
+                  {deletePurchaseError}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/15 dark:border-zinc-700">
+                <button
+                  type="button"
+                  onClick={() => setPurchaseToDelete(null)}
+                  disabled={isDeletingPurchase}
+                  className="px-3.5 py-2 border-2 border-black dark:border-zinc-700 bg-white dark:bg-zinc-800 font-bold uppercase text-black dark:text-white"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleConfirmDeletePurchase()}
+                  disabled={isDeletingPurchase}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 border-2 border-black bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-[2.5px_2.5px_0px_#0A0A0A] disabled:opacity-60"
+                >
+                  {isDeletingPurchase ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                  )}
+                  <span>Sí, Revertir y Eliminar</span>
                 </button>
               </div>
             </div>
