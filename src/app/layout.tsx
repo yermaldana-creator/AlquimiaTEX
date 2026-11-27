@@ -38,8 +38,11 @@ export const metadata: Metadata = {
   title: "AlquimiaTex | Sublimación y Confección Textil Oficial",
   description: "Taller artesanal de sublimación y confección en La Dolorita, Petare, Caracas. Ofertas por docena, franelas microdurazno y personalización con IA.",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/logo.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.png",
     apple: "/logo.png",
   },
 };

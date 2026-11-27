@@ -8,6 +8,7 @@ import {
   Boxes,
   Calculator,
   HandCoins,
+  Wallet,
 } from "lucide-react";
 
 export function AdminNavTabBar() {
@@ -49,6 +50,12 @@ export function AdminNavTabBar() {
       icon: HandCoins,
       isActive: pathname.startsWith("/admin/deudas"),
     },
+    {
+      href: "/admin/finanzas",
+      label: "Finanzas / Caja",
+      icon: Wallet,
+      isActive: pathname.startsWith("/admin/finanzas"),
+    },
   ];
 
   return (
@@ -56,8 +63,8 @@ export function AdminNavTabBar() {
       aria-label="Navegación principal del taller"
       className="w-full border-b-2 border-black dark:border-zinc-800 bg-[#F8F5EE] dark:bg-[#171717] px-4 sm:px-6 md:px-8 py-2.5 transition-colors duration-150"
     >
-      <div className="container mx-auto max-w-7xl">
-        <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar py-0.5">
+      <div className="container mx-auto max-w-7xl relative">
+        <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scroll-smooth no-scrollbar py-0.5 pr-10 sm:pr-0">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = item.isActive;
@@ -78,6 +85,11 @@ export function AdminNavTabBar() {
             );
           })}
         </div>
+        {/* Indicador sutil de desplazamiento horizontal en móvil */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-[#F8F5EE] via-[#F8F5EE]/80 to-transparent dark:from-[#171717] dark:via-[#171717]/80 md:hidden"
+        />
       </div>
     </nav>
   );

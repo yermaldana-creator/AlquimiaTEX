@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, useMemo, useCallback } from "react";
+import { useState, useEffect, useTransition, useCallback } from "react";
 import {
   Search,
   X,
@@ -23,18 +23,20 @@ import {
 import { InventoryTabs } from "./inventory-tabs";
 import { InventoryFormModal } from "./inventory-form-modal";
 import { exportInventoryToCsv, downloadCsvTemplate } from "./inventory-csv-export";
-import type { InventoryItem, InventoryCategory } from "@/types";
+import type { InventoryItem, InventoryCategory, InventoryKpiData } from "@/types";
 
 interface InventoryTableProps {
   initialItems: InventoryItem[];
   initialCategory?: string;
-  onRefreshKpis?: () => void;
+  countsByCategory: Record<string, number>;
+  onDataSynced?: (kpis: InventoryKpiData, countsByCategory: Record<string, number>) => void;
 }
 
 export function InventoryTable({
   initialItems,
   initialCategory = "todos",
-  onRefreshKpis,
+  countsByCategory,
+  onDataSynced,
 }: InventoryTableProps) {
   const [items, setItems] = useState<InventoryItem[]>(initialItems);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
@@ -81,12 +83,14 @@ export function InventoryTable({
           showArchived,
         });
         setItems(result.items);
-        if (onRefreshKpis) onRefreshKpis();
+        if (onDataSynced) {
+          onDataSynced(result.kpis, result.countsByCategory);
+        }
       } catch (err) {
         console.error("Error al refrescar inventario:", err);
       }
     });
-  }, [selectedCategory, debouncedSearch, onlyAlerts, showArchived, onRefreshKpis]);
+  }, [selectedCategory, debouncedSearch, onlyAlerts, showArchived, onDataSynced]);
 
   useEffect(() => {
     refreshItems();
@@ -106,7 +110,7 @@ export function InventoryTable({
         setItems((prev) =>
           prev.map((i) => (i.id === item.id ? { ...i, quantity: res.newQuantity! } : i))
         );
-        if (onRefreshKpis) onRefreshKpis();
+        refreshItems();
       } else {
         showToast(res.error || "No se pudo actualizar el stock.");
       }
@@ -140,23 +144,6 @@ export function InventoryTable({
       }
     });
   };
-
-  // Conteo de ítems por categoría
-  const countsByCategory = useMemo(() => {
-    const counts: Record<string, number> = {
-      todos: items.length,
-      material: 0,
-      tela: 0,
-      prenda: 0,
-      otro: 0,
-    };
-    items.forEach((item) => {
-      if (counts[item.category] !== undefined) {
-        counts[item.category]++;
-      }
-    });
-    return counts;
-  }, [items]);
 
   return (
     <div className="space-y-4">

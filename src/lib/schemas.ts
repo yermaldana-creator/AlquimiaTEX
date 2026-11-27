@@ -162,3 +162,31 @@ export const debtPaymentFormSchema = z.object({
 });
 
 export type DebtPaymentFormSchema = z.infer<typeof debtPaymentFormSchema>;
+
+/**
+ * Sub-módulo 6: Finanzas / Caja Diaria y Compras de Insumos
+ */
+export const cashMovementSchema = z.object({
+  account_id: z.string().uuid("Selecciona una cuenta válida"),
+  type: z.enum(["ingreso", "egreso"]),
+  amount: z.number().positive("El monto debe ser mayor a 0"),
+  concept: z
+    .string()
+    .trim()
+    .min(3, "Describe el concepto (mínimo 3 caracteres)")
+    .max(250, "Concepto demasiado largo"),
+  category: z.string().trim().min(2).max(60).default("general"),
+  related_order_id: z.string().uuid().optional().nullable(),
+});
+
+export type CashMovementFormData = z.infer<typeof cashMovementSchema>;
+
+export const inventoryPurchaseSchema = z.object({
+  inventory_item_id: z.string().uuid("Selecciona un ítem del inventario"),
+  quantity: z.number().positive("La cantidad comprada debe ser mayor a 0"),
+  total_cost: z.number().positive("El costo total debe ser mayor a 0"),
+  account_id: z.string().uuid("Selecciona la cuenta con la que se pagó"),
+  notes: z.string().max(400, "Notas demasiado largas").optional().nullable(),
+});
+
+export type InventoryPurchaseFormData = z.infer<typeof inventoryPurchaseSchema>;

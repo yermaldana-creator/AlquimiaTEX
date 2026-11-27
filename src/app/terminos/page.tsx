@@ -84,7 +84,7 @@ export default function TerminosPage() {
               confección textil, con centro de operaciones en La Dolorita, Petare, Municipio Sucre, Caracas, República Bolivariana de Venezuela.
             </p>
             <p className="text-sm text-slate-700">
-              Nuestro servicio comprende la personalización de franelas y camisetas (en telas Microdurazno, Jersey/Algodón, Algodón Peinado y Poliéster Deportivo),
+              Nuestro servicio comprende la personalización de franelas (en telas Microdurazno, Jersey/Algodón, Algodón Peinado y Oversize), tazas, suéteres,
               mousepads de alta densidad antideslizantes, rompecabezas sublimados y artículos promocionales corporativos o personales.
             </p>
           </section>

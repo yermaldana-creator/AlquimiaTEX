@@ -1,11 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Boxes } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { getSessionUser } from "@/actions/auth.actions";
 import { getInventory } from "@/actions/inventory.actions";
-import { InventoryKpis } from "@/components/admin/inventory-kpis";
-import { InventoryTable } from "@/components/admin/inventory-table";
+import { InventoryView } from "@/components/admin/inventory-view";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -21,7 +20,7 @@ export default async function AdminInventarioPage() {
     redirect("/admin/login");
   }
 
-  const { items, kpis } = await getInventory({ category: "todos" });
+  const { items, kpis, countsByCategory } = await getInventory({ category: "todos" });
 
   return (
     <div className="space-y-6">
@@ -52,25 +51,12 @@ export default async function AdminInventarioPage() {
         </div>
       </div>
 
-      {/* BLOQUE 1: KPIs DE INVENTARIO */}
-      <section className="space-y-2">
-        <h2 className="font-oswald text-sm font-black uppercase tracking-wider text-black dark:text-zinc-200">
-          [ 1. Resumen de Existencias & Capital ]
-        </h2>
-        <InventoryKpis kpis={kpis} />
-      </section>
-
-      {/* BLOQUE 2: TABLA INTERACTIVA DE INVENTARIO */}
-      <section className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <h2 className="font-oswald text-sm font-black uppercase tracking-wider text-black dark:text-zinc-200 flex items-center gap-1.5">
-            <Boxes className="h-4 w-4 text-black dark:text-white" />
-            <span>[ 2. Almacén del Taller en Vivo ]</span>
-          </h2>
-        </div>
-
-        <InventoryTable initialItems={items} />
-      </section>
+      {/* BLOQUE UNIFICADO: KPIs + TABLA SINCRONIZADOS EN VIVO */}
+      <InventoryView
+        initialItems={items}
+        initialKpis={kpis}
+        initialCountsByCategory={countsByCategory}
+      />
     </div>
   );
 }

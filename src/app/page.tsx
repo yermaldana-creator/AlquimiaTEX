@@ -94,7 +94,7 @@ export default function HomePage() {
                   Envía directo a WhatsApp
                 </h3>
                 <p className="font-sans text-xs text-slate-600 leading-relaxed">
-                  Elige tu fecha (4 a 7 días hábiles), condición de pago (100% unidad o 50% docena) y abre el chat oficial con el pedido ya redactado.
+                  Elige tu fecha (4 a 7 días hábiles), condición de pago (50% anticipo al detal o 30% al mayor) y abre el chat oficial con el pedido ya redactado.
                 </p>
               </div>
             </div>

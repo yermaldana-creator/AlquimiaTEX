@@ -14,6 +14,7 @@ import type {
 export interface GetInventoryResult {
   items: InventoryItem[];
   kpis: InventoryKpiData;
+  countsByCategory: Record<string, number>;
   totalCount: number;
 }
 
@@ -64,8 +65,6 @@ async function queryInventoryDataDirectly(
 
   const { data, error } = await query;
 
-  console.log("DEBUG INVENTARIO: filas obtenidas =", data?.length, "error =", error);
-
   if (error) {
     console.error("Error al obtener inventario en getInventory:", error.message);
     return {
@@ -75,6 +74,13 @@ async function queryInventoryDataDirectly(
         lowStockAlerts: 0,
         totalFabricMeters: 0,
         totalInventoryValue: 0,
+      },
+      countsByCategory: {
+        todos: 0,
+        material: 0,
+        tela: 0,
+        prenda: 0,
+        otro: 0,
       },
       totalCount: 0,
       error: error.message,
@@ -90,7 +96,7 @@ async function queryInventoryDataDirectly(
     );
   }
 
-  // 2. Consulta paralela o cálculo de KPIs sobre ítems activos (no archivados)
+  // 2. Consulta unificada de KPIs y contadores por categoría sobre ítems activos (no archivados)
   const { data: allActiveItems } = await supabase
     .from("inventory_items")
     .select("category, quantity, min_stock_alert, cost_per_unit")
@@ -99,6 +105,19 @@ async function queryInventoryDataDirectly(
   const active = allActiveItems || [];
 
   const totalItems = active.length;
+  const countsByCategory: Record<string, number> = {
+    todos: totalItems,
+    material: 0,
+    tela: 0,
+    prenda: 0,
+    otro: 0,
+  };
+  active.forEach((item) => {
+    if (item.category && countsByCategory[item.category] !== undefined) {
+      countsByCategory[item.category]++;
+    }
+  });
+
   const lowStockAlerts = active.filter(
     (item) => Number(item.quantity) <= Number(item.min_stock_alert)
   ).length;
@@ -121,6 +140,7 @@ async function queryInventoryDataDirectly(
       totalFabricMeters: Number(totalFabricMeters.toFixed(2)),
       totalInventoryValue: Number(totalInventoryValue.toFixed(2)),
     },
+    countsByCategory,
     totalCount: items.length,
     error: null,
   };
@@ -154,6 +174,7 @@ export async function getInventory(params?: GetInventoryParams): Promise<GetInve
   return {
     items: res.items,
     kpis: res.kpis,
+    countsByCategory: res.countsByCategory,
     totalCount: res.totalCount,
   };
 }

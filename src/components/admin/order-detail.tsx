@@ -19,6 +19,7 @@ import {
   Loader2,
   Eye,
   X,
+  Wallet,
 } from "lucide-react";
 import {
   normalizeOrderStatus,
@@ -27,10 +28,12 @@ import {
   getShirtColorLabel,
   getShirtPlacementSummary,
 } from "@/lib/constants";
+import { getCashAccountsWithBalance } from "@/actions/finance.actions";
 import { OrderStatusBadge } from "./order-status-badge";
 import { OrderStatusSelect } from "./order-status-select";
 import { OrderInventoryPanel } from "./order-inventory-panel";
-import type { AdminOrder, OrderStatus, InventoryItem } from "@/types";
+import { CashMovementModal } from "./finance/cash-movement-modal";
+import type { AdminOrder, OrderStatus, InventoryItem, CashAccount } from "@/types";
 
 interface OrderDetailProps {
   order: AdminOrder;
@@ -92,6 +95,26 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
     filename: string;
     label: string;
   } | null>(null);
+  const [cashAccounts, setCashAccounts] = useState<CashAccount[]>([]);
+  const [isCashModalOpen, setIsCashModalOpen] = useState(false);
+  const [isLoadingAccounts, setIsLoadingAccounts] = useState(false);
+  const [cashSuccessMessage, setCashSuccessMessage] = useState<string | null>(null);
+
+  const openOrderCashModal = async () => {
+    setCashSuccessMessage(null);
+    if (cashAccounts.length === 0) {
+      setIsLoadingAccounts(true);
+      try {
+        const accounts = await getCashAccountsWithBalance();
+        setCashAccounts(accounts);
+      } catch (err) {
+        console.error("Error cargando cuentas de caja:", err);
+      } finally {
+        setIsLoadingAccounts(false);
+      }
+    }
+    setIsCashModalOpen(true);
+  };
 
   const deliveryBadge = getDeliveryBadge(order.delivery_date);
   const waNumber = cleanPhoneForWhatsApp(order.customer_phone);
@@ -318,7 +341,12 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
             <OrderStatusSelect
               orderId={order.id}
               currentStatus={currentStatus}
-              onStatusUpdated={(newStatus) => setCurrentStatus(newStatus)}
+              onStatusUpdated={(newStatus) => {
+                setCurrentStatus(newStatus);
+                if (newStatus === "abono_verificado" || newStatus === "entregado") {
+                  void openOrderCashModal();
+                }
+              }}
             />
           </div>
         </div>
@@ -423,6 +451,28 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
                   </span>
                   <span className="font-bold text-black dark:text-zinc-200">{orderImages.length} archivos</span>
                 </div>
+              </div>
+
+              {/* CONEXIÓN DIRECTA CON CAJA DIARIA / FINANZAS */}
+              <div className="pt-2 space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => void openOrderCashModal()}
+                  disabled={isLoadingAccounts}
+                  className="inline-flex items-center justify-center gap-2 w-full font-mono text-xs font-black uppercase bg-[#FACC15] hover:bg-[#EAB308] text-black border-2 border-black px-3.5 py-2 shadow-[2px_2px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-60"
+                >
+                  {isLoadingAccounts ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Wallet className="h-4 w-4" />
+                  )}
+                  <span>Registrar Ingreso en Caja</span>
+                </button>
+                {cashSuccessMessage && (
+                  <p className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                    ✅ {cashSuccessMessage}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -960,6 +1010,21 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
           </div>
         </div>
       )}
+      {/* MODAL RÁPIDO DE REGISTRO DE INGRESO EN CAJA VINCULADO AL PEDIDO */}
+      <CashMovementModal
+        isOpen={isCashModalOpen}
+        onClose={() => setIsCashModalOpen(false)}
+        accounts={cashAccounts}
+        defaultType="ingreso"
+        defaultCategory="venta_abono"
+        defaultConcept={`Abono/Pago pedido ${order.order_code} — ${order.customer_name}`}
+        relatedOrderId={order.id}
+        title={`Registrar Ingreso — ${order.order_code}`}
+        onSuccess={() => {
+          setCashSuccessMessage("Ingreso registrado en Caja Diaria y vinculado a este pedido.");
+          router.refresh();
+        }}
+      />
     </div>
   );
 }

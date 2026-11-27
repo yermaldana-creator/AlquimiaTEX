@@ -264,3 +264,83 @@ export interface CostsKpiData {
 
 export * from "./debts";
 
+// ----------------------------------------------------------------------
+// SUB-MÓDULO 6: FINANZAS / CAJA DIARIA + COMPRAS DE INSUMOS
+// ----------------------------------------------------------------------
+
+export type CashCurrency = "USD" | "BS" | "USDT";
+export type CashMovementType = "ingreso" | "egreso";
+
+export interface CashAccount {
+  id: string;
+  slug: string;
+  name: string;
+  currency: CashCurrency;
+  initial_balance: number;
+  balance: number;
+  total_in: number;
+  total_out: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface CashMovement {
+  id: string;
+  account_id: string;
+  account_name?: string;
+  type: CashMovementType;
+  amount: number;
+  currency: CashCurrency;
+  concept: string;
+  category: string;
+  related_order_id: string | null;
+  related_purchase_id: string | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface InventoryPurchase {
+  id: string;
+  inventory_item_id: string;
+  inventory_item_name?: string;
+  inventory_item_variant?: string | null;
+  inventory_item_unit?: string;
+  quantity: number;
+  total_cost: number;
+  unit_cost: number;
+  account_id: string;
+  account_name?: string;
+  account_currency?: CashCurrency;
+  notes: string | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface DailyClosingByCurrency {
+  currency: CashCurrency;
+  label: string;
+  totalIn: number;
+  totalOut: number;
+  netBalance: number;
+  movementsCount: number;
+}
+
+export interface FinanceDashboardData {
+  selectedDate: string;
+  accounts: CashAccount[];
+  movements: CashMovement[];
+  dailyMovements: CashMovement[];
+  dailyClosing: DailyClosingByCurrency[];
+  purchases: InventoryPurchase[];
+  inventoryItems: Array<{
+    id: string;
+    name: string;
+    variant: string | null;
+    category: InventoryCategory;
+    unit: string;
+    quantity: number;
+    cost_per_unit: number;
+  }>;
+}
+
+
