@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   Loader2,
   X,
+  Users,
 } from "lucide-react";
 import {
   deleteCashMovement,
@@ -23,6 +24,7 @@ import {
 } from "@/actions/finance.actions";
 import { CashMovementModal } from "./cash-movement-modal";
 import { PurchaseFormModal } from "./purchase-form-modal";
+import { OFFICIAL_PARTNERS, PartnerPayoutModal } from "./partner-payout-modal";
 import type {
   CashCurrency,
   CashMovement,
@@ -59,14 +61,34 @@ function formatDateTime(iso: string): string {
   }
 }
 
+function parsePartnerConcept(concept: string): {
+  partner: string;
+  cleanConcept: string;
+} {
+  const match = concept.match(/^\[([^\]]+)\]\s*(.*)$/);
+  if (match) {
+    return {
+      partner: match[1].trim(),
+      cleanConcept: match[2].trim() || "Pago a socio",
+    };
+  }
+  const lower = concept.toLowerCase();
+  const matchedPartner = OFFICIAL_PARTNERS.find((p) => lower.includes(p.toLowerCase()));
+  return {
+    partner: matchedPartner || "Socio",
+    cleanConcept: concept,
+  };
+}
+
 export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
   const [data, setData] = useState<FinanceDashboardData>(initialData);
-  const [activeTab, setActiveTab] = useState<"caja" | "compras">("caja");
+  const [activeTab, setActiveTab] = useState<"caja" | "compras" | "socios">("caja");
   const [selectedDate, setSelectedDate] = useState<string>(initialData.selectedDate);
   const [accountFilter, setAccountFilter] = useState<string>("todas");
   const [typeFilter, setTypeFilter] = useState<string>("todos");
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
   const [movementToDelete, setMovementToDelete] = useState<CashMovement | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -136,6 +158,29 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
     if (accountFilter !== "todas" && m.account_id !== accountFilter) return false;
     if (typeFilter !== "todos" && m.type !== typeFilter) return false;
     return true;
+  });
+
+  const partnerPayouts = data.movements.filter(
+    (m) => m.category === "pago_socios" && m.type === "egreso"
+  );
+
+  const partnerSummaries = OFFICIAL_PARTNERS.map((partnerName) => {
+    const totals: Record<CashCurrency, number> = { USD: 0, BS: 0, USDT: 0 };
+    let count = 0;
+
+    partnerPayouts.forEach((m) => {
+      const { partner } = parsePartnerConcept(m.concept);
+      if (partner.toLowerCase() === partnerName.toLowerCase()) {
+        totals[m.currency] = Number((totals[m.currency] + m.amount).toFixed(2));
+        count++;
+      }
+    });
+
+    return {
+      partner: partnerName,
+      totals,
+      count,
+    };
   });
 
   const accountTheme = (currency: CashCurrency) => {
@@ -242,6 +287,19 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
             <ShoppingCart className="h-4 w-4" />
             <span>Compras de Insumos ({data.purchases.length})</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("socios")}
+            className={`inline-flex items-center gap-2 px-4 py-2 border-2 border-black dark:border-zinc-700 font-mono text-xs font-black uppercase shrink-0 transition-all ${
+              activeTab === "socios"
+                ? "bg-[#0891B2] text-white shadow-[3px_3px_0px_#0A0A0A] -translate-y-0.5"
+                : "bg-white dark:bg-zinc-900 text-black dark:text-zinc-200 hover:bg-slate-100"
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            <span>Pago a Socios ({partnerPayouts.length})</span>
+          </button>
         </div>
 
         <div className="flex items-center gap-2">
@@ -254,7 +312,7 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
               <Plus className="h-4 w-4" />
               <span>Registrar Movimiento</span>
             </button>
-          ) : (
+          ) : activeTab === "compras" ? (
             <button
               type="button"
               onClick={() => setIsPurchaseModalOpen(true)}
@@ -262,6 +320,15 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
             >
               <Plus className="h-4 w-4" />
               <span>Registrar Compra</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsPartnerModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 border-2 border-black bg-[#FACC15] hover:bg-[#EAB308] text-black font-mono text-xs font-black uppercase shadow-[3px_3px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Registrar Pago a Socio</span>
             </button>
           )}
         </div>
@@ -566,6 +633,144 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
         </div>
       )}
 
+      {/* CONTENIDO PESTAÑA 3: PAGO A SOCIOS */}
+      {activeTab === "socios" && (
+        <div className="space-y-6">
+          {/* RESUMEN POR SOCIO (YAHIR, FERNANDO, ADRIANA) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {partnerSummaries.map((summary) => (
+              <div
+                key={summary.partner}
+                className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 p-4 shadow-[4px_4px_0px_#0A0A0A] dark:shadow-[4px_4px_0px_#000000] space-y-3"
+              >
+                <div className="flex items-center justify-between border-b border-black/15 dark:border-zinc-700 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center bg-[#581C87] text-[#FACC15] border border-black font-oswald font-black text-sm uppercase">
+                      {summary.partner[0]}
+                    </span>
+                    <h3 className="font-oswald text-lg font-black uppercase text-black dark:text-white">
+                      {summary.partner}
+                    </h3>
+                  </div>
+                  <span className="font-mono text-[10px] font-bold uppercase bg-[#F8F5EE] dark:bg-zinc-900 border border-black dark:border-zinc-700 px-2 py-0.5 text-slate-700 dark:text-zinc-300">
+                    {summary.count} {summary.count === 1 ? "pago" : "pagos"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 font-mono text-[11px]">
+                  <div className="bg-[#DCFCE7] dark:bg-emerald-950/30 border border-black/20 dark:border-emerald-800/60 p-2">
+                    <span className="block text-[9px] uppercase text-slate-600 dark:text-zinc-400">
+                      USD
+                    </span>
+                    <strong className="text-emerald-900 dark:text-emerald-300 text-xs">
+                      {formatMoney(summary.totals.USD, "USD")}
+                    </strong>
+                  </div>
+                  <div className="bg-[#CFFAFE] dark:bg-cyan-950/30 border border-black/20 dark:border-cyan-800/60 p-2">
+                    <span className="block text-[9px] uppercase text-slate-600 dark:text-zinc-400">
+                      BS
+                    </span>
+                    <strong className="text-cyan-950 dark:text-cyan-300 text-xs break-all">
+                      {formatMoney(summary.totals.BS, "BS")}
+                    </strong>
+                  </div>
+                  <div className="bg-[#FEF9C3] dark:bg-amber-950/30 border border-black/20 dark:border-amber-800/60 p-2">
+                    <span className="block text-[9px] uppercase text-slate-600 dark:text-zinc-400">
+                      USDT
+                    </span>
+                    <strong className="text-amber-950 dark:text-amber-300 text-xs">
+                      {formatMoney(summary.totals.USDT, "USDT")}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* HISTORIAL DE PAGOS A SOCIOS */}
+          <div className="bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[4px_4px_0px_#0A0A0A] dark:shadow-[4px_4px_0px_#000000] overflow-hidden">
+            <div className="p-4 border-b-2 border-black dark:border-zinc-700 bg-[#F8F5EE] dark:bg-zinc-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="font-oswald text-base font-black uppercase text-black dark:text-white">
+                  Historial de Pagos a Socios ({partnerPayouts.length})
+                </h3>
+                <p className="font-mono text-[11px] text-slate-600 dark:text-zinc-400">
+                  Cada pago se descuenta en vivo de la cuenta de origen y se refleja en el Cierre del Día.
+                </p>
+              </div>
+            </div>
+
+            {partnerPayouts.length === 0 ? (
+              <div className="p-8 text-center font-mono text-xs text-slate-500 dark:text-zinc-400">
+                Aún no hay pagos a socios registrados. Usa <strong>+ Registrar Pago a Socio</strong> para anotar un reparto o adelanto.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse font-mono text-xs">
+                  <thead>
+                    <tr className="bg-black text-[#FACC15] uppercase text-[10px]">
+                      <th className="p-3">Fecha</th>
+                      <th className="p-3">Socio Beneficiario</th>
+                      <th className="p-3">Cuenta</th>
+                      <th className="p-3">Concepto</th>
+                      <th className="p-3 text-right">Monto</th>
+                      <th className="p-3">Registrado por</th>
+                      <th className="p-3 text-center">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black/15 dark:divide-zinc-800">
+                    {partnerPayouts.map((m) => {
+                      const { partner, cleanConcept } = parsePartnerConcept(m.concept);
+                      return (
+                        <tr
+                          key={m.id}
+                          className="hover:bg-[#F8F5EE]/70 dark:hover:bg-zinc-900/60 transition-colors"
+                        >
+                          <td className="p-3 whitespace-nowrap text-[11px] text-slate-600 dark:text-zinc-400">
+                            {formatDateTime(m.created_at)}
+                          </td>
+                          <td className="p-3 whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1 bg-[#F3E8FF] dark:bg-purple-950/60 text-[#581C87] dark:text-purple-200 border border-black dark:border-purple-700 px-2 py-0.5 text-[11px] font-black uppercase">
+                              {partner}
+                            </span>
+                          </td>
+                          <td className="p-3 whitespace-nowrap font-bold text-black dark:text-zinc-200">
+                            {m.account_name}
+                          </td>
+                          <td className="p-3 text-black dark:text-zinc-100">
+                            {cleanConcept}
+                          </td>
+                          <td className="p-3 text-right whitespace-nowrap font-black text-rose-700 dark:text-rose-400">
+                            -{formatMoney(m.amount, m.currency)}
+                          </td>
+                          <td className="p-3 text-[11px] text-slate-600 dark:text-zinc-400 whitespace-nowrap">
+                            {m.created_by.split("@")[0]}
+                          </td>
+                          <td className="p-3 text-center whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteError(null);
+                                setMovementToDelete(m);
+                              }}
+                              className="inline-flex items-center justify-center p-1.5 border-2 border-black dark:border-zinc-700 bg-rose-600 hover:bg-rose-700 text-white shadow-[1.5px_1.5px_0px_#0A0A0A] transition-all"
+                              title="Eliminar pago y devolver monto a caja"
+                              aria-label={`Eliminar pago a ${partner}`}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* MODALES */}
       <CashMovementModal
         isOpen={isMovementModalOpen}
@@ -579,6 +784,13 @@ export function FinanceDashboard({ initialData }: FinanceDashboardProps) {
         onClose={() => setIsPurchaseModalOpen(false)}
         accounts={data.accounts}
         inventoryItems={data.inventoryItems}
+        onSuccess={() => reloadData()}
+      />
+
+      <PartnerPayoutModal
+        isOpen={isPartnerModalOpen}
+        onClose={() => setIsPartnerModalOpen(false)}
+        accounts={data.accounts}
         onSuccess={() => reloadData()}
       />
 
