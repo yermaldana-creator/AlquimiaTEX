@@ -406,3 +406,45 @@ export async function updateOrderStatus(
     return { success: false, error: "Ocurrió un error inesperado al actualizar el estado." };
   }
 }
+
+/**
+ * Elimina un pedido (de prueba o cancelado) de public.orders de forma segura.
+ * Protegido con getSessionUser() (whitelist exclusiva de los 3 socios).
+ * cash_movements.related_order_id tiene ON DELETE SET NULL, por lo que no rompe Finanzas.
+ */
+export async function deleteOrderAction(
+  orderId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      return { success: false, error: "No autorizado. Inicia sesión como socio." };
+    }
+
+    const cleanId = orderId?.trim();
+    if (
+      !cleanId ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId)
+    ) {
+      return { success: false, error: "ID de pedido no válido." };
+    }
+
+    const supabase = getSupabaseQueryClient();
+    const { error } = await supabase.from("orders").delete().eq("id", cleanId);
+
+    if (error) {
+      console.error("Error al eliminar pedido en Supabase:", error.message);
+      return { success: false, error: "No se pudo eliminar el pedido en el servidor." };
+    }
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/pedidos");
+    revalidatePath("/admin/finanzas");
+    revalidateTag("admin-orders");
+
+    return { success: true };
+  } catch (err: unknown) {
+    console.error("Error inesperado en deleteOrderAction:", err);
+    return { success: false, error: "Ocurrió un error inesperado al eliminar el pedido." };
+  }
+}

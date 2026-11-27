@@ -20,6 +20,8 @@ import {
   Eye,
   X,
   Wallet,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import {
   normalizeOrderStatus,
@@ -29,6 +31,7 @@ import {
   getShirtPlacementSummary,
 } from "@/lib/constants";
 import { getCashAccountsWithBalance } from "@/actions/finance.actions";
+import { deleteOrderAction } from "@/actions/orders.actions";
 import { OrderStatusBadge } from "./order-status-badge";
 import { OrderStatusSelect } from "./order-status-select";
 import { OrderInventoryPanel } from "./order-inventory-panel";
@@ -99,6 +102,27 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
   const [isCashModalOpen, setIsCashModalOpen] = useState(false);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(false);
   const [cashSuccessMessage, setCashSuccessMessage] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeletingOrder, setIsDeletingOrder] = useState(false);
+  const [deleteOrderError, setDeleteOrderError] = useState<string | null>(null);
+
+  const handleConfirmDeleteThisOrder = async () => {
+    setIsDeletingOrder(true);
+    setDeleteOrderError(null);
+    try {
+      const res = await deleteOrderAction(order.id);
+      if (!res.success) {
+        setDeleteOrderError(res.error || "No se pudo eliminar el pedido.");
+        return;
+      }
+      router.push("/admin/pedidos");
+      router.refresh();
+    } catch {
+      setDeleteOrderError("Error inesperado al eliminar el pedido.");
+    } finally {
+      setIsDeletingOrder(false);
+    }
+  };
 
   const openOrderCashModal = async () => {
     setCashSuccessMessage(null);
@@ -282,7 +306,7 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
           <span>Volver a la Lista</span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {orderImages.length > 0 && (
             <button
               onClick={handleDownloadAllZip}
@@ -303,6 +327,19 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
               )}
             </button>
           )}
+
+          <button
+            type="button"
+            onClick={() => {
+              setDeleteOrderError(null);
+              setIsDeleteModalOpen(true);
+            }}
+            className="inline-flex items-center gap-1.5 font-mono text-xs font-black uppercase bg-rose-600 hover:bg-rose-700 text-white border-2 border-black px-3 py-1.5 shadow-[3px_3px_0px_#0A0A0A] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+            title="Eliminar pedido"
+          >
+            <Trash2 className="h-4 w-4" />
+            <span>Eliminar Pedido</span>
+          </button>
         </div>
       </div>
 
@@ -1025,6 +1062,81 @@ export function OrderDetail({ order, inventoryItems = [] }: OrderDetailProps) {
           router.refresh();
         }}
       />
+
+      {/* MODAL DE CONFIRMACIÓN PARA ELIMINAR ESTE PEDIDO */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] overflow-hidden">
+            <div className="flex items-center justify-between bg-[#FFE4E6] dark:bg-rose-950/60 border-b-2 border-black dark:border-zinc-700 px-4 py-3">
+              <div className="flex items-center gap-2 text-rose-900 dark:text-rose-200">
+                <AlertTriangle className="h-5 w-5 shrink-0" />
+                <h3 className="font-oswald text-lg font-black uppercase">
+                  Eliminar Pedido
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => !isDeletingOrder && setIsDeleteModalOpen(false)}
+                className="p-1 text-rose-900 dark:text-rose-200 hover:opacity-75"
+                aria-label="Cerrar confirmación"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4 font-mono text-xs">
+              <p className="text-slate-700 dark:text-zinc-300">
+                Esta acción eliminará permanentemente este pedido de la base de datos. Úsala solo para pedidos de prueba o cancelados.
+              </p>
+
+              <div className="bg-[#F8F5EE] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 p-3 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] uppercase text-slate-500">Código:</span>
+                  <span className="bg-[#FACC15] text-black font-black px-2 py-0.5 border border-black">
+                    {order.order_code}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] uppercase text-slate-500">Cliente:</span>
+                  <strong className="text-black dark:text-white text-right">
+                    {order.customer_name}
+                  </strong>
+                </div>
+              </div>
+
+              {deleteOrderError && (
+                <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-600 text-rose-700 dark:text-rose-300 font-bold">
+                  {deleteOrderError}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/15 dark:border-zinc-700">
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  disabled={isDeletingOrder}
+                  className="px-3.5 py-2 border-2 border-black dark:border-zinc-700 bg-white dark:bg-zinc-800 font-bold uppercase text-black dark:text-white"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleConfirmDeleteThisOrder()}
+                  disabled={isDeletingOrder}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 border-2 border-black bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-[2.5px_2.5px_0px_#0A0A0A] disabled:opacity-60"
+                >
+                  {isDeletingOrder ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                  )}
+                  <span>Sí, Eliminar Pedido</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

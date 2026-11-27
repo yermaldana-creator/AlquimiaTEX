@@ -14,9 +14,12 @@ import {
   ChevronRight,
   Eye,
   RefreshCw,
+  Trash2,
+  AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { ORDER_STATUS_CONFIG, ORDER_STATUSES, normalizeOrderStatus } from "@/lib/constants";
-import { getOrders } from "@/actions/orders.actions";
+import { deleteOrderAction, getOrders } from "@/actions/orders.actions";
 import { OrderStatusSelect } from "./order-status-select";
 import type { AdminOrder, OrderStatus } from "@/types";
 
@@ -79,7 +82,33 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
   const [selectedStatus, setSelectedStatus] = useState<string>("todos");
   const [searchInput, setSearchInput] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [orderToDelete, setOrderToDelete] = useState<AdminOrder | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  const handleConfirmDeleteOrder = async () => {
+    if (!orderToDelete) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const res = await deleteOrderAction(orderToDelete.id);
+      if (!res.success) {
+        setDeleteError(res.error || "No se pudo eliminar el pedido.");
+        return;
+      }
+
+      setOrders((prev) => prev.filter((o) => o.id !== orderToDelete.id));
+      setTotalCount((prev) => Math.max(0, prev - 1));
+      setOrderToDelete(null);
+      router.refresh();
+    } catch {
+      setDeleteError("Ocurrió un error inesperado al eliminar el pedido.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // 1. Debounce de 300ms en el buscador antes de disparar la consulta a Supabase
   useEffect(() => {
@@ -432,7 +461,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                                 : "bg-white dark:bg-zinc-800 text-black dark:text-zinc-200"
                             }`}
                           >
-                            {isDocena ? "Docena (50% Abono)" : "Al Detal (100%)"}
+                            {isDocena ? "Docena (30% Anticipo)" : "Al Detal (50% Anticipo)"}
                           </span>
                           <div className="font-mono text-[11px] text-slate-600 dark:text-zinc-400 uppercase">
                             {order.payment_method || "No especificado"}
@@ -454,19 +483,33 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                           />
                         </td>
 
-                        {/* ACCIÓN (VER FICHA) */}
+                        {/* ACCIÓN (VER FICHA + ELIMINAR) */}
                         <td
                           className="p-3 align-top text-center"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <Link
-                            href={`/admin/pedidos/${order.id}`}
-                            className="inline-flex items-center gap-1 font-mono text-xs font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 px-2.5 py-1 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] hover:bg-[#FACC15] dark:hover:bg-[#FACC15] dark:hover:text-black transition-all hover:translate-x-0.5 hover:translate-y-0.5"
-                            title="Ver ficha técnica detallada"
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                            <span>Ver</span>
-                          </Link>
+                          <div className="inline-flex items-center gap-1.5">
+                            <Link
+                              href={`/admin/pedidos/${order.id}`}
+                              className="inline-flex items-center gap-1 font-mono text-xs font-bold uppercase bg-white dark:bg-zinc-800 text-black dark:text-white border-2 border-black dark:border-zinc-700 px-2.5 py-1 shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] hover:bg-[#FACC15] dark:hover:bg-[#FACC15] dark:hover:text-black transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+                              title="Ver ficha técnica detallada"
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                              <span>Ver</span>
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeleteError(null);
+                                setOrderToDelete(order);
+                              }}
+                              className="inline-flex items-center justify-center p-1.5 border-2 border-black dark:border-zinc-700 bg-rose-600 hover:bg-rose-700 text-white shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] transition-all hover:translate-x-0.5 hover:translate-y-0.5"
+                              title="Eliminar pedido"
+                              aria-label={`Eliminar pedido ${order.order_code}`}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -500,14 +543,28 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                         <ExternalLink className="h-3 w-3" />
                       </Link>
 
-                      <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400">
-                        {order.created_at
-                          ? new Date(order.created_at).toLocaleDateString("es-VE", {
-                              day: "2-digit",
-                              month: "short",
-                            })
-                          : ""}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400">
+                          {order.created_at
+                            ? new Date(order.created_at).toLocaleDateString("es-VE", {
+                                day: "2-digit",
+                                month: "short",
+                              })
+                            : ""}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDeleteError(null);
+                            setOrderToDelete(order);
+                          }}
+                          className="inline-flex items-center justify-center p-1 border-2 border-black dark:border-zinc-700 bg-rose-600 hover:bg-rose-700 text-white shadow-[1.5px_1.5px_0px_#0A0A0A]"
+                          title="Eliminar pedido"
+                          aria-label={`Eliminar pedido ${order.order_code}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="flex items-start justify-between gap-2">
@@ -540,7 +597,7 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
                         </span>
                       </div>
                       <div className="text-[11px] text-slate-600 dark:text-zinc-400">
-                        {order.items?.map((item) => `${item.quantity}x ${item.product}`).join(", ")}
+                        {order.items?.map((item) => `${item.quantity}x ${item.product === "camisa" ? "Franela" : item.product}`).join(", ")}
                       </div>
                     </div>
 
@@ -608,6 +665,81 @@ export function OrdersList({ initialOrders, initialTotalCount }: OrdersListProps
           </div>
         </div>
       </div>
+
+      {/* MODAL DE CONFIRMACIÓN PARA ELIMINAR PEDIDO */}
+      {orderToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md bg-white dark:bg-[#1E1E1E] border-2 border-black dark:border-zinc-700 shadow-[6px_6px_0px_#0A0A0A] dark:shadow-[6px_6px_0px_#000000] overflow-hidden">
+            <div className="flex items-center justify-between bg-[#FFE4E6] dark:bg-rose-950/60 border-b-2 border-black dark:border-zinc-700 px-4 py-3">
+              <div className="flex items-center gap-2 text-rose-900 dark:text-rose-200">
+                <AlertTriangle className="h-5 w-5 shrink-0" />
+                <h3 className="font-oswald text-lg font-black uppercase">
+                  Eliminar Pedido
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => !isDeleting && setOrderToDelete(null)}
+                className="p-1 text-rose-900 dark:text-rose-200 hover:opacity-75"
+                aria-label="Cerrar confirmación"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4 font-mono text-xs">
+              <p className="text-slate-700 dark:text-zinc-300">
+                Esta acción eliminará permanentemente el pedido de la base de datos. Úsala solo para pedidos de prueba o cancelados.
+              </p>
+
+              <div className="bg-[#F8F5EE] dark:bg-zinc-900 border-2 border-black dark:border-zinc-700 p-3 space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] uppercase text-slate-500">Código:</span>
+                  <span className="bg-[#FACC15] text-black font-black px-2 py-0.5 border border-black">
+                    {orderToDelete.order_code}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] uppercase text-slate-500">Cliente:</span>
+                  <strong className="text-black dark:text-white text-right">
+                    {orderToDelete.customer_name}
+                  </strong>
+                </div>
+              </div>
+
+              {deleteError && (
+                <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-600 text-rose-700 dark:text-rose-300 font-bold">
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-black/15 dark:border-zinc-700">
+                <button
+                  type="button"
+                  onClick={() => setOrderToDelete(null)}
+                  disabled={isDeleting}
+                  className="px-3.5 py-2 border-2 border-black dark:border-zinc-700 bg-white dark:bg-zinc-800 font-bold uppercase text-black dark:text-white"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleConfirmDeleteOrder()}
+                  disabled={isDeleting}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 border-2 border-black bg-rose-600 hover:bg-rose-700 text-white font-black uppercase shadow-[2.5px_2.5px_0px_#0A0A0A] disabled:opacity-60"
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                  )}
+                  <span>Sí, Eliminar Pedido</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
